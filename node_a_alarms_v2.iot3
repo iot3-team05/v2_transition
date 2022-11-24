@@ -1,0 +1,3798 @@
+iot3: 2.0.0
+info:
+  name: '[Compact] Commscope Node A'
+  oem: Commscope
+  model: Node A
+  versions:
+    - "2.0"
+  author: Fatema Nevtiwala <support@qeleo.com>
+  stage: alpha
+  revision: 2
+  labels:
+    - compact
+    - commscope
+    - node a
+    - auto upgraded to v2
+  created: "2022-06-17"
+  updated: "2022-11-23"
+  documentation:
+    description: This IoT3 file supports the alarms of Commscope Node A systems.
+registration:
+  vaultId: vault_id
+  fingerprint:
+    - ip
+    - port
+    - vault_id
+  vault:
+    properties:
+      password:
+        key: password
+        placeholder: Password
+        required: true
+        title: Password
+        type: string
+      username:
+        key: username
+        placeholder: Username
+        required: true
+        title: Username
+        type: string
+    required:
+      - username
+      - password
+  form:
+    properties:
+      ip:
+        key: ip
+        placeholder: IP Address
+        required: true
+        title: IP
+        type: string
+      port:
+        inputType: number
+        key: port
+        maximum: 65535
+        minimum: 0
+        placeholder: Port
+        required: true
+        title: Port
+        type: number
+      vault_id:
+        key: vault_id
+        pattern: ^(cu\w{6})(-av\w{6})$
+        placeholder: Vault ID
+        required: true
+        title: Vault ID
+        type: string
+    required:
+      - ip
+      - port
+      - vault_id
+engines:
+  tunnel:
+    ssh:
+      supported: false
+    http:
+      supported: true
+  upgraded-http:
+    schedule: '@always'
+    auth: '%{resources.auths.upgraded-http}'
+    type: HTTP
+    options:
+      tls:
+        minVersion: "1.0"
+topology:
+  rootType: system
+  nodes: true
+  discovery:
+    dataEngine: '%{engines.upgraded-http}'
+    dataSource: '%{resources.http.requests.get_summary}'
+    type: http
+    selectors:
+      nodes:
+        dataEngine: '%{engines.upgraded-http}'
+        selector:
+          type:  xpath
+          expression: //h3[text() = "Slot Status"]/following-sibling::table[1]/tbody/tr[boolean(td[1]/h5)]
+        extractor:
+          filters:
+            1: wrap <tr> </tr>
+            2: wrap <table> </table>
+    flatten:
+      type:
+        transform: ${topology.discovery.selectors.nodes}
+        filters:
+          1: xpath //td[1]/h5/text()
+          2: regexpExtract /^\d/ => $0
+          3: use ${0}
+          4: xpath //td[4]/h5/text()
+          5: |
+            switch
+            "%{4}" == "Disabled" : "0"
+            default: "%{2}"
+        mapper: '%{resources.mappers.type}'
+      topology:
+        transform: ${topology.discovery.selectors.nodes}
+        filters:
+          1: xpath //td[1]/h5/text()
+          2: regexpExtract /^\d/ => $0
+          3: use ${0}
+          4: xpath //td[4]/h5/text()
+          5: |
+            switch
+            "%{4}" == "Disabled" : "0"
+            default: "%{2}"
+          6: mapper %{resources.mappers.type}
+      version:
+        transform: "1.0"
+      slot:
+        transform: ${topology.discovery.selectors.nodes}
+        filters:
+          1: xpath //td[1]/h5/text()
+          2: regexpExtract /^\d/ => $0
+types:
+  slot1:
+    name: Slot 1
+    version: '[0.1,)'
+    reference: slot1
+    attributes:
+      - slot1_dcm_a_alarm_status
+      - slot1_dcm_a_alarm_count
+      - slot1_communication_alarm_status
+      - slot1_communication_alarm_count
+      - slot1_hw_failure_alarm_status
+      - slot1_hw_failure_alarm_count
+      - slot1_temperature_alarm_status
+      - slot1_temperature_alarm_count
+      - slot1_incompatibility_alarm_status
+      - slot1_incompatibility_alarm_count
+      - slot1_dl_rssi_alarm_status
+      - slot1_dl_rssi_alarm_count
+      - slot1_ul_rssi_alarm_status
+      - slot1_ul_rssi_alarm_count
+      - slot1_dl_interference_alarm_status
+      - slot1_dl_interference_alarm_count
+      - slot1_ul_interference_alarm_status
+      - slot1_ul_interference_alarm_count
+      - slot1_group_1_dl_alc_alarm_status
+      - slot1_group_1_dl_alc_alarm_count
+      - slot1_group_1_ul_alc_alarm_status
+      - slot1_group_1_ul_alc_alarm_count
+      - slot1_group_1_dl_low_power_alarm_status
+      - slot1_group_1_dl_low_power_alarm_count
+      - slot1_group_1_dl_isolation_alarm_status
+      - slot1_group_1_dl_isolation_alarm_count
+      - slot1_group_1_ul_isolation_alarm_status
+      - slot1_group_1_ul_isolation_alarm_count
+      - slot1_group_2_dl_alc_alarm_status
+      - slot1_group_2_dl_alc_alarm_count
+      - slot1_group_2_ul_alc_alarm_status
+      - slot1_group_2_ul_alc_alarm_count
+      - slot1_group_2_dl_low_power_alarm_status
+      - slot1_group_2_dl_low_power_alarm_count
+      - slot1_group_2_dl_isolation_alarm_status
+      - slot1_group_2_dl_isolation_alarm_count
+      - slot1_group_2_ul_isolation_alarm_status
+      - slot1_group_2_ul_isolation_alarm_count
+    alarms:
+      slot1_communication_alarm:
+        attributes:
+          - slot1_communication_alarm_status
+        mapper: '%{resources.mappers.alarm_severity}'
+      slot1_dcm_a_alarm:
+        attributes:
+          - slot1_dcm_a_alarm_status
+        mapper: '%{resources.mappers.alarm_severity}'
+      slot1_dl_interference_alarm:
+        attributes:
+          - slot1_dl_interference_alarm_status
+        mapper: '%{resources.mappers.alarm_severity}'
+      slot1_dl_rssi_alarm:
+        attributes:
+          - slot1_dl_rssi_alarm_status
+        mapper: '%{resources.mappers.alarm_severity}'
+      slot1_group_1_dl_alc_alarm:
+        attributes:
+          - slot1_group_1_dl_alc_alarm_status
+        mapper: '%{resources.mappers.alarm_severity}'
+      slot1_group_1_dl_isolation_alarm:
+        attributes:
+          - slot1_group_1_dl_isolation_alarm_status
+        mapper: '%{resources.mappers.alarm_severity}'
+      slot1_group_1_dl_low_power_alarm:
+        attributes:
+          - slot1_group_1_dl_low_power_alarm_status
+        mapper: '%{resources.mappers.alarm_severity}'
+      slot1_group_1_ul_alc_alarm:
+        attributes:
+          - slot1_group_1_ul_alc_alarm_status
+        mapper: '%{resources.mappers.alarm_severity}'
+      slot1_group_1_ul_isolation_alarm:
+        attributes:
+          - slot1_group_1_ul_isolation_alarm_status
+        mapper: '%{resources.mappers.alarm_severity}'
+      slot1_group_2_dl_alc_alarm:
+        attributes:
+          - slot1_group_2_dl_alc_alarm_status
+        mapper: '%{resources.mappers.alarm_severity}'
+      slot1_group_2_dl_isolation_alarm:
+        attributes:
+          - slot1_group_2_dl_isolation_alarm_status
+        mapper: '%{resources.mappers.alarm_severity}'
+      slot1_group_2_dl_low_power_alarm:
+        attributes:
+          - slot1_group_2_dl_low_power_alarm_status
+        mapper: '%{resources.mappers.alarm_severity}'
+      slot1_group_2_ul_alc_alarm:
+        attributes:
+          - slot1_group_2_ul_alc_alarm_status
+        mapper: '%{resources.mappers.alarm_severity}'
+      slot1_group_2_ul_isolation_alarm:
+        attributes:
+          - slot1_group_2_ul_isolation_alarm_status
+        mapper: '%{resources.mappers.alarm_severity}'
+      slot1_hw_failure_alarm:
+        attributes:
+          - slot1_hw_failure_alarm_status
+        mapper: '%{resources.mappers.alarm_severity}'
+      slot1_incompatibility_alarm:
+        attributes:
+          - slot1_incompatibility_alarm_status
+        mapper: '%{resources.mappers.alarm_severity}'
+      slot1_temperature_alarm:
+        attributes:
+          - slot1_temperature_alarm_status
+        mapper: '%{resources.mappers.alarm_severity}'
+      slot1_ul_interference_alarm:
+        attributes:
+          - slot1_ul_interference_alarm_status
+        mapper: '%{resources.mappers.alarm_severity}'
+      slot1_ul_rssi_alarm:
+        attributes:
+          - slot1_ul_rssi_alarm_status
+        mapper: '%{resources.mappers.alarm_severity}'
+    price:
+      value: 0
+      unit: USD
+    energy:
+      value: 0
+      unit: W
+  slot2:
+    name: Slot 2
+    version: '[0.1,)'
+    reference: slot2
+    attributes:
+      - slot2_dcm_a_alarm_status
+      - slot2_dcm_a_alarm_count
+      - slot2_communication_alarm_status
+      - slot2_communication_alarm_count
+      - slot2_hw_failure_alarm_status
+      - slot2_hw_failure_alarm_count
+      - slot2_temperature_alarm_status
+      - slot2_temperature_alarm_count
+      - slot2_incompatibility_alarm_status
+      - slot2_incompatibility_alarm_count
+      - slot2_dl_rssi_alarm_status
+      - slot2_dl_rssi_alarm_count
+      - slot2_ul_rssi_alarm_status
+      - slot2_ul_rssi_alarm_count
+      - slot2_dl_interference_alarm_status
+      - slot2_dl_interference_alarm_count
+      - slot2_ul_interference_alarm_status
+      - slot2_ul_interference_alarm_count
+      - slot2_group_1_dl_alc_alarm_status
+      - slot2_group_1_dl_alc_alarm_count
+      - slot2_group_1_ul_alc_alarm_status
+      - slot2_group_1_ul_alc_alarm_count
+      - slot2_group_1_dl_low_power_alarm_status
+      - slot2_group_1_dl_low_power_alarm_count
+      - slot2_group_1_dl_isolation_alarm_status
+      - slot2_group_1_dl_isolation_alarm_count
+      - slot2_group_1_ul_isolation_alarm_status
+      - slot2_group_1_ul_isolation_alarm_count
+      - slot2_group_2_dl_alc_alarm_status
+      - slot2_group_2_dl_alc_alarm_count
+      - slot2_group_2_ul_alc_alarm_status
+      - slot2_group_2_ul_alc_alarm_count
+      - slot2_group_2_dl_low_power_alarm_status
+      - slot2_group_2_dl_low_power_alarm_count
+      - slot2_group_2_dl_isolation_alarm_status
+      - slot2_group_2_dl_isolation_alarm_count
+      - slot2_group_2_ul_isolation_alarm_status
+      - slot2_group_2_ul_isolation_alarm_count
+    alarms:
+      slot2_communication_alarm:
+        attributes:
+          - slot2_communication_alarm_status
+        mapper: '%{resources.mappers.alarm_severity}'
+      slot2_dcm_a_alarm:
+        attributes:
+          - slot2_dcm_a_alarm_status
+        mapper: '%{resources.mappers.alarm_severity}'
+      slot2_dl_interference_alarm:
+        attributes:
+          - slot2_dl_interference_alarm_status
+        mapper: '%{resources.mappers.alarm_severity}'
+      slot2_dl_rssi_alarm:
+        attributes:
+          - slot2_dl_rssi_alarm_status
+        mapper: '%{resources.mappers.alarm_severity}'
+      slot2_group_1_dl_alc_alarm:
+        attributes:
+          - slot2_group_1_dl_alc_alarm_status
+        mapper: '%{resources.mappers.alarm_severity}'
+      slot2_group_1_dl_isolation_alarm:
+        attributes:
+          - slot2_group_1_dl_isolation_alarm_status
+        mapper: '%{resources.mappers.alarm_severity}'
+      slot2_group_1_dl_low_power_alarm:
+        attributes:
+          - slot2_group_1_dl_low_power_alarm_status
+        mapper: '%{resources.mappers.alarm_severity}'
+      slot2_group_1_ul_alc_alarm:
+        attributes:
+          - slot2_group_1_ul_alc_alarm_status
+        mapper: '%{resources.mappers.alarm_severity}'
+      slot2_group_1_ul_isolation_alarm:
+        attributes:
+          - slot2_group_1_ul_isolation_alarm_status
+        mapper: '%{resources.mappers.alarm_severity}'
+      slot2_group_2_dl_alc_alarm:
+        attributes:
+          - slot2_group_2_dl_alc_alarm_status
+        mapper: '%{resources.mappers.alarm_severity}'
+      slot2_group_2_dl_isolation_alarm:
+        attributes:
+          - slot2_group_2_dl_isolation_alarm_status
+        mapper: '%{resources.mappers.alarm_severity}'
+      slot2_group_2_dl_low_power_alarm:
+        attributes:
+          - slot2_group_2_dl_low_power_alarm_status
+        mapper: '%{resources.mappers.alarm_severity}'
+      slot2_group_2_ul_alc_alarm:
+        attributes:
+          - slot2_group_2_ul_alc_alarm_status
+        mapper: '%{resources.mappers.alarm_severity}'
+      slot2_group_2_ul_isolation_alarm:
+        attributes:
+          - slot2_group_2_ul_isolation_alarm_status
+        mapper: '%{resources.mappers.alarm_severity}'
+      slot2_hw_failure_alarm:
+        attributes:
+          - slot2_hw_failure_alarm_status
+        mapper: '%{resources.mappers.alarm_severity}'
+      slot2_incompatibility_alarm:
+        attributes:
+          - slot2_incompatibility_alarm_status
+        mapper: '%{resources.mappers.alarm_severity}'
+      slot2_temperature_alarm:
+        attributes:
+          - slot2_temperature_alarm_status
+        mapper: '%{resources.mappers.alarm_severity}'
+      slot2_ul_interference_alarm:
+        attributes:
+          - slot2_ul_interference_alarm_status
+        mapper: '%{resources.mappers.alarm_severity}'
+      slot2_ul_rssi_alarm:
+        attributes:
+          - slot2_ul_rssi_alarm_status
+        mapper: '%{resources.mappers.alarm_severity}'
+    price:
+      value: 0
+      unit: USD
+    energy:
+      value: 0
+      unit: W
+  slot3:
+    name: Slot 3
+    version: '[0.1,)'
+    reference: slot3
+    attributes:
+      - slot3_dcm_a_alarm_status
+      - slot3_dcm_a_alarm_count
+      - slot3_communication_alarm_status
+      - slot3_communication_alarm_count
+      - slot3_hw_failure_alarm_status
+      - slot3_hw_failure_alarm_count
+      - slot3_temperature_alarm_status
+      - slot3_temperature_alarm_count
+      - slot3_incompatibility_alarm_status
+      - slot3_incompatibility_alarm_count
+      - slot3_dl_rssi_alarm_status
+      - slot3_dl_rssi_alarm_count
+      - slot3_ul_rssi_alarm_status
+      - slot3_ul_rssi_alarm_count
+      - slot3_dl_interference_alarm_status
+      - slot3_dl_interference_alarm_count
+      - slot3_ul_interference_alarm_status
+      - slot3_ul_interference_alarm_count
+      - slot3_group_1_dl_alc_alarm_status
+      - slot3_group_1_dl_alc_alarm_count
+      - slot3_group_1_ul_alc_alarm_status
+      - slot3_group_1_ul_alc_alarm_count
+      - slot3_group_1_dl_low_power_alarm_status
+      - slot3_group_1_dl_low_power_alarm_count
+      - slot3_group_1_dl_isolation_alarm_status
+      - slot3_group_1_dl_isolation_alarm_count
+      - slot3_group_1_ul_isolation_alarm_status
+      - slot3_group_1_ul_isolation_alarm_count
+      - slot3_group_2_dl_alc_alarm_status
+      - slot3_group_2_dl_alc_alarm_count
+      - slot3_group_2_ul_alc_alarm_status
+      - slot3_group_2_ul_alc_alarm_count
+      - slot3_group_2_dl_low_power_alarm_status
+      - slot3_group_2_dl_low_power_alarm_count
+      - slot3_group_2_dl_isolation_alarm_status
+      - slot3_group_2_dl_isolation_alarm_count
+      - slot3_group_2_ul_isolation_alarm_status
+      - slot3_group_2_ul_isolation_alarm_count
+    alarms:
+      slot3_communication_alarm:
+        attributes:
+          - slot3_communication_alarm_status
+        mapper: '%{resources.mappers.alarm_severity}'
+      slot3_dcm_a_alarm:
+        attributes:
+          - slot3_dcm_a_alarm_status
+        mapper: '%{resources.mappers.alarm_severity}'
+      slot3_dl_interference_alarm:
+        attributes:
+          - slot3_dl_interference_alarm_status
+        mapper: '%{resources.mappers.alarm_severity}'
+      slot3_dl_rssi_alarm:
+        attributes:
+          - slot3_dl_rssi_alarm_status
+        mapper: '%{resources.mappers.alarm_severity}'
+      slot3_group_1_dl_alc_alarm:
+        attributes:
+          - slot3_group_1_dl_alc_alarm_status
+        mapper: '%{resources.mappers.alarm_severity}'
+      slot3_group_1_dl_isolation_alarm:
+        attributes:
+          - slot3_group_1_dl_isolation_alarm_status
+        mapper: '%{resources.mappers.alarm_severity}'
+      slot3_group_1_dl_low_power_alarm:
+        attributes:
+          - slot3_group_1_dl_low_power_alarm_status
+        mapper: '%{resources.mappers.alarm_severity}'
+      slot3_group_1_ul_alc_alarm:
+        attributes:
+          - slot3_group_1_ul_alc_alarm_status
+        mapper: '%{resources.mappers.alarm_severity}'
+      slot3_group_1_ul_isolation_alarm:
+        attributes:
+          - slot3_group_1_ul_isolation_alarm_status
+        mapper: '%{resources.mappers.alarm_severity}'
+      slot3_group_2_dl_alc_alarm:
+        attributes:
+          - slot3_group_2_dl_alc_alarm_status
+        mapper: '%{resources.mappers.alarm_severity}'
+      slot3_group_2_dl_isolation_alarm:
+        attributes:
+          - slot3_group_2_dl_isolation_alarm_status
+        mapper: '%{resources.mappers.alarm_severity}'
+      slot3_group_2_dl_low_power_alarm:
+        attributes:
+          - slot3_group_2_dl_low_power_alarm_status
+        mapper: '%{resources.mappers.alarm_severity}'
+      slot3_group_2_ul_alc_alarm:
+        attributes:
+          - slot3_group_2_ul_alc_alarm_status
+        mapper: '%{resources.mappers.alarm_severity}'
+      slot3_group_2_ul_isolation_alarm:
+        attributes:
+          - slot3_group_2_ul_isolation_alarm_status
+        mapper: '%{resources.mappers.alarm_severity}'
+      slot3_hw_failure_alarm:
+        attributes:
+          - slot3_hw_failure_alarm_status
+        mapper: '%{resources.mappers.alarm_severity}'
+      slot3_incompatibility_alarm:
+        attributes:
+          - slot3_incompatibility_alarm_status
+        mapper: '%{resources.mappers.alarm_severity}'
+      slot3_temperature_alarm:
+        attributes:
+          - slot3_temperature_alarm_status
+        mapper: '%{resources.mappers.alarm_severity}'
+      slot3_ul_interference_alarm:
+        attributes:
+          - slot3_ul_interference_alarm_status
+        mapper: '%{resources.mappers.alarm_severity}'
+      slot3_ul_rssi_alarm:
+        attributes:
+          - slot3_ul_rssi_alarm_status
+        mapper: '%{resources.mappers.alarm_severity}'
+    price:
+      value: 0
+      unit: USD
+    energy:
+      value: 0
+      unit: W
+  slot4:
+    name: Slot 4
+    version: '[0.1,)'
+    reference: slot4
+    attributes:
+      - slot4_dcm_a_alarm_status
+      - slot4_dcm_a_alarm_count
+      - slot4_communication_alarm_status
+      - slot4_communication_alarm_count
+      - slot4_hw_failure_alarm_status
+      - slot4_hw_failure_alarm_count
+      - slot4_temperature_alarm_status
+      - slot4_temperature_alarm_count
+      - slot4_incompatibility_alarm_status
+      - slot4_incompatibility_alarm_count
+      - slot4_dl_rssi_alarm_status
+      - slot4_dl_rssi_alarm_count
+      - slot4_ul_rssi_alarm_status
+      - slot4_ul_rssi_alarm_count
+      - slot4_dl_interference_alarm_status
+      - slot4_dl_interference_alarm_count
+      - slot4_ul_interference_alarm_status
+      - slot4_ul_interference_alarm_count
+      - slot4_group_1_dl_alc_alarm_status
+      - slot4_group_1_dl_alc_alarm_count
+      - slot4_group_1_ul_alc_alarm_status
+      - slot4_group_1_ul_alc_alarm_count
+      - slot4_group_1_dl_low_power_alarm_status
+      - slot4_group_1_dl_low_power_alarm_count
+      - slot4_group_1_dl_isolation_alarm_status
+      - slot4_group_1_dl_isolation_alarm_count
+      - slot4_group_1_ul_isolation_alarm_status
+      - slot4_group_1_ul_isolation_alarm_count
+      - slot4_group_2_dl_alc_alarm_status
+      - slot4_group_2_dl_alc_alarm_count
+      - slot4_group_2_ul_alc_alarm_status
+      - slot4_group_2_ul_alc_alarm_count
+      - slot4_group_2_dl_low_power_alarm_status
+      - slot4_group_2_dl_low_power_alarm_count
+      - slot4_group_2_dl_isolation_alarm_status
+      - slot4_group_2_dl_isolation_alarm_count
+      - slot4_group_2_ul_isolation_alarm_status
+      - slot4_group_2_ul_isolation_alarm_count
+    alarms:
+      slot4_communication_alarm:
+        attributes:
+          - slot4_communication_alarm_status
+        mapper: '%{resources.mappers.alarm_severity}'
+      slot4_dcm_a_alarm:
+        attributes:
+          - slot4_dcm_a_alarm_status
+        mapper: '%{resources.mappers.alarm_severity}'
+      slot4_dl_interference_alarm:
+        attributes:
+          - slot4_dl_interference_alarm_status
+        mapper: '%{resources.mappers.alarm_severity}'
+      slot4_dl_rssi_alarm:
+        attributes:
+          - slot4_dl_rssi_alarm_status
+        mapper: '%{resources.mappers.alarm_severity}'
+      slot4_group_1_dl_alc_alarm:
+        attributes:
+          - slot4_group_1_dl_alc_alarm_status
+        mapper: '%{resources.mappers.alarm_severity}'
+      slot4_group_1_dl_isolation_alarm:
+        attributes:
+          - slot4_group_1_dl_isolation_alarm_status
+        mapper: '%{resources.mappers.alarm_severity}'
+      slot4_group_1_dl_low_power_alarm:
+        attributes:
+          - slot4_group_1_dl_low_power_alarm_status
+        mapper: '%{resources.mappers.alarm_severity}'
+      slot4_group_1_ul_alc_alarm:
+        attributes:
+          - slot4_group_1_ul_alc_alarm_status
+        mapper: '%{resources.mappers.alarm_severity}'
+      slot4_group_1_ul_isolation_alarm:
+        attributes:
+          - slot4_group_1_ul_isolation_alarm_status
+        mapper: '%{resources.mappers.alarm_severity}'
+      slot4_group_2_dl_alc_alarm:
+        attributes:
+          - slot4_group_2_dl_alc_alarm_status
+        mapper: '%{resources.mappers.alarm_severity}'
+      slot4_group_2_dl_isolation_alarm:
+        attributes:
+          - slot4_group_2_dl_isolation_alarm_status
+        mapper: '%{resources.mappers.alarm_severity}'
+      slot4_group_2_dl_low_power_alarm:
+        attributes:
+          - slot4_group_2_dl_low_power_alarm_status
+        mapper: '%{resources.mappers.alarm_severity}'
+      slot4_group_2_ul_alc_alarm:
+        attributes:
+          - slot4_group_2_ul_alc_alarm_status
+        mapper: '%{resources.mappers.alarm_severity}'
+      slot4_group_2_ul_isolation_alarm:
+        attributes:
+          - slot4_group_2_ul_isolation_alarm_status
+        mapper: '%{resources.mappers.alarm_severity}'
+      slot4_hw_failure_alarm:
+        attributes:
+          - slot4_hw_failure_alarm_status
+        mapper: '%{resources.mappers.alarm_severity}'
+      slot4_incompatibility_alarm:
+        attributes:
+          - slot4_incompatibility_alarm_status
+        mapper: '%{resources.mappers.alarm_severity}'
+      slot4_temperature_alarm:
+        attributes:
+          - slot4_temperature_alarm_status
+        mapper: '%{resources.mappers.alarm_severity}'
+      slot4_ul_interference_alarm:
+        attributes:
+          - slot4_ul_interference_alarm_status
+        mapper: '%{resources.mappers.alarm_severity}'
+      slot4_ul_rssi_alarm:
+        attributes:
+          - slot4_ul_rssi_alarm_status
+        mapper: '%{resources.mappers.alarm_severity}'
+    price:
+      value: 0
+      unit: USD
+    energy:
+      value: 0
+      unit: W
+  system:
+    name: System
+    version: '[0.1,)'
+    reference: system
+    attributes:
+      - system_main_board_alarm_status
+      - system_main_board_alarm_count
+      - system_main_board_hw_failure_alarm_status
+      - system_main_board_hw_failure_alarm_count
+      - system_main_board_sw_incompatibility_alarm_status
+      - system_main_board_sw_incompatibility_alarm_count
+      - system_main_board_temperature_alarm_status
+      - system_main_board_temperature_alarm_count
+      - system_ventilation_alarm_status
+      - system_ventilation_alarm_count
+      - system_psu_communication_alarm_status
+      - system_psu_communication_alarm_count
+      - system_psu_voltage_alarm_status
+      - system_psu_voltage_alarm_count
+      - system_psu_temperature_alarm_status
+      - system_psu_temperature_alarm_count
+      - system_modem_communication_alarm_status
+      - system_modem_communication_alarm_count
+      - system_psu_ventilation_alarm_status
+      - system_psu_ventilation_alarm_count
+      - system_psu_ventilation_fan_alarm_status
+      - system_psu_ventilation_slot1_alarm_status
+      - system_psu_ventilation_slot2_alarm_status
+      - system_psu_ventilation_slot3_alarm_status
+      - system_psu_ventilation_slot4_alarm_status
+      - system_external_alarm_status
+      - system_external_alarm_count
+      - system_external_1_alarm_status
+      - system_external_1_alarm_count
+      - system_external_2_alarm_status
+      - system_external_2_alarm_count
+      - system_external_3_alarm_status
+      - system_external_3_alarm_count
+      - system_external_4_alarm_status
+      - system_external_4_alarm_count
+      - system_external_5_alarm_status
+      - system_external_5_alarm_count
+    alarms:
+      system_external_1_alarm:
+        attributes:
+          - system_external_1_alarm_status
+        mapper: '%{resources.mappers.alarm_severity}'
+      system_external_2_alarm:
+        attributes:
+          - system_external_2_alarm_status
+        mapper: '%{resources.mappers.alarm_severity}'
+      system_external_3_alarm:
+        attributes:
+          - system_external_3_alarm_status
+        mapper: '%{resources.mappers.alarm_severity}'
+      system_external_4_alarm:
+        attributes:
+          - system_external_4_alarm_status
+        mapper: '%{resources.mappers.alarm_severity}'
+      system_external_5_alarm:
+        attributes:
+          - system_external_5_alarm_status
+        mapper: '%{resources.mappers.alarm_severity}'
+      system_external_alarm:
+        attributes:
+          - system_external_alarm_status
+        mapper: '%{resources.mappers.alarm_severity}'
+      system_main_board_alarm:
+        attributes:
+          - system_main_board_alarm_status
+        mapper: '%{resources.mappers.alarm_severity}'
+      system_main_board_hw_failure_alarm:
+        attributes:
+          - system_main_board_hw_failure_alarm_status
+        mapper: '%{resources.mappers.alarm_severity}'
+      system_main_board_sw_incompatibility_alarm:
+        attributes:
+          - system_main_board_sw_incompatibility_alarm_status
+        mapper: '%{resources.mappers.alarm_severity}'
+      system_main_board_temperature_alarm:
+        attributes:
+          - system_main_board_temperature_alarm_status
+        mapper: '%{resources.mappers.alarm_severity}'
+      system_modem_communication_alarm:
+        attributes:
+          - system_modem_communication_alarm_status
+        mapper: '%{resources.mappers.alarm_severity}'
+      system_psu_communication_alarm:
+        attributes:
+          - system_psu_communication_alarm_status
+        mapper: '%{resources.mappers.alarm_severity}'
+      system_psu_temperature_alarm:
+        attributes:
+          - system_psu_temperature_alarm_status
+        mapper: '%{resources.mappers.alarm_severity}'
+      system_psu_ventilation_alarm:
+        attributes:
+          - system_psu_ventilation_alarm_status
+        mapper: '%{resources.mappers.alarm_severity}'
+      system_psu_ventilation_fan_alarm:
+        attributes:
+          - system_psu_ventilation_fan_alarm_status
+        mapper: '%{resources.mappers.alarm_severity}'
+      system_psu_ventilation_slot1_alarm:
+        attributes:
+          - system_psu_ventilation_slot1_alarm_status
+        mapper: '%{resources.mappers.alarm_severity}'
+      system_psu_ventilation_slot2_alarm:
+        attributes:
+          - system_psu_ventilation_slot2_alarm_status
+        mapper: '%{resources.mappers.alarm_severity}'
+      system_psu_ventilation_slot3_alarm:
+        attributes:
+          - system_psu_ventilation_slot3_alarm_status
+        mapper: '%{resources.mappers.alarm_severity}'
+      system_psu_ventilation_slot4_alarm:
+        attributes:
+          - system_psu_ventilation_slot4_alarm_status
+        mapper: '%{resources.mappers.alarm_severity}'
+      system_psu_voltage_alarm:
+        attributes:
+          - system_psu_voltage_alarm_status
+        mapper: '%{resources.mappers.alarm_severity}'
+      system_ventilation_alarm:
+        attributes:
+          - system_ventilation_alarm_status
+        mapper: '%{resources.mappers.alarm_severity}'
+    price:
+      value: 0
+      unit: USD
+    energy:
+      value: 0
+      unit: W
+attributes:
+  slot1_communication_alarm_count:
+    name: DCM A Slot 1 Communication Alarm Count
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_alarms}'
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: 
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  slot1_communication_alarm_status:
+    name: DCM A Slot 1 Communication Alarm Status
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_alarms}'
+      dataEngine: '%{engines.upgraded-http}'       
+      selector:
+        type:  
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  slot1_dcm_a_alarm_count:
+    name: DCM A Slot 1 Alarm Count
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}' 
+      selector:
+        type:  
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  slot1_dcm_a_alarm_status:
+    name: DCM A Slot 1 Alarm Status
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}' 
+      selector:
+        type:  
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  slot1_dl_interference_alarm_count:
+    name: DCM A Slot 1 DL Interference Alarm Count
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_alarms}'
+      dataEngine: '%{engines.upgraded-http}'       
+      selector:
+        type: 
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  slot1_dl_interference_alarm_status:
+    name: DCM A Slot 1 DL Interference Alarm Status
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_alarms}'
+      dataEngine: '%{engines.upgraded-http}'       
+      selector:
+        type:  
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  slot1_dl_rssi_alarm_count:
+    name: DCM A Slot 1 DL RSSI Alarm Count
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_alarms}'
+      dataEngine: '%{engines.upgraded-http}'       
+      selector:
+        type:  
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  slot1_dl_rssi_alarm_status:
+    name: DCM A Slot 1 DL RSSI Alarm Status
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_alarms}'
+      dataEngine: '%{engines.upgraded-http}'       
+      selector:
+        type:  
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  slot1_group_1_dl_alc_alarm_count:
+    name: DCM A Slot 1 Group 1 DL ALC Alarm Count
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_alarms}'
+      dataEngine: '%{engines.upgraded-http}'       
+      selector:
+        type:  
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  slot1_group_1_dl_alc_alarm_status:
+    name: DCM A Slot 1 Group 1 DL ALC Alarm Status
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_alarms}'
+      dataEngine: '%{engines.upgraded-http}'       
+      selector:
+        type:  
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  slot1_group_1_dl_isolation_alarm_count:
+    name: DCM A Slot 1 Group 1 DL Isolation Alarm Count
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_alarms}'
+      dataEngine: '%{engines.upgraded-http}'       
+      selector:
+        type:  
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  slot1_group_1_dl_isolation_alarm_status:
+    name: DCM A Slot 1 Group 1 DL Isolation Alarm Status
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_alarms}'
+      dataEngine: '%{engines.upgraded-http}'       
+      selector:
+        type:  
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  slot1_group_1_dl_low_power_alarm_count:
+    name: DCM A Slot 1 Group 1 DL Low Power Alarm Count
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_alarms}'
+      dataEngine: '%{engines.upgraded-http}'       
+      selector:
+        type:  
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  slot1_group_1_dl_low_power_alarm_status:
+    name: DCM A Slot 1 Group 1 DL Low Power Alarm Status
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_alarms}'
+      dataEngine: '%{engines.upgraded-http}'       
+      selector:
+        type:  
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  slot1_group_1_ul_alc_alarm_count:
+    name: DCM A Slot 1 Group 1 UL ALC Alarm Count
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_alarms}'
+      dataEngine: '%{engines.upgraded-http}'       
+      selector:
+        type:  
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  slot1_group_1_ul_alc_alarm_status:
+    name: DCM A Slot 1 Group 1 UL ALC Alarm Status
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_alarms}'
+      dataEngine: '%{engines.upgraded-http}'       
+      selector:
+        type:  
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  slot1_group_1_ul_isolation_alarm_count:
+    name: DCM A Slot 1 Group 1 UL Isolation Alarm Count
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_alarms}'
+      dataEngine: '%{engines.upgraded-http}'       
+      selector:
+        type:  
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  slot1_group_1_ul_isolation_alarm_status:
+    name: DCM A Slot 1 Group 1 UL Isolation Alarm Status
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_alarms}'
+      dataEngine: '%{engines.upgraded-http}'       
+      selector:
+        type:  
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  slot1_group_2_dl_alc_alarm_count:
+    name: DCM A Slot 1 Group 2 DL ALC Alarm Count
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_alarms}'
+      dataEngine: '%{engines.upgraded-http}'       
+      selector:
+        type:  
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  slot1_group_2_dl_alc_alarm_status:
+    name: DCM A Slot 1 Group 2 DL ALC Alarm Status
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_alarms}'
+      dataEngine: '%{engines.upgraded-http}'       
+      selector:
+        type:  
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  slot1_group_2_dl_isolation_alarm_count:
+    name: DCM A Slot 1 Group 2 DL Isolation Alarm Count
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_alarms}'
+      dataEngine: '%{engines.upgraded-http}'       
+      selector:
+        type:  
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  slot1_group_2_dl_isolation_alarm_status:
+    name: DCM A Slot 1 Group 2 DL Isolation Alarm Status
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_alarms}'
+      dataEngine: '%{engines.upgraded-http}'       
+      selector:
+        type:  
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  slot1_group_2_dl_low_power_alarm_count:
+    name: DCM A Slot 1 Group 2 DL Low Power Alarm Count
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_alarms}'
+      dataEngine: '%{engines.upgraded-http}'       
+      selector:
+        type:  
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  slot1_group_2_dl_low_power_alarm_status:
+    name: DCM A Slot 1 Group 2 DL Low Power Alarm Status
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_alarms}'
+      dataEngine: '%{engines.upgraded-http}'       
+      selector:
+        type:  
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  slot1_group_2_ul_alc_alarm_count:
+    name: DCM A Slot 1 Group 2 UL ALC Alarm Count
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_alarms}'
+      dataEngine: '%{engines.upgraded-http}'       
+      selector:
+        type:  
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  slot1_group_2_ul_alc_alarm_status:
+    name: DCM A Slot 1 Group 2 UL ALC Alarm Status
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_alarms}'
+      dataEngine: '%{engines.upgraded-http}'       
+      selector:
+        type:  
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  slot1_group_2_ul_isolation_alarm_count:
+    name: DCM A Slot 1 Group 2 UL Isolation Alarm Count
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_alarms}'
+      dataEngine: '%{engines.upgraded-http}'       
+      selector:
+        type:  
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  slot1_group_2_ul_isolation_alarm_status:
+    name: DCM A Slot 1 Group 2 UL Isolation Alarm Status
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_alarms}'
+      dataEngine: '%{engines.upgraded-http}'       
+      selector:
+        type:  
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  slot1_hw_failure_alarm_count:
+    name: DCM A Slot 1 HW Failure Alarm Count
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_alarms}'
+      dataEngine: '%{engines.upgraded-http}'       
+      selector:
+        type:  
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  slot1_hw_failure_alarm_status:
+    name: DCM A Slot 1 HW Failure Alarm Status
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_alarms}'
+      dataEngine: '%{engines.upgraded-http}'       
+      selector:
+        type:  
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  slot1_incompatibility_alarm_count:
+    name: DCM A Slot 1 Incompatibility Alarm Count
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_alarms}'
+      dataEngine: '%{engines.upgraded-http}'       
+      selector:
+        type:  
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  slot1_incompatibility_alarm_status:
+    name: DCM A Slot 1 Incompatibility Alarm Status
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_alarms}'
+      dataEngine: '%{engines.upgraded-http}'       
+      selector:
+        type:  
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  slot1_temperature_alarm_count:
+    name: DCM A Slot 1 Temperature Alarm Count
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_alarms}'
+      dataEngine: '%{engines.upgraded-http}'       
+      selector:
+        type:  
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  slot1_temperature_alarm_status:
+    name: DCM A Slot 1 Temperature Alarm Status
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_alarms}'
+      dataEngine: '%{engines.upgraded-http}'       
+      selector:
+        type:  
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  slot1_ul_interference_alarm_count:
+    name: DCM A Slot 1 UL Interference Alarm Count
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_alarms}'
+      dataEngine: '%{engines.upgraded-http}'       
+      selector:
+        type:  
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  slot1_ul_interference_alarm_status:
+    name: DCM A Slot 1 UL Interference Alarm Status
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_alarms}'
+      dataEngine: '%{engines.upgraded-http}'       
+      selector:
+        type:  
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  slot1_ul_rssi_alarm_count:
+    name: DCM A Slot 1 UL RSSI Alarm Count
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_alarms}'
+      dataEngine: '%{engines.upgraded-http}'       
+      selector:
+        type:  
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  slot1_ul_rssi_alarm_status:
+    name: DCM A Slot 1 UL RSSI Alarm Status
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_alarms}'
+      dataEngine: '%{engines.upgraded-http}'       
+      selector:
+        type:  
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  slot2_communication_alarm_count:
+    name: DCM A Slot 2 Communication Alarm Count
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_alarms}'
+      dataEngine: '%{engines.upgraded-http}'       
+      selector:
+        type:  
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  slot2_communication_alarm_status:
+    name: DCM A Slot 2 Communication Alarm Status
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_alarms}'
+      dataEngine: '%{engines.upgraded-http}'       
+      selector:
+        type:  
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  slot2_dcm_a_alarm_count:
+    name: DCM A Slot 2 Alarm Count
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}' 
+      selector:
+        type:  
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  slot2_dcm_a_alarm_status:
+    name: DCM A Slot 2 Alarm Status
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}' 
+      selector:
+        type:  
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  slot2_dl_interference_alarm_count:
+    name: DCM A Slot 2 DL Interference Alarm Count
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_alarms}'
+      dataEngine: '%{engines.upgraded-http}'       
+      selector:
+        type:  
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  slot2_dl_interference_alarm_status:
+    name: DCM A Slot 2 DL Interference Alarm Status
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_alarms}'
+      dataEngine: '%{engines.upgraded-http}'       
+      selector:
+        type:  
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  slot2_dl_rssi_alarm_count:
+    name: DCM A Slot 2 DL RSSI Alarm Count
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_alarms}'
+      dataEngine: '%{engines.upgraded-http}'       
+      selector:
+        type:  
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  slot2_dl_rssi_alarm_status:
+    name: DCM A Slot 2 DL RSSI Alarm Status
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_alarms}'
+      dataEngine: '%{engines.upgraded-http}'       
+      selector:
+        type:  
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  slot2_group_1_dl_alc_alarm_count:
+    name: DCM A Slot 2 Group 1 DL ALC Alarm Count
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_alarms}'
+      dataEngine: '%{engines.upgraded-http}'       
+      selector:
+        type:  
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  slot2_group_1_dl_alc_alarm_status:
+    name: DCM A Slot 2 Group 1 DL ALC Alarm Status
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_alarms}'
+      dataEngine: '%{engines.upgraded-http}'       
+      selector:
+        type:  
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  slot2_group_1_dl_isolation_alarm_count:
+    name: DCM A Slot 2 Group 1 DL Isolation Alarm Count
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_alarms}'
+      dataEngine: '%{engines.upgraded-http}'       
+      selector:
+        type:  
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  slot2_group_1_dl_isolation_alarm_status:
+    name: DCM A Slot 2 Group 1 DL Isolation Alarm Status
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_alarms}'
+      dataEngine: '%{engines.upgraded-http}'       
+      selector:
+        type:  
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  slot2_group_1_dl_low_power_alarm_count:
+    name: DCM A Slot 2 Group 1 DL Low Power Alarm Count
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_alarms}'
+      dataEngine: '%{engines.upgraded-http}'       
+      selector:
+        type:  
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  slot2_group_1_dl_low_power_alarm_status:
+    name: DCM A Slot 2 Group 1 DL Low Power Alarm Status
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_alarms}'
+      dataEngine: '%{engines.upgraded-http}'       
+      selector:
+        type:  
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  slot2_group_1_ul_alc_alarm_count:
+    name: DCM A Slot 2 Group 1 UL ALC Alarm Count
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_alarms}'
+      dataEngine: '%{engines.upgraded-http}'       
+      selector:
+        type:  
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  slot2_group_1_ul_alc_alarm_status:
+    name: DCM A Slot 2 Group 1 UL ALC Alarm Status
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_alarms}'
+      dataEngine: '%{engines.upgraded-http}'       
+      selector:
+        type:  
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  slot2_group_1_ul_isolation_alarm_count:
+    name: DCM A Slot 2 Group 1 UL Isolation Alarm Count
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_alarms}'
+      dataEngine: '%{engines.upgraded-http}'       
+      selector:
+        type:  
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  slot2_group_1_ul_isolation_alarm_status:
+    name: DCM A Slot 2 Group 1 UL Isolation Alarm Status
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_alarms}'
+      dataEngine: '%{engines.upgraded-http}'       
+      selector:
+        type:  
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  slot2_group_2_dl_alc_alarm_count:
+    name: DCM A Slot 2 Group 2 DL ALC Alarm Count
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_alarms}'
+      dataEngine: '%{engines.upgraded-http}'       
+      selector:
+        type:  
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  slot2_group_2_dl_alc_alarm_status:
+    name: DCM A Slot 2 Group 2 DL ALC Alarm Status
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_alarms}'
+      dataEngine: '%{engines.upgraded-http}'       
+      selector:
+        type:  
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  slot2_group_2_dl_isolation_alarm_count:
+    name: DCM A Slot 2 Group 2 DL Isolation Alarm Count
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_alarms}'
+      dataEngine: '%{engines.upgraded-http}'       
+      selector:
+        type:  
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  slot2_group_2_dl_isolation_alarm_status:
+    name: DCM A Slot 2 Group 2 DL Isolation Alarm Status
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_alarms}'
+      dataEngine: '%{engines.upgraded-http}'       
+      selector:
+        type:  
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  slot2_group_2_dl_low_power_alarm_count:
+    name: DCM A Slot 2 Group 2 DL Low Power Alarm Count
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_alarms}'
+      dataEngine: '%{engines.upgraded-http}'       
+      selector:
+        type:  
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  slot2_group_2_dl_low_power_alarm_status:
+    name: DCM A Slot 2 Group 2 DL Low Power Alarm Status
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_alarms}'
+      dataEngine: '%{engines.upgraded-http}'       
+      selector:
+        type:  
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  slot2_group_2_ul_alc_alarm_count:
+    name: DCM A Slot 2 Group 2 UL ALC Alarm Count
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_alarms}'
+      dataEngine: '%{engines.upgraded-http}'       
+      selector:
+        type:  
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  slot2_group_2_ul_alc_alarm_status:
+    name: DCM A Slot 2 Group 2 UL ALC Alarm Status
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_alarms}'
+      dataEngine: '%{engines.upgraded-http}'       
+      selector:
+        type:  
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  slot2_group_2_ul_isolation_alarm_count:
+    name: DCM A Slot 2 Group 2 UL Isolation Alarm Count
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_alarms}'
+      dataEngine: '%{engines.upgraded-http}'       
+      selector:
+        type:  
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  slot2_group_2_ul_isolation_alarm_status:
+    name: DCM A Slot 2 Group 2 UL Isolation Alarm Status
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_alarms}'
+      dataEngine: '%{engines.upgraded-http}'       
+      selector:
+        type:  
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  slot2_hw_failure_alarm_count:
+    name: DCM A Slot 2 HW Failure Alarm Count
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_alarms}'
+      dataEngine: '%{engines.upgraded-http}'      
+      selector:
+        type:  
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  slot2_hw_failure_alarm_status:
+    name: DCM A Slot 2 HW Failure Alarm Status
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_alarms}'
+      dataEngine: '%{engines.upgraded-http}'       
+      selector:
+        type:  
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  slot2_incompatibility_alarm_count:
+    name: DCM A Slot 2 Incompatibility Alarm Count
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_alarms}'
+      dataEngine: '%{engines.upgraded-http}'       
+      selector:
+        type:  
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  slot2_incompatibility_alarm_status:
+    name: DCM A Slot 2 Incompatibility Alarm Status
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_alarms}'
+      dataEngine: '%{engines.upgraded-http}'       
+      selector:
+        type:  
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  slot2_temperature_alarm_count:
+    name: DCM A Slot 2 Temperature Alarm Count
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_alarms}'
+      dataEngine: '%{engines.upgraded-http}'       
+      selector:
+        type:  
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  slot2_temperature_alarm_status:
+    name: DCM A Slot 2 Temperature Alarm Status
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_alarms}'
+      dataEngine: '%{engines.upgraded-http}'       
+      selector:
+        type:  
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  slot2_ul_interference_alarm_count:
+    name: DCM A Slot 2 UL Interference Alarm Count
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_alarms}'
+      dataEngine: '%{engines.upgraded-http}'       
+      selector:
+        type:  
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  slot2_ul_interference_alarm_status:
+    name: DCM A Slot 2 UL Interference Alarm Status
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_alarms}'
+      dataEngine: '%{engines.upgraded-http}'       
+      selector:
+        type:  
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  slot2_ul_rssi_alarm_count:
+    name: DCM A Slot 2 UL RSSI Alarm Count
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_alarms}'
+      dataEngine: '%{engines.upgraded-http}'       
+      selector:
+        type:  
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  slot2_ul_rssi_alarm_status:
+    name: DCM A Slot 2 UL RSSI Alarm Status
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_alarms}'
+      dataEngine: '%{engines.upgraded-http}'       
+      selector:
+        type:  
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  slot3_communication_alarm_count:
+    name: DCM A Slot 3 Communication Alarm Count
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_alarms}'
+      dataEngine: '%{engines.upgraded-http}'       
+      selector:
+        type:  
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  slot3_communication_alarm_status:
+    name: DCM A Slot 3 Communication Alarm Status
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_alarms}'
+      dataEngine: '%{engines.upgraded-http}'       
+      selector:
+        type:  
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  slot3_dcm_a_alarm_count:
+    name: DCM A Slot 3 Alarm Count
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}' 
+      selector:
+        type:  
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  slot3_dcm_a_alarm_status:
+    name: DCM A Slot 3 Alarm Status
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}' 
+      selector:
+        type:  
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  slot3_dl_interference_alarm_count:
+    name: DCM A Slot 3 DL Interference Alarm Count
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_alarms}'
+      dataEngine: '%{engines.upgraded-http}'       
+      selector:
+        type:  
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  slot3_dl_interference_alarm_status:
+    name: DCM A Slot 3 DL Interference Alarm Status
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_alarms}'
+      dataEngine: '%{engines.upgraded-http}'       
+      selector:
+        type:  
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  slot3_dl_rssi_alarm_count:
+    name: DCM A Slot 3 DL RSSI Alarm Count
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_alarms}'
+      dataEngine: '%{engines.upgraded-http}'       
+      selector:
+        type:  
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  slot3_dl_rssi_alarm_status:
+    name: DCM A Slot 3 DL RSSI Alarm Status
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_alarms}'
+      dataEngine: '%{engines.upgraded-http}'       
+      selector:
+        type:  
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  slot3_group_1_dl_alc_alarm_count:
+    name: DCM A Slot 3 Group 1 DL ALC Alarm Count
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_alarms}'
+      dataEngine: '%{engines.upgraded-http}'       
+      selector:
+        type:  
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  slot3_group_1_dl_alc_alarm_status:
+    name: DCM A Slot 3 Group 1 DL ALC Alarm Status
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_alarms}'
+      dataEngine: '%{engines.upgraded-http}'       
+      selector:
+        type:  
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  slot3_group_1_dl_isolation_alarm_count:
+    name: DCM A Slot 3 Group 1 DL Isolation Alarm Count
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_alarms}'
+      dataEngine: '%{engines.upgraded-http}'       
+      selector:
+        type:  
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  slot3_group_1_dl_isolation_alarm_status:
+    name: DCM A Slot 3 Group 1 DL Isolation Alarm Status
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_alarms}'
+      dataEngine: '%{engines.upgraded-http}'       
+      selector:
+        type:  
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  slot3_group_1_dl_low_power_alarm_count:
+    name: DCM A Slot 3 Group 1 DL Low Power Alarm Count
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_alarms}'
+      dataEngine: '%{engines.upgraded-http}'       
+      selector:
+        type:  
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  slot3_group_1_dl_low_power_alarm_status:
+    name: DCM A Slot 3 Group 1 DL Low Power Alarm Status
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_alarms}'
+      dataEngine: '%{engines.upgraded-http}'       
+      selector:
+        type:  
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  slot3_group_1_ul_alc_alarm_count:
+    name: DCM A Slot 3 Group 1 UL ALC Alarm Count
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_alarms}'
+      dataEngine: '%{engines.upgraded-http}'       
+      selector:
+        type:  
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  slot3_group_1_ul_alc_alarm_status:
+    name: DCM A Slot 3 Group 1 UL ALC Alarm Status
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_alarms}'
+      dataEngine: '%{engines.upgraded-http}'       
+      selector:
+        type:  
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  slot3_group_1_ul_isolation_alarm_count:
+    name: DCM A Slot 3 Group 1 UL Isolation Alarm Count
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_alarms}'
+      dataEngine: '%{engines.upgraded-http}'       
+      selector:
+        type:  
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  slot3_group_1_ul_isolation_alarm_status:
+    name: DCM A Slot 3 Group 1 UL Isolation Alarm Status
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_alarms}'
+      dataEngine: '%{engines.upgraded-http}'       
+      selector:
+        type:  
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  slot3_group_2_dl_alc_alarm_count:
+    name: DCM A Slot 3 Group 2 DL ALC Alarm Count
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_alarms}'
+      dataEngine: '%{engines.upgraded-http}'       
+      selector:
+        type:  
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  slot3_group_2_dl_alc_alarm_status:
+    name: DCM A Slot 3 Group 2 DL ALC Alarm Status
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_alarms}'
+      dataEngine: '%{engines.upgraded-http}'       
+      selector:
+        type:  
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  slot3_group_2_dl_isolation_alarm_count:
+    name: DCM A Slot 3 Group 2 DL Isolation Alarm Count
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_alarms}'
+      dataEngine: '%{engines.upgraded-http}'       
+      selector:
+        type:  
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  slot3_group_2_dl_isolation_alarm_status:
+    name: DCM A Slot 3 Group 2 DL Isolation Alarm Status
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_alarms}'
+      dataEngine: '%{engines.upgraded-http}'       
+      selector:
+        type:  
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  slot3_group_2_dl_low_power_alarm_count:
+    name: DCM A Slot 3 Group 2 DL Low Power Alarm Count
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_alarms}'
+      dataEngine: '%{engines.upgraded-http}'       
+      selector:
+        type:  
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  slot3_group_2_dl_low_power_alarm_status:
+    name: DCM A Slot 3 Group 2 DL Low Power Alarm Status
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_alarms}'
+      dataEngine: '%{engines.upgraded-http}'       
+      selector:
+        type:  
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  slot3_group_2_ul_alc_alarm_count:
+    name: DCM A Slot 3 Group 2 UL ALC Alarm Count
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_alarms}'
+      dataEngine: '%{engines.upgraded-http}'       
+      selector:
+        type:  
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  slot3_group_2_ul_alc_alarm_status:
+    name: DCM A Slot 3 Group 2 UL ALC Alarm Status
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_alarms}'
+      dataEngine: '%{engines.upgraded-http}'       
+      selector:
+        type:  
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  slot3_group_2_ul_isolation_alarm_count:
+    name: DCM A Slot 3 Group 2 UL Isolation Alarm Count
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_alarms}'
+      dataEngine: '%{engines.upgraded-http}'       
+      selector:
+        type:  
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  slot3_group_2_ul_isolation_alarm_status:
+    name: DCM A Slot 3 Group 2 UL Isolation Alarm Status
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_alarms}'
+      dataEngine: '%{engines.upgraded-http}'       
+      selector:
+        type:  
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  slot3_hw_failure_alarm_count:
+    name: DCM A Slot 3 HW Failure Alarm Count
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_alarms}'
+      dataEngine: '%{engines.upgraded-http}'       
+      selector:
+        type:  
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  slot3_hw_failure_alarm_status:
+    name: DCM A Slot 3 HW Failure Alarm Status
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_alarms}'
+      dataEngine: '%{engines.upgraded-http}'       
+      selector:
+        type:  
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  slot3_incompatibility_alarm_count:
+    name: DCM A Slot 3 Incompatibility Alarm Count
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_alarms}'
+      dataEngine: '%{engines.upgraded-http}'       
+      selector:
+        type:  
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  slot3_incompatibility_alarm_status:
+    name: DCM A Slot 3 Incompatibility Alarm Status
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_alarms}'
+      dataEngine: '%{engines.upgraded-http}'       
+      selector:
+        type:  
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  slot3_temperature_alarm_count:
+    name: DCM A Slot 3 Temperature Alarm Count
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_alarms}'
+      dataEngine: '%{engines.upgraded-http}'       
+      selector:
+        type:  
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  slot3_temperature_alarm_status:
+    name: DCM A Slot 3 Temperature Alarm Status
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_alarms}'
+      dataEngine: '%{engines.upgraded-http}'       
+      selector:
+        type:  
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  slot3_ul_interference_alarm_count:
+    name: DCM A Slot 3 UL Interference Alarm Count
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_alarms}'
+      dataEngine: '%{engines.upgraded-http}'       
+      selector:
+        type:  
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  slot3_ul_interference_alarm_status:
+    name: DCM A Slot 3 UL Interference Alarm Status
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_alarms}'
+      dataEngine: '%{engines.upgraded-http}'       
+      selector:
+        type:  
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  slot3_ul_rssi_alarm_count:
+    name: DCM A Slot 3 UL RSSI Alarm Count
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_alarms}'
+      dataEngine: '%{engines.upgraded-http}'       
+      selector:
+        type:  
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  slot3_ul_rssi_alarm_status:
+    name: DCM A Slot 3 UL RSSI Alarm Status
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_alarms}'
+      dataEngine: '%{engines.upgraded-http}'       
+      selector:
+        type:  
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  slot4_communication_alarm_count:
+    name: DCM A Slot 4 Communication Alarm Count
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_alarms}'
+      dataEngine: '%{engines.upgraded-http}'       
+      selector:
+        type:  
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  slot4_communication_alarm_status:
+    name: DCM A Slot 4 Communication Alarm Status
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_alarms}'
+      dataEngine: '%{engines.upgraded-http}'       
+      selector:
+        type:  
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  slot4_dcm_a_alarm_count:
+    name: DCM A Slot 4 Alarm Count
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}' 
+      selector:
+        type:  
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  slot4_dcm_a_alarm_status:
+    name: DCM A Slot 4 Alarm Status
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}' 
+      selector:
+        type:  
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  slot4_dl_interference_alarm_count:
+    name: DCM A Slot 4 DL Interference Alarm Count
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_alarms}'
+      dataEngine: '%{engines.upgraded-http}'       
+      selector:
+        type:  
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  slot4_dl_interference_alarm_status:
+    name: DCM A Slot 4 DL Interference Alarm Status
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_alarms}'
+      dataEngine: '%{engines.upgraded-http}'       
+      selector:
+        type:  
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  slot4_dl_rssi_alarm_count:
+    name: DCM A Slot 4 DL RSSI Alarm Count
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_alarms}'
+      dataEngine: '%{engines.upgraded-http}'       
+      selector:
+        type:  
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  slot4_dl_rssi_alarm_status:
+    name: DCM A Slot 4 DL RSSI Alarm Status
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_alarms}'
+      dataEngine: '%{engines.upgraded-http}'       
+      selector:
+        type:  
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  slot4_group_1_dl_alc_alarm_count:
+    name: DCM A Slot 4 Group 1 DL ALC Alarm Count
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_alarms}'
+      dataEngine: '%{engines.upgraded-http}'       
+      selector:
+        type:  
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  slot4_group_1_dl_alc_alarm_status:
+    name: DCM A Slot 4 Group 1 DL ALC Alarm Status
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_alarms}'
+      dataEngine: '%{engines.upgraded-http}'       
+      selector:
+        type:  
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  slot4_group_1_dl_isolation_alarm_count:
+    name: DCM A Slot 4 Group 1 DL Isolation Alarm Count
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_alarms}'
+      dataEngine: '%{engines.upgraded-http}'       
+      selector:
+        type:  
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  slot4_group_1_dl_isolation_alarm_status:
+    name: DCM A Slot 4 Group 1 DL Isolation Alarm Status
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_alarms}'
+      dataEngine: '%{engines.upgraded-http}'       
+      selector:
+        type:  
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  slot4_group_1_dl_low_power_alarm_count:
+    name: DCM A Slot 4 Group 1 DL Low Power Alarm Count
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_alarms}'
+      dataEngine: '%{engines.upgraded-http}'       
+      selector:
+        type:  
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  slot4_group_1_dl_low_power_alarm_status:
+    name: DCM A Slot 4 Group 1 DL Low Power Alarm Status
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_alarms}'
+      dataEngine: '%{engines.upgraded-http}'       
+      selector:
+        type:  
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  slot4_group_1_ul_alc_alarm_count:
+    name: DCM A Slot 4 Group 1 UL ALC Alarm Count
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_alarms}'
+      dataEngine: '%{engines.upgraded-http}'       
+      selector:
+        type:  
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  slot4_group_1_ul_alc_alarm_status:
+    name: DCM A Slot 4 Group 1 UL ALC Alarm Status
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_alarms}'
+      dataEngine: '%{engines.upgraded-http}'       
+      selector:
+        type:  
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  slot4_group_1_ul_isolation_alarm_count:
+    name: DCM A Slot 4 Group 1 UL Isolation Alarm Count
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_alarms}'
+      dataEngine: '%{engines.upgraded-http}'       
+      selector:
+        type:  
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  slot4_group_1_ul_isolation_alarm_status:
+    name: DCM A Slot 4 Group 1 UL Isolation Alarm Status
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_alarms}'
+      dataEngine: '%{engines.upgraded-http}'       
+      selector:
+        type:  
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  slot4_group_2_dl_alc_alarm_count:
+    name: DCM A Slot 4 Group 2 DL ALC Alarm Count
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_alarms}'
+      dataEngine: '%{engines.upgraded-http}'       
+      selector:
+        type:  
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  slot4_group_2_dl_alc_alarm_status:
+    name: DCM A Slot 4 Group 2 DL ALC Alarm Status
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_alarms}'
+      dataEngine: '%{engines.upgraded-http}'       
+      selector:
+        type:  
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  slot4_group_2_dl_isolation_alarm_count:
+    name: DCM A Slot 4 Group 2 DL Isolation Alarm Count
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_alarms}'
+      dataEngine: '%{engines.upgraded-http}'       
+      selector:
+        type:  
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  slot4_group_2_dl_isolation_alarm_status:
+    name: DCM A Slot 4 Group 2 DL Isolation Alarm Status
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_alarms}'
+      dataEngine: '%{engines.upgraded-http}'       
+      selector:
+        type:  
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  slot4_group_2_dl_low_power_alarm_count:
+    name: DCM A Slot 4 Group 2 DL Low Power Alarm Count
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_alarms}'
+      dataEngine: '%{engines.upgraded-http}'       
+      selector:
+        type:  
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  slot4_group_2_dl_low_power_alarm_status:
+    name: DCM A Slot 4 Group 2 DL Low Power Alarm Status
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_alarms}'
+      dataEngine: '%{engines.upgraded-http}'       
+      selector:
+        type:  
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  slot4_group_2_ul_alc_alarm_count:
+    name: DCM A Slot 4 Group 2 UL ALC Alarm Count
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_alarms}'
+      dataEngine: '%{engines.upgraded-http}'       
+      selector:
+        type:  
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  slot4_group_2_ul_alc_alarm_status:
+    name: DCM A Slot 4 Group 2 UL ALC Alarm Status
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_alarms}'
+      dataEngine: '%{engines.upgraded-http}'       
+      selector:
+        type:  
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  slot4_group_2_ul_isolation_alarm_count:
+    name: DCM A Slot 4 Group 2 UL Isolation Alarm Count
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_alarms}'
+      dataEngine: '%{engines.upgraded-http}'       
+      selector:
+        type:  
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  slot4_group_2_ul_isolation_alarm_status:
+    name: DCM A Slot 4 Group 2 UL Isolation Alarm Status
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_alarms}'
+      dataEngine: '%{engines.upgraded-http}'       
+      selector:
+        type:  
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  slot4_hw_failure_alarm_count:
+    name: DCM A Slot 4 HW Failure Alarm Count
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_alarms}'
+      dataEngine: '%{engines.upgraded-http}'       
+      selector:
+        type:  
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  slot4_hw_failure_alarm_status:
+    name: DCM A Slot 4 HW Failure Alarm Status
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_alarms}'
+      dataEngine: '%{engines.upgraded-http}'       
+      selector:
+        type:  
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  slot4_incompatibility_alarm_count:
+    name: DCM A Slot 4 Incompatibility Alarm Count
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_alarms}'
+      dataEngine: '%{engines.upgraded-http}'       
+      selector:
+        type:  
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  slot4_incompatibility_alarm_status:
+    name: DCM A Slot 4 Incompatibility Alarm Status
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_alarms}'
+      dataEngine: '%{engines.upgraded-http}'       
+      selector:
+        type:  
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  slot4_temperature_alarm_count:
+    name: DCM A Slot 4 Temperature Alarm Count
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_alarms}'
+      dataEngine: '%{engines.upgraded-http}'       
+      selector:
+        type:  
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  slot4_temperature_alarm_status:
+    name: DCM A Slot 4 Temperature Alarm Status
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_alarms}'
+      dataEngine: '%{engines.upgraded-http}'       
+      selector:
+        type:  
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  slot4_ul_interference_alarm_count:
+    name: DCM A Slot 4 UL Interference Alarm Count
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_alarms}'
+      dataEngine: '%{engines.upgraded-http}'       
+      selector:
+        type:  
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  slot4_ul_interference_alarm_status:
+    name: DCM A Slot 4 UL Interference Alarm Status
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_alarms}'
+      dataEngine: '%{engines.upgraded-http}'       
+      selector:
+        type:  
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  slot4_ul_rssi_alarm_count:
+    name: DCM A Slot 4 UL RSSI Alarm Count
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_alarms}'
+      dataEngine: '%{engines.upgraded-http}'       
+      selector:
+        type:  
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  slot4_ul_rssi_alarm_status:
+    name: DCM A Slot 4 UL RSSI Alarm Status
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_alarms}'
+      dataEngine: '%{engines.upgraded-http}'       
+      selector:
+        type:  
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  system_external_1_alarm_count:
+    name: System External 1 Alarm Count
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_alarms}'
+      dataEngine: '%{engines.upgraded-http}' 
+      selector:
+        type:  
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  system_external_1_alarm_status:
+    name: System External 1 Alarm Status
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_alarms}'
+      dataEngine: '%{engines.upgraded-http}' 
+      selector:
+        type:  
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  system_external_2_alarm_count:
+    name: System External 2 Alarm Count
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_alarms}'
+      dataEngine: '%{engines.upgraded-http}' 
+      selector:
+        type:  
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  system_external_2_alarm_status:
+    name: System External 2 Alarm Status
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_alarms}'
+      dataEngine: '%{engines.upgraded-http}' 
+      selector:
+        type:  
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  system_external_3_alarm_count:
+    name: System External 3 Alarm Count
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_alarms}'
+      dataEngine: '%{engines.upgraded-http}' 
+      selector:
+        type:  
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  system_external_3_alarm_status:
+    name: System External 3 Alarm Status
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_alarms}'
+      dataEngine: '%{engines.upgraded-http}' 
+      selector:
+        type:  
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  system_external_4_alarm_count:
+    name: System External 4 Alarm Count
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_alarms}'
+      dataEngine: '%{engines.upgraded-http}' 
+      selector:
+        type:  
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  system_external_4_alarm_status:
+    name: System External 4 Alarm Status
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_alarms}'
+      dataEngine: '%{engines.upgraded-http}' 
+      selector:
+        type:  
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  system_external_5_alarm_count:
+    name: System External 5 Alarm Count
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_alarms}'
+      dataEngine: '%{engines.upgraded-http}' 
+      selector:
+        type:  
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  system_external_5_alarm_status:
+    name: System External 5 Alarm Status
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_alarms}'
+      dataEngine: '%{engines.upgraded-http}' 
+      selector:
+        type:  
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  system_external_alarm_count:
+    name: External Alarm Count
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}' 
+      selector:
+        type:  
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  system_external_alarm_status:
+    name: External Alarm Status
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}' 
+      selector:
+        type:  
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  system_main_board_alarm_count:
+    name: Main Board Alarm Count
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}' 
+      selector:
+        type:  
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  system_main_board_alarm_status:
+    name: Main Board Alarm Status
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}' 
+      selector:
+        type:  
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  system_main_board_hw_failure_alarm_count:
+    name: Main Board Hardware Failure Alarm Count
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_alarms}'
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type:  
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  system_main_board_hw_failure_alarm_status:
+    name: Main Board Hardware Failure Alarm Status
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_alarms}'
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type:  
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  system_main_board_sw_incompatibility_alarm_count:
+    name: Main Board Software Incompatibility Alarm Count
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_alarms}'
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type:  
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  system_main_board_sw_incompatibility_alarm_status:
+    name: Main Board Software Incompatibility Alarm Status
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_alarms}'
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type:  
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  system_main_board_temperature_alarm_count:
+    name: System Main Board Temperature Alarm Count
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_alarms}'
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type:  
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  system_main_board_temperature_alarm_status:
+    name: System Main Board Temperature Alarm Status
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_alarms}'
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type:  
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  system_modem_communication_alarm_count:
+    name: System Modem Communication Alarm Count
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_alarms}'
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type:  
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  system_modem_communication_alarm_status:
+    name: System Modem Communication Alarm Status
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_alarms}'
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type:  
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  system_psu_communication_alarm_count:
+    name: System PSU Communication Alarm Count
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_alarms}'
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type:  
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  system_psu_communication_alarm_status:
+    name: System PSU Communication Alarm Status
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_alarms}'
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type:  
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  system_psu_temperature_alarm_count:
+    name: System PSU Temperature Alarm Count
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_alarms}'
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type:  
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  system_psu_temperature_alarm_status:
+    name: System PSU Temperature Alarm Status
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_alarms}'
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type:  
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  system_psu_ventilation_alarm_count:
+    name: System PSU Ventilation Alarm Count
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_alarms}'
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type:  
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  system_psu_ventilation_alarm_status:
+    name: System PSU Ventilation Alarm Status
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_alarms}'
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type:  
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  system_psu_ventilation_fan_alarm_status:
+    name: System PSU Ventilation Fan Alarm Status
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_alarms}'
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type:  
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  system_psu_ventilation_slot1_alarm_status:
+    name: System PSU Ventilation Slot1 Alarm Status
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_alarms}'
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type:  
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  system_psu_ventilation_slot2_alarm_status:
+    name: System Main Board Temperature Alarm Count
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_alarms}'
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type:  
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  system_psu_ventilation_slot3_alarm_status:
+    name: System Main Board Temperature Alarm Count
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_alarms}'
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type:  
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  system_psu_ventilation_slot4_alarm_status:
+    name: System Main Board Temperature Alarm Count
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_alarms}'
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type:  
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  system_psu_voltage_alarm_count:
+    name: System PSU Voltage Alarm Count
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_alarms}'
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type:  
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  system_psu_voltage_alarm_status:
+    name: System PSU Voltage Alarm Status
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_alarms}'
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type:  
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  system_ventilation_alarm_count:
+    name: Ventilation, Power Supply, Modem Alarm Count
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}' 
+      selector:
+        type:  
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  system_ventilation_alarm_status:
+    name: Ventilation, Power Supply, Modem Alarm Status
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}' 
+      selector:
+        type:  
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+resources:
+  auths:
+    upgraded-http:
+      http:
+        httpUri: false
+        actions:
+          login:
+            dataEngine: '%{engines.upgraded-http}'
+            dataSource: '%{resources.http.requests.login}'
+            requires:
+              - session_id
+            selector:
+              type: http
+            lookup:
+              session_id:
+                dataEngine: '%{engines.upgraded-http}'
+                dataSource: '%{resources.http.requests.get_session_id}'
+                selector:
+                  type:  
+                  expression: //input[@id="sessionId"]/@value
+                dataSink: '%{resources.globals.auth.sessionId}'
+          logout:
+            dataEngine: '%{engines.upgraded-http}'
+            dataSource: '%{resources.http.requests.logout}'
+            selector:
+              type: static
+              expression: ""
+            dataSink: '%{resources.globals.auth.sessionId}'
+  mappers:
+    alarm_severity:
+      keyType: String
+      valueType: String
+      map:
+        aqua: Warning
+        gray: Normal
+        lime: Normal
+        orange: Critical
+        red: Severe
+        yellow: Minor
+    type:
+      keyType: Int32
+      valueType: String
+      map:
+        "1": slot1
+        "2": slot2
+        "3": slot3
+        "4": slot4
+  globals:
+    auth:
+      sessionId: ""
+    reg:
+      ip: ${registration.form.properties.ip}
+      password: ${registration.vault.properties.password}
+      port: ${registration.form.properties.port}
+      url: http://${registration.form.properties.ip}:${registration.form.properties.port}
+      username: ${registration.vault.properties.username}
+  http:
+    requests:
+      get_alarms:
+        uri: ${resources.globals.reg.url}/cgi-bin/alarms.cgi
+        query:
+          from: home.cgi
+          sessionId_1: ${resources.globals.auth.sessionId}
+        responses:
+          success:
+            - dataSource: '%{response.body}'
+              type:  
+              expression: //table[2]/tbody/tr/td[1]/h4/text()
+              match: Picture
+          failure:
+            - dataSource: '%{response.body}'
+              type:  
+              expression: //button[@id="login"]/text()
+              match: Login
+      get_external_alarms:
+        uri: ${resources.globals.reg.url}/cgi-bin/extAlm.cgi
+        query:
+          sessionId_ext: ${resources.globals.auth.sessionId}
+          summary_ext: "1"
+        responses:
+          success:
+            - dataSource: '%{response.body}'
+              type:  
+              expression: //form[@id="alm_form"]/table/tbody/tr/td[1]/h4/text()
+              match: Picture
+          failure:
+            - dataSource: '%{response.body}'
+              type:  
+              expression: //button[@id="login"]/text()
+              match: Login
+      get_main_board_alarms:
+        uri: ${resources.globals.reg.url}/cgi-bin/mainBoardAlm.cgi
+        query:
+          sessionId_main: ${resources.globals.auth.sessionId}
+          summary_main: "1"
+        responses:
+          success:
+            - dataSource: '%{response.body}'
+              type:  
+              expression: //form[@id="alm_form"]/table/tbody/tr/td[1]/h4/text()
+              match: Picture
+          failure:
+            - dataSource: '%{response.body}'
+              type:  
+              expression: //button[@id="login"]/text()
+              match: Login
+      get_psu_alarms:
+        uri: ${resources.globals.reg.url}/cgi-bin/psuAlm.cgi
+        query:
+          sessionId_psu: ${resources.globals.auth.sessionId}
+          summary_psu: "1"
+        responses:
+          success:
+            - dataSource: '%{response.body}'
+              type:  
+              expression: //form[@id="alm_form"]/table/tbody/tr/td[1]/h4/text()
+              match: Picture
+          failure:
+            - dataSource: '%{response.body}'
+              type:  
+              expression: //button[@id="login"]/text()
+              match: Login
+      get_psu_ventilation_alarms:
+        uri: ${resources.globals.reg.url}/cgi-bin/ventilationAlm.cgi
+        query:
+          sessionId_ventilation: ${resources.globals.auth.sessionId}
+          summary: "1"
+        responses:
+          success:
+            - dataSource: '%{response.body}'
+              type:  
+              expression: //table[2]/tbody/tr[1]/td[1]/h4/text()
+              match: Picture
+          failure:
+            - dataSource: '%{response.body}'
+              type:  
+              expression: //button[@id="login"]/text()
+              match: Login
+      get_session_id:
+        uri: ${resources.globals.reg.url}/cgi-bin/login.cgi
+        responses:
+          success:
+            - dataSource: '%{response.body}'
+              type:  
+              expression: //input[@id="sessionId"]/@value
+              match: ^.+$
+          failure:
+            - dataSource: '%{response.body}'
+              type:  
+              expression: //h3[@style="color:red"]/text()
+              match: Login incorrect please try again
+      get_slots_alarms:
+        uri: ${resources.globals.reg.url}/cgi-bin/modAlm.cgi
+        query:
+          modnum: ${topology.discovery.flatten.slot}
+          sessionId_mod: ${resources.globals.auth.sessionId}
+          summary_mod: "1"
+        responses:
+          success:
+            - dataSource: '%{response.body}'
+              type:  
+              expression: //form[@id="alm_form"]/table/tbody/tr/td[1]/h4/text()
+              match: Picture
+          failure:
+            - dataSource: '%{response.body}'
+              type:  
+              expression: //button[@id="login"]/text()
+              match: Login
+      get_summary:
+        uri: ${resources.globals.reg.url}/cgi-bin/summary.cgi
+        query:
+          from: status.cgi
+          sessionId_1: ${resources.globals.auth.sessionId}
+        responses:
+          success:
+            - dataSource: '%{response.body}'
+              type:  
+              expression: //title//text()
+              match: Summary
+          failure:
+            - dataSource: '%{response.body}'
+              type:  
+              expression: //button[@id="login"]/text()
+              match: Login
+      login:
+        method: POST
+        uri: ${resources.globals.reg.url}/cgi-bin/handleLogin.cgi
+        requestContentType: application/x-www-form-urlencoded
+        body:
+          ie: "0"
+          pwd: ${resources.globals.reg.password}
+          sessionId: ${resources.globals.auth.sessionId}
+          submit: Submit
+          user: ${resources.globals.reg.username}
+        responses:
+          success:
+            - dataSource: '%{response.body}'
+              type:  
+              expression: //button[@id="logout"]/text()
+              match: Logout
+          failure:
+            - dataSource: '%{response.body}'
+              type:  
+              expression: //h3[@style="color:red"]/text()
+              match: Login incorrect please try again
+      logout:
+        uri: ${resources.globals.reg.url}/cgi-bin/logout.cgi
+        query:
+          sessionId: ${resources.globals.auth.sessionId}
+        responses:
+          success:
+            - dataSource: '%{response.body}'
+              type:  
+              expression: //button[@id="Login"]/text()
+              match: Login
+          failure:
+            - dataSource: '%{response.body}'
+              type:  
+              expression: boolean(//button[@id="Login"])
+              match: "false"
