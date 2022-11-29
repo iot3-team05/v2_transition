@@ -1,0 +1,6280 @@
+iot3: 2.0.0
+info:
+  name: ADRF PSR-78-9533-X
+  oem: ADRF
+  model: PSR-78-9533-X
+  versions:
+    - "2.0"
+  description: ADRF PSR-78-9533-X Full File
+  author: deep.desai@qeleo.com
+  stage: alpha
+  revision: 2
+  labels:
+    - ADRF
+    - PSR-78-9533-X
+    - auto upgraded to v2
+  created: "2022-03-02"
+  updated: "2022-11-04"
+  documentation:
+    description: This IoT3 file supports the ADRF Public Safety Repeater Series 78-9533-X
+registration:
+  vaultId: vault_id
+  fingerprint:
+    - ip
+    - port
+    - vault_id
+  vault:
+    properties:
+      password:
+        key: password
+        placeholder: Password
+        required: true
+        title: Password
+        type: string
+      username:
+        key: username
+        placeholder: Username
+        required: true
+        title: Username
+        type: string
+    required:
+      - username
+      - password
+  form:
+    properties:
+      ip:
+        key: ip
+        placeholder: IP Address
+        required: true
+        title: IP
+        type: string
+      port:
+        inputType: number
+        key: port
+        maximum: 65535
+        minimum: 0
+        placeholder: Port
+        required: true
+        title: Port
+        type: number
+      vault_id:
+        key: vault_id
+        pattern: ^(cu\w{6})(-av\w{6})$
+        placeholder: Vault ID
+        required: true
+        title: Vault ID
+        type: string
+    required:
+      - ip
+      - port
+      - vault_id
+engines:
+  tunnel:
+    ssh:
+      supported: false
+    http:
+      supported: true
+  upgraded-http:
+    schedule: '@always'
+    auth: '%{resources.auths.upgraded-http}'
+    type: HTTP
+    options:
+      tls:
+        minVersion: "1.0"
+topology:
+  rootType: psr789533
+  verify:
+    - dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: ""
+      match: ""
+  nodes: false
+types:
+  psr789533:
+    name: PSR789533
+    version: '[1.0,)'
+    reference: psr789533
+    attributes:
+      - psr_info_serial_no
+      - psr_info_latitude
+      - psr_info_longitude
+      - psr_info_firmware
+      - psr_info_web_gui
+      - psr_location_company
+      - psr_location_address
+      - psr_location_city
+      - psr_location_state
+      - psr_location_zipcode
+      - psr_description
+      - psr_installer_company
+      - psr_installer_name
+      - psr_installer_phone
+      - psr_installer_email_address
+      - psr_ps700_pg_dl_input
+      - psr_ps700_pg_ul_input
+      - psr_ps700_pg_dl_outband
+      - psr_ps700_pg_ul_outband
+      - psr_ps700_pg_dl_user_set
+      - psr_ps700_pg_ul_user_set
+      - psr_ps700_pg_dl_actual
+      - psr_ps700_pg_ul_actual
+      - psr_ps700_pg_dl_output
+      - psr_ps700_pg_ul_output
+      - psr_ps800_pg_dl_input
+      - psr_ps800_pg_ul_input
+      - psr_ps800_pg_dl_outband
+      - psr_ps800_pg_ul_outband
+      - psr_ps800_pg_dl_user_set
+      - psr_ps800_pg_ul_user_set
+      - psr_ps800_pg_dl_actual
+      - psr_ps800_pg_ul_actual
+      - psr_ps800_pg_dl_output
+      - psr_ps800_pg_ul_output
+      - psr_ps700_bi_broad_ch1_dl_input
+      - psr_ps700_bi_broad_ch1_dl_center_freq
+      - psr_ps700_bi_broad_ch1_dl_bw
+      - psr_ps700_bi_broad_ch1_ul_input
+      - psr_ps700_bi_broad_ch1_ul_center_freq
+      - psr_ps700_bi_broad_ch1_ul_bw
+      - psr_ps700_bi_broad_ch2_dl_input
+      - psr_ps700_bi_broad_ch2_dl_center_freq
+      - psr_ps700_bi_broad_ch2_dl_bw
+      - psr_ps700_bi_broad_ch2_ul_input
+      - psr_ps700_bi_broad_ch2_ul_center_freq
+      - psr_ps700_bi_broad_ch2_ul_bw
+      - psr_ps700_bi_narrow_ch1_dl_input
+      - psr_ps700_bi_narrow_ch1_dl_center_freq
+      - psr_ps700_bi_narrow_ch1_dl_bw
+      - psr_ps700_bi_narrow_ch1_ul_input
+      - psr_ps700_bi_narrow_ch1_ul_center_freq
+      - psr_ps700_bi_narrow_ch1_ul_bw
+      - psr_ps700_bi_narrow_ch2_dl_input
+      - psr_ps700_bi_narrow_ch2_dl_center_freq
+      - psr_ps700_bi_narrow_ch2_dl_bw
+      - psr_ps700_bi_narrow_ch2_ul_input
+      - psr_ps700_bi_narrow_ch2_ul_center_freq
+      - psr_ps700_bi_narrow_ch2_ul_bw
+      - psr_ps700_bi_narrow_ch3_dl_input
+      - psr_ps700_bi_narrow_ch3_dl_center_freq
+      - psr_ps700_bi_narrow_ch3_dl_bw
+      - psr_ps700_bi_narrow_ch3_ul_input
+      - psr_ps700_bi_narrow_ch3_ul_center_freq
+      - psr_ps700_bi_narrow_ch3_ul_bw
+      - psr_ps700_bi_narrow_ch4_dl_input
+      - psr_ps700_bi_narrow_ch4_dl_center_freq
+      - psr_ps700_bi_narrow_ch4_dl_bw
+      - psr_ps700_bi_narrow_ch4_ul_input
+      - psr_ps700_bi_narrow_ch4_ul_center_freq
+      - psr_ps700_bi_narrow_ch4_ul_bw
+      - psr_ps700_bi_narrow_ch5_dl_input
+      - psr_ps700_bi_narrow_ch5_dl_center_freq
+      - psr_ps700_bi_narrow_ch5_dl_bw
+      - psr_ps700_bi_narrow_ch5_ul_input
+      - psr_ps700_bi_narrow_ch5_ul_center_freq
+      - psr_ps700_bi_narrow_ch5_ul_bw
+      - psr_ps700_bi_narrow_ch6_dl_input
+      - psr_ps700_bi_narrow_ch6_dl_center_freq
+      - psr_ps700_bi_narrow_ch6_dl_bw
+      - psr_ps700_bi_narrow_ch6_ul_input
+      - psr_ps700_bi_narrow_ch6_ul_center_freq
+      - psr_ps700_bi_narrow_ch6_ul_bw
+      - psr_ps700_bi_narrow_ch7_dl_input
+      - psr_ps700_bi_narrow_ch7_dl_center_freq
+      - psr_ps700_bi_narrow_ch7_dl_bw
+      - psr_ps700_bi_narrow_ch7_ul_input
+      - psr_ps700_bi_narrow_ch7_ul_center_freq
+      - psr_ps700_bi_narrow_ch7_ul_bw
+      - psr_ps700_bi_narrow_ch8_dl_input
+      - psr_ps700_bi_narrow_ch8_dl_center_freq
+      - psr_ps700_bi_narrow_ch8_dl_bw
+      - psr_ps700_bi_narrow_ch8_ul_input
+      - psr_ps700_bi_narrow_ch8_ul_center_freq
+      - psr_ps700_bi_narrow_ch8_ul_bw
+      - psr_ps700_bi_narrow_ch9_dl_input
+      - psr_ps700_bi_narrow_ch9_dl_center_freq
+      - psr_ps700_bi_narrow_ch9_dl_bw
+      - psr_ps700_bi_narrow_ch9_ul_input
+      - psr_ps700_bi_narrow_ch9_ul_center_freq
+      - psr_ps700_bi_narrow_ch9_ul_bw
+      - psr_ps700_bi_narrow_ch10_dl_input
+      - psr_ps700_bi_narrow_ch10_dl_center_freq
+      - psr_ps700_bi_narrow_ch10_dl_bw
+      - psr_ps700_bi_narrow_ch10_ul_input
+      - psr_ps700_bi_narrow_ch10_ul_center_freq
+      - psr_ps700_bi_narrow_ch10_ul_bw
+      - psr_ps700_bi_narrow_ch11_dl_input
+      - psr_ps700_bi_narrow_ch11_dl_center_freq
+      - psr_ps700_bi_narrow_ch11_dl_bw
+      - psr_ps700_bi_narrow_ch11_ul_input
+      - psr_ps700_bi_narrow_ch11_ul_center_freq
+      - psr_ps700_bi_narrow_ch11_ul_bw
+      - psr_ps700_bi_narrow_ch12_dl_input
+      - psr_ps700_bi_narrow_ch12_dl_center_freq
+      - psr_ps700_bi_narrow_ch12_dl_bw
+      - psr_ps700_bi_narrow_ch12_ul_input
+      - psr_ps700_bi_narrow_ch12_ul_center_freq
+      - psr_ps700_bi_narrow_ch12_ul_bw
+      - psr_ps800_bi_broad_ch1_dl_input
+      - psr_ps800_bi_broad_ch1_dl_center_freq
+      - psr_ps800_bi_broad_ch1_dl_bw
+      - psr_ps800_bi_broad_ch1_ul_input
+      - psr_ps800_bi_broad_ch1_ul_center_freq
+      - psr_ps800_bi_broad_ch1_ul_bw
+      - psr_ps800_bi_broad_ch2_dl_input
+      - psr_ps800_bi_broad_ch2_dl_center_freq
+      - psr_ps800_bi_broad_ch2_dl_bw
+      - psr_ps800_bi_broad_ch2_ul_input
+      - psr_ps800_bi_broad_ch2_ul_center_freq
+      - psr_ps800_bi_broad_ch2_ul_bw
+      - psr_ps800_bi_narrow_ch1_dl_input
+      - psr_ps800_bi_narrow_ch1_dl_center_freq
+      - psr_ps800_bi_narrow_ch1_dl_bw
+      - psr_ps800_bi_narrow_ch1_ul_input
+      - psr_ps800_bi_narrow_ch1_ul_center_freq
+      - psr_ps800_bi_narrow_ch1_ul_bw
+      - psr_ps800_bi_narrow_ch2_dl_input
+      - psr_ps800_bi_narrow_ch2_dl_center_freq
+      - psr_ps800_bi_narrow_ch2_dl_bw
+      - psr_ps800_bi_narrow_ch2_ul_input
+      - psr_ps800_bi_narrow_ch2_ul_center_freq
+      - psr_ps800_bi_narrow_ch2_ul_bw
+      - psr_ps800_bi_narrow_ch3_dl_input
+      - psr_ps800_bi_narrow_ch3_dl_center_freq
+      - psr_ps800_bi_narrow_ch3_dl_bw
+      - psr_ps800_bi_narrow_ch3_ul_input
+      - psr_ps800_bi_narrow_ch3_ul_center_freq
+      - psr_ps800_bi_narrow_ch3_ul_bw
+      - psr_ps800_bi_narrow_ch4_dl_input
+      - psr_ps800_bi_narrow_ch4_dl_center_freq
+      - psr_ps800_bi_narrow_ch4_dl_bw
+      - psr_ps800_bi_narrow_ch4_ul_input
+      - psr_ps800_bi_narrow_ch4_ul_center_freq
+      - psr_ps800_bi_narrow_ch4_ul_bw
+      - psr_ps800_bi_narrow_ch5_dl_input
+      - psr_ps800_bi_narrow_ch5_dl_center_freq
+      - psr_ps800_bi_narrow_ch5_dl_bw
+      - psr_ps800_bi_narrow_ch5_ul_input
+      - psr_ps800_bi_narrow_ch5_ul_center_freq
+      - psr_ps800_bi_narrow_ch5_ul_bw
+      - psr_ps800_bi_narrow_ch6_dl_input
+      - psr_ps800_bi_narrow_ch6_dl_center_freq
+      - psr_ps800_bi_narrow_ch6_dl_bw
+      - psr_ps800_bi_narrow_ch6_ul_input
+      - psr_ps800_bi_narrow_ch6_ul_center_freq
+      - psr_ps800_bi_narrow_ch6_ul_bw
+      - psr_ps800_bi_narrow_ch7_dl_input
+      - psr_ps800_bi_narrow_ch7_dl_center_freq
+      - psr_ps800_bi_narrow_ch7_dl_bw
+      - psr_ps800_bi_narrow_ch7_ul_input
+      - psr_ps800_bi_narrow_ch7_ul_center_freq
+      - psr_ps800_bi_narrow_ch7_ul_bw
+      - psr_ps800_bi_narrow_ch8_dl_input
+      - psr_ps800_bi_narrow_ch8_dl_center_freq
+      - psr_ps800_bi_narrow_ch8_dl_bw
+      - psr_ps800_bi_narrow_ch8_ul_input
+      - psr_ps800_bi_narrow_ch8_ul_center_freq
+      - psr_ps800_bi_narrow_ch8_ul_bw
+      - psr_ps800_bi_narrow_ch9_dl_input
+      - psr_ps800_bi_narrow_ch9_dl_center_freq
+      - psr_ps800_bi_narrow_ch9_dl_bw
+      - psr_ps800_bi_narrow_ch9_ul_input
+      - psr_ps800_bi_narrow_ch9_ul_center_freq
+      - psr_ps800_bi_narrow_ch9_ul_bw
+      - psr_ps800_bi_narrow_ch10_dl_input
+      - psr_ps800_bi_narrow_ch10_dl_center_freq
+      - psr_ps800_bi_narrow_ch10_dl_bw
+      - psr_ps800_bi_narrow_ch10_ul_input
+      - psr_ps800_bi_narrow_ch10_ul_center_freq
+      - psr_ps800_bi_narrow_ch10_ul_bw
+      - psr_ps800_bi_narrow_ch11_dl_input
+      - psr_ps800_bi_narrow_ch11_dl_center_freq
+      - psr_ps800_bi_narrow_ch11_dl_bw
+      - psr_ps800_bi_narrow_ch11_ul_input
+      - psr_ps800_bi_narrow_ch11_ul_center_freq
+      - psr_ps800_bi_narrow_ch11_ul_bw
+      - psr_ps800_bi_narrow_ch12_dl_input
+      - psr_ps800_bi_narrow_ch12_dl_center_freq
+      - psr_ps800_bi_narrow_ch12_dl_bw
+      - psr_ps800_bi_narrow_ch12_ul_input
+      - psr_ps800_bi_narrow_ch12_ul_center_freq
+      - psr_ps800_bi_narrow_ch12_ul_bw
+      - psr_ps800_bi_narrow_ch13_dl_input
+      - psr_ps800_bi_narrow_ch13_dl_center_freq
+      - psr_ps800_bi_narrow_ch13_dl_bw
+      - psr_ps800_bi_narrow_ch13_ul_input
+      - psr_ps800_bi_narrow_ch13_ul_center_freq
+      - psr_ps800_bi_narrow_ch13_ul_bw
+      - psr_ps800_bi_narrow_ch14_dl_input
+      - psr_ps800_bi_narrow_ch14_dl_center_freq
+      - psr_ps800_bi_narrow_ch14_dl_bw
+      - psr_ps800_bi_narrow_ch14_ul_input
+      - psr_ps800_bi_narrow_ch14_ul_center_freq
+      - psr_ps800_bi_narrow_ch14_ul_bw
+      - psr_ps800_bi_narrow_ch15_dl_input
+      - psr_ps800_bi_narrow_ch15_dl_center_freq
+      - psr_ps800_bi_narrow_ch15_dl_bw
+      - psr_ps800_bi_narrow_ch15_ul_input
+      - psr_ps800_bi_narrow_ch15_ul_center_freq
+      - psr_ps800_bi_narrow_ch15_ul_bw
+      - psr_ps800_bi_narrow_ch16_dl_input
+      - psr_ps800_bi_narrow_ch16_dl_center_freq
+      - psr_ps800_bi_narrow_ch16_dl_bw
+      - psr_ps800_bi_narrow_ch16_ul_input
+      - psr_ps800_bi_narrow_ch16_ul_center_freq
+      - psr_ps800_bi_narrow_ch16_ul_bw
+      - psr_ps800_bi_narrow_ch17_dl_input
+      - psr_ps800_bi_narrow_ch17_dl_center_freq
+      - psr_ps800_bi_narrow_ch17_dl_bw
+      - psr_ps800_bi_narrow_ch17_ul_input
+      - psr_ps800_bi_narrow_ch17_ul_center_freq
+      - psr_ps800_bi_narrow_ch17_ul_bw
+      - psr_ps800_bi_narrow_ch18_dl_input
+      - psr_ps800_bi_narrow_ch18_dl_center_freq
+      - psr_ps800_bi_narrow_ch18_dl_bw
+      - psr_ps800_bi_narrow_ch18_ul_input
+      - psr_ps800_bi_narrow_ch18_ul_center_freq
+      - psr_ps800_bi_narrow_ch18_ul_bw
+      - psr_ps800_bi_narrow_ch19_dl_input
+      - psr_ps800_bi_narrow_ch19_dl_center_freq
+      - psr_ps800_bi_narrow_ch19_dl_bw
+      - psr_ps800_bi_narrow_ch19_ul_input
+      - psr_ps800_bi_narrow_ch19_ul_center_freq
+      - psr_ps800_bi_narrow_ch19_ul_bw
+      - psr_ps800_bi_narrow_ch20_dl_input
+      - psr_ps800_bi_narrow_ch20_dl_center_freq
+      - psr_ps800_bi_narrow_ch20_dl_bw
+      - psr_ps800_bi_narrow_ch20_ul_input
+      - psr_ps800_bi_narrow_ch20_ul_center_freq
+      - psr_ps800_bi_narrow_ch20_ul_bw
+      - psr_system_over_temperature_alarm
+      - psr_system_door_open_alarm
+      - psr_system_dsp_fail_alarm
+      - psr_system_system_halt_alarm
+      - psr_ps700_dl_signal_not_detected_alarm
+      - psr_ps700_dl_signal_low_alarm
+      - psr_ps700_dl_oscillation_alarm
+      - psr_ps700_dl_rf_power_alarm
+      - psr_ps700_dl_out_of_band_overload_alarm
+      - psr_ps700_ul_out_of_band_overload_alarm
+      - psr_ps700_dl_dsp_input_overload_alarm
+      - psr_ps700_ul_dsp_input_overload_alarm
+      - psr_ps700_dl_input_overload_alarm
+      - psr_ps700_ul_input_overload_alarm
+      - psr_ps700_dl_over_input_alarm
+      - psr_ps700_ul_over_input_alarm
+      - psr_ps700_dl_over_power_alarm
+      - psr_ps700_ul_over_power_alarm
+      - psr_ps700_dl_synthesizer_lock_fail_alarm
+      - psr_ps700_ul_synthesizer_lock_fail_alarm
+      - psr_ps700_dl_vswr_alarm
+      - psr_ps700_ul_vswr_alarm
+      - psr_ps800_dl_signal_not_detected_alarm
+      - psr_ps800_dl_signal_low_alarm
+      - psr_ps800_dl_oscillation_alarm
+      - psr_ps800_dl_rf_power_alarm
+      - psr_ps800_dl_out_of_band_overload_alarm
+      - psr_ps800_ul_out_of_band_overload_alarm
+      - psr_ps800_dl_dsp_input_overload_alarm
+      - psr_ps800_ul_dsp_input_overload_alarm
+      - psr_ps800_dl_input_overload_alarm
+      - psr_ps800_ul_input_overload_alarm
+      - psr_ps800_dl_over_input_alarm
+      - psr_ps800_ul_over_input_alarm
+      - psr_ps800_dl_over_power_alarm
+      - psr_ps800_ul_over_power_alarm
+      - psr_ps800_dl_synthesizer_lock_fail_alarm
+      - psr_ps800_ul_synthesizer_lock_fail_alarm
+      - psr_ps800_dl_vswr_alarm
+      - psr_ps800_ul_vswr_alarm
+      - psr_power_ac_alarm
+      - psr_power_dc_alarm
+      - psr_power_over_current_alarm
+      - psr_power_battery_fail_alarm
+      - psr_power_battery_not_installed_alarm
+      - psr_power_low_battery_alarm
+      - psr_power_battery_not_charge_alarm
+      - psr_aai_fire_donor_antenna_malfunction_alarm
+      - psr_aai_fire_active_rf_emitting_device_malfunction_alarm
+      - psr_aai_fire_low_battery_or_oscillation_alarm
+      - psr_aai_fire_system_component_or_ann_disconenction_alarm
+      - psr_aai_normal_ac_power_alarm
+      - psr_aai_loss_of_normal_ac_power_alarm
+      - psr_aai_battery_charger_failure_alarm
+      - psr_aai_system_low_battery_capacity_alarm
+      - psr_aai_donor_antenna_malfunction_alarm
+      - psr_aai_active_rf_emitting_device_malfunction_alarm
+      - psr_aai_system_component_alarm
+      - psr_aai_in_alarm
+    alarms:
+      psr_aai_active_rf_emitting_device_malfunction_alarm:
+        attributes:
+          - psr_aai_active_rf_emitting_device_malfunction_alarm
+        mapper: '%{resources.mappers.alarm}'
+      psr_aai_battery_charger_failure_alarm:
+        attributes:
+          - psr_aai_battery_charger_failure_alarm
+        mapper: '%{resources.mappers.alarm}'
+      psr_aai_donor_antenna_malfunction_alarm:
+        attributes:
+          - psr_aai_donor_antenna_malfunction_alarm
+        mapper: '%{resources.mappers.alarm}'
+      psr_aai_fire_active_rf_emitting_device_malfunction_alarm:
+        attributes:
+          - psr_aai_fire_active_rf_emitting_device_malfunction_alarm
+        mapper: '%{resources.mappers.alarm}'
+      psr_aai_fire_donor_antenna_malfunction_alarm:
+        attributes:
+          - psr_aai_fire_donor_antenna_malfunction_alarm
+        mapper: '%{resources.mappers.alarm}'
+      psr_aai_fire_low_battery_or_oscillation_alarm:
+        attributes:
+          - psr_aai_fire_low_battery_or_oscillation_alarm
+        mapper: '%{resources.mappers.alarm}'
+      psr_aai_fire_system_component_or_ann_disconenction_alarm:
+        attributes:
+          - psr_aai_fire_system_component_or_ann_disconenction_alarm
+        mapper: '%{resources.mappers.alarm}'
+      psr_aai_in_alarm:
+        attributes:
+          - psr_aai_in_alarm
+        mapper: '%{resources.mappers.alarm}'
+      psr_aai_loss_of_normal_ac_power_alarm:
+        attributes:
+          - psr_aai_loss_of_normal_ac_power_alarm
+        mapper: '%{resources.mappers.alarm}'
+      psr_aai_normal_ac_power_alarm:
+        attributes:
+          - psr_aai_normal_ac_power_alarm
+        mapper: '%{resources.mappers.alarm}'
+      psr_aai_system_component_alarm:
+        attributes:
+          - psr_aai_system_component_alarm
+        mapper: '%{resources.mappers.alarm}'
+      psr_aai_system_low_battery_capacity_alarm:
+        attributes:
+          - psr_aai_system_low_battery_capacity_alarm
+        mapper: '%{resources.mappers.alarm}'
+      psr_power_ac_alarm:
+        attributes:
+          - psr_power_ac_alarm
+        mapper: '%{resources.mappers.alarm}'
+      psr_power_battery_fail_alarm:
+        attributes:
+          - psr_power_battery_fail_alarm
+        mapper: '%{resources.mappers.alarm}'
+      psr_power_battery_not_charge_alarm:
+        attributes:
+          - psr_power_battery_not_charge_alarm
+        mapper: '%{resources.mappers.alarm}'
+      psr_power_battery_not_installed_alarm:
+        attributes:
+          - psr_power_battery_not_installed_alarm
+        mapper: '%{resources.mappers.alarm}'
+      psr_power_dc_alarm:
+        attributes:
+          - psr_power_dc_alarm
+        mapper: '%{resources.mappers.alarm}'
+      psr_power_low_battery_alarm:
+        attributes:
+          - psr_power_low_battery_alarm
+        mapper: '%{resources.mappers.alarm}'
+      psr_power_over_current_alarm:
+        attributes:
+          - psr_power_over_current_alarm
+        mapper: '%{resources.mappers.alarm}'
+      psr_ps700_dl_dsp_input_overload_alarm:
+        attributes:
+          - psr_ps700_dl_dsp_input_overload_alarm
+        mapper: '%{resources.mappers.alarm}'
+      psr_ps700_dl_input_overload_alarm:
+        attributes:
+          - psr_ps700_dl_input_overload_alarm
+        mapper: '%{resources.mappers.alarm}'
+      psr_ps700_dl_oscillation_alarm:
+        attributes:
+          - psr_ps700_dl_oscillation_alarm
+        mapper: '%{resources.mappers.alarm}'
+      psr_ps700_dl_out_of_band_overload_alarm:
+        attributes:
+          - psr_ps700_dl_out_of_band_overload_alarm
+        mapper: '%{resources.mappers.alarm}'
+      psr_ps700_dl_over_input_alarm:
+        attributes:
+          - psr_ps700_dl_over_input_alarm
+        mapper: '%{resources.mappers.alarm}'
+      psr_ps700_dl_over_power_alarm:
+        attributes:
+          - psr_ps700_dl_over_power_alarm
+        mapper: '%{resources.mappers.alarm}'
+      psr_ps700_dl_rf_power_alarm:
+        attributes:
+          - psr_ps700_dl_rf_power_alarm
+        mapper: '%{resources.mappers.alarm}'
+      psr_ps700_dl_signal_low_alarm:
+        attributes:
+          - psr_ps700_dl_signal_low_alarm
+        mapper: '%{resources.mappers.alarm}'
+      psr_ps700_dl_signal_not_detected_alarm:
+        attributes:
+          - psr_ps700_dl_signal_not_detected_alarm
+        mapper: '%{resources.mappers.alarm}'
+      psr_ps700_dl_synthesizer_lock_fail_alarm:
+        attributes:
+          - psr_ps700_dl_synthesizer_lock_fail_alarm
+        mapper: '%{resources.mappers.alarm}'
+      psr_ps700_dl_vswr_alarm:
+        attributes:
+          - psr_ps700_dl_vswr_alarm
+        mapper: '%{resources.mappers.alarm}'
+      psr_ps700_ul_dsp_input_overload_alarm:
+        attributes:
+          - psr_ps700_ul_dsp_input_overload_alarm
+        mapper: '%{resources.mappers.alarm}'
+      psr_ps700_ul_input_overload_alarm:
+        attributes:
+          - psr_ps700_ul_input_overload_alarm
+        mapper: '%{resources.mappers.alarm}'
+      psr_ps700_ul_out_of_band_overload_alarm:
+        attributes:
+          - psr_ps700_ul_out_of_band_overload_alarm
+        mapper: '%{resources.mappers.alarm}'
+      psr_ps700_ul_over_input_alarm:
+        attributes:
+          - psr_ps700_ul_over_input_alarm
+        mapper: '%{resources.mappers.alarm}'
+      psr_ps700_ul_over_power_alarm:
+        attributes:
+          - psr_ps700_ul_over_power_alarm
+        mapper: '%{resources.mappers.alarm}'
+      psr_ps700_ul_synthesizer_lock_fail_alarm:
+        attributes:
+          - psr_ps700_ul_synthesizer_lock_fail_alarm
+        mapper: '%{resources.mappers.alarm}'
+      psr_ps700_ul_vswr_alarm:
+        attributes:
+          - psr_ps700_ul_vswr_alarm
+        mapper: '%{resources.mappers.alarm}'
+      psr_ps800_dl_dsp_input_overload_alarm:
+        attributes:
+          - psr_ps800_dl_dsp_input_overload_alarm
+        mapper: '%{resources.mappers.alarm}'
+      psr_ps800_dl_input_overload_alarm:
+        attributes:
+          - psr_ps800_dl_input_overload_alarm
+        mapper: '%{resources.mappers.alarm}'
+      psr_ps800_dl_oscillation_alarm:
+        attributes:
+          - psr_ps800_dl_oscillation_alarm
+        mapper: '%{resources.mappers.alarm}'
+      psr_ps800_dl_out_of_band_overload_alarm:
+        attributes:
+          - psr_ps800_dl_out_of_band_overload_alarm
+        mapper: '%{resources.mappers.alarm}'
+      psr_ps800_dl_over_input_alarm:
+        attributes:
+          - psr_ps800_dl_over_input_alarm
+        mapper: '%{resources.mappers.alarm}'
+      psr_ps800_dl_over_power_alarm:
+        attributes:
+          - psr_ps800_dl_over_power_alarm
+        mapper: '%{resources.mappers.alarm}'
+      psr_ps800_dl_rf_power_alarm:
+        attributes:
+          - psr_ps800_dl_rf_power_alarm
+        mapper: '%{resources.mappers.alarm}'
+      psr_ps800_dl_signal_low_alarm:
+        attributes:
+          - psr_ps800_dl_signal_low_alarm
+        mapper: '%{resources.mappers.alarm}'
+      psr_ps800_dl_signal_not_detected_alarm:
+        attributes:
+          - psr_ps800_dl_signal_not_detected_alarm
+        mapper: '%{resources.mappers.alarm}'
+      psr_ps800_dl_synthesizer_lock_fail_alarm:
+        attributes:
+          - psr_ps800_dl_synthesizer_lock_fail_alarm
+        mapper: '%{resources.mappers.alarm}'
+      psr_ps800_dl_vswr_alarm:
+        attributes:
+          - psr_ps800_dl_vswr_alarm
+        mapper: '%{resources.mappers.alarm}'
+      psr_ps800_ul_dsp_input_overload_alarm:
+        attributes:
+          - psr_ps800_ul_dsp_input_overload_alarm
+        mapper: '%{resources.mappers.alarm}'
+      psr_ps800_ul_input_overload_alarm:
+        attributes:
+          - psr_ps800_ul_input_overload_alarm
+        mapper: '%{resources.mappers.alarm}'
+      psr_ps800_ul_out_of_band_overload_alarm:
+        attributes:
+          - psr_ps800_ul_out_of_band_overload_alarm
+        mapper: '%{resources.mappers.alarm}'
+      psr_ps800_ul_over_input_alarm:
+        attributes:
+          - psr_ps800_ul_over_input_alarm
+        mapper: '%{resources.mappers.alarm}'
+      psr_ps800_ul_over_power_alarm:
+        attributes:
+          - psr_ps800_ul_over_power_alarm
+        mapper: '%{resources.mappers.alarm}'
+      psr_ps800_ul_synthesizer_lock_fail_alarm:
+        attributes:
+          - psr_ps800_ul_synthesizer_lock_fail_alarm
+        mapper: '%{resources.mappers.alarm}'
+      psr_ps800_ul_vswr_alarm:
+        attributes:
+          - psr_ps800_ul_vswr_alarm
+        mapper: '%{resources.mappers.alarm}'
+      psr_system_door_open_alarm:
+        attributes:
+          - psr_system_door_open_alarm
+        mapper: '%{resources.mappers.alarm}'
+      psr_system_dsp_fail_alarm:
+        attributes:
+          - psr_system_dsp_fail_alarm
+        mapper: '%{resources.mappers.alarm}'
+      psr_system_over_temperature_alarm:
+        attributes:
+          - psr_system_over_temperature_alarm
+        mapper: '%{resources.mappers.alarm}'
+      psr_system_system_halt_alarm:
+        attributes:
+          - psr_system_system_halt_alarm
+        mapper: '%{resources.mappers.alarm}'
+    price:
+      value: 0
+      unit: USD
+    energy:
+      value: 0
+      unit: "0"
+attributes:
+  psr_aai_active_rf_emitting_device_malfunction_alarm:
+    name: PSR AAI Active RF Emitting Device Malfunction Alarm
+    description: PSR AAI Active RF Emitting Device Malfunction Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: 
+        expression: ''
+      extractor:
+        mapper: '%{resources.mappers.active}'
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_aai_battery_charger_failure_alarm:
+    name: PSR AAI Battery Charger Failure Alarm
+    description: PSR AAI Battery Charger Failure Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: 
+        expression: ''
+      extractor:
+        mapper: '%{resources.mappers.active}'
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_aai_donor_antenna_malfunction_alarm:
+    name: PSR AAI Donor Antenna Malfunction Alarm
+    description: PSR AAI Donor Antenna Malfunction Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: 
+        expression: ''
+      extractor:
+        mapper: '%{resources.mappers.active}'
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_aai_fire_active_rf_emitting_device_malfunction_alarm:
+    name: PSR AAI Fire Active RF Emitting Device Malfunction Alarm
+    description: PSR AAI Fire Active RF Emitting Device Malfunction Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: 
+        expression: ''
+      extractor:
+        mapper: '%{resources.mappers.active}'
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_aai_fire_donor_antenna_malfunction_alarm:
+    name: PSR AAI Fire Donor Antenna Malfunction Alarm
+    description: PSR AAI Fire Donor Antenna Malfunction Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: 
+        expression: ''
+      extractor:
+        mapper: '%{resources.mappers.active}'
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_aai_fire_low_battery_or_oscillation_alarm:
+    name: PSR AAI Fire Low Battery Or Oscillation Alarm
+    description: PSR AAI Fire Low Battery Or Oscillation Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: 
+        expression: ''
+      extractor:
+        mapper: '%{resources.mappers.active}'
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_aai_fire_system_component_or_ann_disconenction_alarm:
+    name: PSR AAI Fire System Component Or ANN Disconnection Alarm
+    description: PSR AAI Fire System Component Or ANN Disconnection Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: 
+        expression: ''
+      extractor:
+        mapper: '%{resources.mappers.active}'
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_aai_in_alarm:
+    name: PSR AAI In Alarm
+    description: PSR AAI In Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: 
+        expression: ''
+      extractor:
+        mapper: '%{resources.mappers.active}'
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_aai_loss_of_normal_ac_power_alarm:
+    name: PSR AAI Loss Of Normal AC Power Alarm
+    description: PSR AAI Loss Of Normal AC Power Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: 
+        expression: ''
+      extractor:
+        mapper: '%{resources.mappers.active}'
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_aai_normal_ac_power_alarm:
+    name: PSR AAI Normal AC Power Alarm
+    description: PSR AAI Normal AC Power Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: 
+        expression: ''
+      extractor:
+        mapper: '%{resources.mappers.active}'
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_aai_system_component_alarm:
+    name: PSR AAI System Component Alarm
+    description: PSR AAI System Component Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: 
+        expression: ''
+      extractor:
+        mapper: '%{resources.mappers.active}'
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_aai_system_low_battery_capacity_alarm:
+    name: PSR AAI System Low Battery Capacity Alarm
+    description: PSR AAI System Low Battery Capacity Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: 
+        expression: ''
+      extractor:
+        mapper: '%{resources.mappers.active}'
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_description:
+    name: PSR Description
+    description: PSR Description
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[text()="Description"]/following-sibling::div[1]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_info_firmware:
+    name: PSR Info Firmware
+    description: PSR Info Firmware
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[text()="Information"]/following-sibling::table[1]//tr[4]/td[2]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_info_latitude:
+    name: PSR Info Latitude
+    description: PSR Info Latitude
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[text()="Information"]/following-sibling::table[1]//tr[2]/td[2]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_info_longitude:
+    name: PSR Info Longitude
+    description: PSR Info Longitude
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[text()="Information"]/following-sibling::table[1]//tr[3]/td[2]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_info_serial_no:
+    name: PSR Info Serial No
+    description: PSR Info Serial No
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[text()="Information"]/following-sibling::table[1]//tr[1]/td[2]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_info_web_gui:
+    name: PSR Info Web GUI
+    description: PSR Info Web GUI
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[text()="Information"]/following-sibling::table[1]//tr[5]/td[2]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_installer_company:
+    name: PSR Installer Company
+    description: PSR Installer Company
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[text()="Installer Contact Info"]/following-sibling::div[1]/font[1]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_installer_email_address:
+    name: PSR Installer Email Address
+    description: PSR Installer Email Address
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[text()="Installer Contact Info"]/following-sibling::div[1]/a[1]/font/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_installer_name:
+    name: PSR Installer Name
+    description: PSR Installer Name
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[text()="Installer Contact Info"]/following-sibling::div[1]/font[2]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_installer_phone:
+    name: PSR Installer Phone
+    description: PSR Installer Phone
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[text()="Installer Contact Info"]/following-sibling::div[1]/font[3]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_location_address:
+    name: PSR Location Address
+    description: PSR Location Address
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[text()="Location"]/following-sibling::div[2]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_location_city:
+    name: PSR Location City
+    description: PSR Location City
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[text()="Location"]/following-sibling::div[3]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_location_company:
+    name: PSR Location Company
+    description: PSR Location Company
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[text()="Location"]/following-sibling::div[1]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_location_state:
+    name: PSR Location State
+    description: PSR Location State
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[text()="Location"]/following-sibling::div[4]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_location_zipcode:
+    name: PSR Location Zipcode
+    description: PSR Location Zipcode
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[text()="Location"]/following-sibling::div[5]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_power_ac_alarm:
+    name: PSR Power AC Alarm
+    description: PSR Power AC Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: 
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_power_battery_fail_alarm:
+    name: PSR Power Battery Fail Alarm
+    description: PSR Power Battery Fail Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: 
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_power_battery_not_charge_alarm:
+    name: PSR Power Battery Not Charge Alarm
+    description: PSR Power Battery Not Charge Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: 
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_power_battery_not_installed_alarm:
+    name: PSR Power Battery Not Installed Alarm
+    description: PSR Power Battery Not Installed Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: 
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_power_dc_alarm:
+    name: PSR Power DC Alarm
+    description: PSR Power DC Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: 
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_power_low_battery_alarm:
+    name: PSR Power Low Battery Alarm
+    description: PSR Power Low Battery Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: 
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_power_over_current_alarm:
+    name: PSR Power Over Current Alarm
+    description: PSR Power Over Current Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: 
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps700_bi_broad_ch1_dl_bw:
+    name: PSR PS700 Band Info Broad Channel 1 DL BW
+    description: PSR PS700 Band Info Broad Channel 1 DL BW
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "BAND_BW_700_WB_CH1_DL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps700_bi_broad_ch1_dl_center_freq:
+    name: PSR PS700 Band Info Broad Channel 1 DL Center Frequency
+    description: PSR PS700 Band Info Broad Channel 1 DL Center Frequency
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "BAND_FREQ_700_WB_CH1_DL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps700_bi_broad_ch1_dl_input:
+    name: PSR PS700 Band Info Broad Channel 1 DL Input
+    description: PSR PS700 Band Info Broad Channel 1 DL Input
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "BAND_INPWR_700_WB_CH1_DL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps700_bi_broad_ch1_ul_bw:
+    name: PSR PS700 Band Info Broad Channel 1 UL BW
+    description: PSR PS700 Band Info Broad Channel 1 UL BW
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "BAND_BW_700_WB_CH1_UL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps700_bi_broad_ch1_ul_center_freq:
+    name: PSR PS700 Band Info Broad Channel 1 UL Center Frequency
+    description: PSR PS700 Band Info Broad Channel 1 UL Center Frequency
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "BAND_FREQ_700_WB_CH1_UL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps700_bi_broad_ch1_ul_input:
+    name: PSR PS700 Band Info Broad Channel 1 UL Input
+    description: PSR PS700 Band Info Broad Channel 1 UL Input
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "BAND_INPWR_700_WB_CH1_UL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps700_bi_broad_ch2_dl_bw:
+    name: PSR PS700 Band Info Broad Channel 2 DL BW
+    description: PSR PS700 Band Info Broad Channel 2 DL BW
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "BAND_BW_700_WB_CH2_DL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps700_bi_broad_ch2_dl_center_freq:
+    name: PSR PS700 Band Info Broad Channel 2 DL Center Frequency
+    description: PSR PS700 Band Info Broad Channel 2 DL Center Frequency
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "BAND_FREQ_700_WB_CH2_DL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps700_bi_broad_ch2_dl_input:
+    name: PSR PS700 Band Info Broad Channel 2 DL Input
+    description: PSR PS700 Band Info Broad Channel 2 DL Input
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "BAND_INPWR_700_WB_CH2_DL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps700_bi_broad_ch2_ul_bw:
+    name: PSR PS700 Band Info Broad Channel 2 UL BW
+    description: PSR PS700 Band Info Broad Channel 2 UL BW
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "BAND_BW_700_WB_CH2_UL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps700_bi_broad_ch2_ul_center_freq:
+    name: PSR PS700 Band Info Broad Channel 2 Ul Center Frequency
+    description: PSR PS700 Band Info Broad Channel 2 UL Center Frequency
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "BAND_FREQ_700_WB_CH2_UL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps700_bi_broad_ch2_ul_input:
+    name: PSR PS700 Band Info Broad Channel 2 UL Input
+    description: PSR PS700 Band Info Broad Channel 2 UL Input
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "BAND_INPWR_700_WB_CH2_UL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps700_bi_narrow_ch1_dl_bw:
+    name: PSR PS700 Band Info Narrow Channel 1 DL BW
+    description: PSR PS700 Band Info Narrow Channel 1 DL BW
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "BAND_BW_NB_700_CH1_DL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps700_bi_narrow_ch1_dl_center_freq:
+    name: PSR PS700 Band Info Narrow Channel 1 DL Center Frequency
+    description: PSR PS700 Band Info Narrow Channel 1 DL Center Frequency
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "BAND_FREQ_NB_700_CH1_DL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps700_bi_narrow_ch1_dl_input:
+    name: PSR PS700 Band Info Narrow Channel 1 DL Input
+    description: PSR PS700 Band Info Narrow Channel 1 DL Input
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "BAND_INPWR_NB_700_CH1_DL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps700_bi_narrow_ch1_ul_bw:
+    name: PSR PS700 Band Info Narrow Channel 1 UL BW
+    description: PSR PS700 Band Info Narrow Channel 1 UL BW
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "BAND_BW_NB_700_CH1_UL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps700_bi_narrow_ch1_ul_center_freq:
+    name: PSR PS700 Band Info Narrow Channel 1 UL Center Frequency
+    description: PSR PS700 Band Info Narrow Channel 1 UL Center Frequency
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "BAND_FREQ_NB_700_CH1_UL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps700_bi_narrow_ch1_ul_input:
+    name: PSR PS700 Band Info Narrow Channel 1 UL Input
+    description: PSR PS700 Band Info Narrow Channel 1 UL Input
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "BAND_INPWR_NB_700_CH1_UL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps700_bi_narrow_ch2_dl_bw:
+    name: PSR PS700 Band Info Narrow Channel 2 DL BW
+    description: PSR PS700 Band Info Narrow Channel 2 DL BW
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "BAND_BW_NB_700_CH2_DL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps700_bi_narrow_ch2_dl_center_freq:
+    name: PSR PS700 Band Info Narrow Channel 2 DL Center Frequency
+    description: PSR PS700 Band Info Narrow Channel 2 DL Center Frequency
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "BAND_FREQ_NB_700_CH2_DL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps700_bi_narrow_ch2_dl_input:
+    name: PSR PS700 Band Info Narrow Channel 2 DL Input
+    description: PSR PS700 Band Info Narrow Channel 2 DL Input
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "BAND_INPWR_NB_700_CH2_DL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps700_bi_narrow_ch2_ul_bw:
+    name: PSR PS700 Band Info Narrow Channel 2 UL BW
+    description: PSR PS700 Band Info Narrow Channel 2 UL BW
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "BAND_BW_NB_700_CH2_UL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps700_bi_narrow_ch2_ul_center_freq:
+    name: PSR PS700 Band Info Narrow Channel 2 UL Center Frequency
+    description: PSR PS700 Band Info Narrow Channel 2 UL Center Frequency
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "BAND_FREQ_NB_700_CH2_UL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps700_bi_narrow_ch2_ul_input:
+    name: PSR PS700 Band Info Narrow Channel 2 UL Input
+    description: PSR PS700 Band Info Narrow Channel 2 UL Input
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "BAND_INPWR_NB_700_CH2_UL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps700_bi_narrow_ch3_dl_bw:
+    name: PSR PS700 Band Info Narrow Channel 3 DL BW
+    description: PSR PS700 Band Info Narrow Channel 3 DL BW
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "BAND_BW_NB_700_CH3_DL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps700_bi_narrow_ch3_dl_center_freq:
+    name: PSR PS700 Band Info Narrow Channel 3 DL Center Frequency
+    description: PSR PS700 Band Info Narrow Channel 3 DL Center Frequency
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "BAND_FREQ_NB_700_CH3_DL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps700_bi_narrow_ch3_dl_input:
+    name: PSR PS700 Band Info Narrow Channel 3 DL Input
+    description: PSR PS700 Band Info Narrow Channel 3 DL Input
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "BAND_INPWR_NB_700_CH3_DL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps700_bi_narrow_ch3_ul_bw:
+    name: PSR PS700 Band Info Narrow Channel 3 UL BW
+    description: PSR PS700 Band Info Narrow Channel 3 UL BW
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "BAND_BW_NB_700_CH3_UL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps700_bi_narrow_ch3_ul_center_freq:
+    name: PSR PS700 Band Info Narrow Channel 3 UL Center Frequency
+    description: PSR PS700 Band Info Narrow Channel 3 UL Center Frequency
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "BAND_FREQ_NB_700_CH3_UL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps700_bi_narrow_ch3_ul_input:
+    name: PSR PS700 Band Info Narrow Channel 3 UL Input
+    description: PSR PS700 Band Info Narrow Channel 3 UL Input
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "BAND_INPWR_NB_700_CH3_UL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps700_bi_narrow_ch4_dl_bw:
+    name: PSR PS700 Band Info Narrow Channel 4 DL BW
+    description: PSR PS700 Band Info Narrow Channel 4 DL BW
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "BAND_BW_NB_700_CH4_DL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps700_bi_narrow_ch4_dl_center_freq:
+    name: PSR PS700 Band Info Narrow Channel 4 DL Center Frequency
+    description: PSR PS700 Band Info Narrow Channel 4 DL Center Frequency
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "BAND_FREQ_NB_700_CH4_DL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps700_bi_narrow_ch4_dl_input:
+    name: PSR PS700 Band Info Narrow Channel 4 DL Input
+    description: PSR PS700 Band Info Narrow Channel 4 DL Input
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "BAND_INPWR_NB_700_CH4_DL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps700_bi_narrow_ch4_ul_bw:
+    name: PSR PS700 Band Info Narrow Channel 4 UL BW
+    description: PSR PS700 Band Info Narrow Channel 4 UL BW
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "BAND_BW_NB_700_CH4_UL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps700_bi_narrow_ch4_ul_center_freq:
+    name: PSR PS700 Band Info Narrow Channel 4 UL Center Frequency
+    description: PSR PS700 Band Info Narrow Channel 4 UL Center Frequency
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "BAND_FREQ_NB_700_CH4_UL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps700_bi_narrow_ch4_ul_input:
+    name: PSR PS700 Band Info Narrow Channel 4 UL Input
+    description: PSR PS700 Band Info Narrow Channel 4 UL Input
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "BAND_INPWR_NB_700_CH4_UL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps700_bi_narrow_ch5_dl_bw:
+    name: PSR PS700 Band Info Narrow Channel 5 DL BW
+    description: PSR PS700 Band Info Narrow Channel 5 DL BW
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "BAND_BW_NB_700_CH5_DL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps700_bi_narrow_ch5_dl_center_freq:
+    name: PSR PS700 Band Info Narrow Channel 5 DL Center Frequency
+    description: PSR PS700 Band Info Narrow Channel 5 DL Center Frequency
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "BAND_FREQ_NB_700_CH5_DL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps700_bi_narrow_ch5_dl_input:
+    name: PSR PS700 Band Info Narrow Channel 5 DL Input
+    description: PSR PS700 Band Info Narrow Channel 5 DL Input
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "BAND_INPWR_NB_700_CH5_DL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps700_bi_narrow_ch5_ul_bw:
+    name: PSR PS700 Band Info Narrow Channel 5 UL BW
+    description: PSR PS700 Band Info Narrow Channel 5 UL BW
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "BAND_BW_NB_700_CH5_UL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps700_bi_narrow_ch5_ul_center_freq:
+    name: PSR PS700 Band Info Narrow Channel 5 UL Center Frequency
+    description: PSR PS700 Band Info Narrow Channel 5 UL Center Frequency
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "BAND_FREQ_NB_700_CH5_UL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps700_bi_narrow_ch5_ul_input:
+    name: PSR PS700 Band Info Narrow Channel 5 UL Input
+    description: PSR PS700 Band Info Narrow Channel 5 UL Input
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "BAND_INPWR_NB_700_CH5_UL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps700_bi_narrow_ch6_dl_bw:
+    name: PSR PS700 Band Info Narrow Channel 6 DL BW
+    description: PSR PS700 Band Info Narrow Channel 6 DL BW
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "BAND_BW_NB_700_CH6_DL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps700_bi_narrow_ch6_dl_center_freq:
+    name: PSR PS700 Band Info Narrow Channel 6 DL Center Frequency
+    description: PSR PS700 Band Info Narrow Channel 6 DL Center Frequency
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "BAND_FREQ_NB_700_CH6_DL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps700_bi_narrow_ch6_dl_input:
+    name: PSR PS700 Band Info Narrow Channel 6 DL Input
+    description: PSR PS700 Band Info Narrow Channel 6 DL Input
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "BAND_INPWR_NB_700_CH6_DL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps700_bi_narrow_ch6_ul_bw:
+    name: PSR PS700 Band Info Narrow Channel 6 UL BW
+    description: PSR PS700 Band Info Narrow Channel 6 UL BW
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "BAND_BW_NB_700_CH6_UL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps700_bi_narrow_ch6_ul_center_freq:
+    name: PSR PS700 Band Info Narrow Channel 6 Center Frequency
+    description: PSR PS700 Band Info Narrow Channel 6 Center Frequency
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "BAND_FREQ_NB_700_CH6_UL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps700_bi_narrow_ch6_ul_input:
+    name: PSR PS700 Band Info Narrow Channel 6 UL Input
+    description: PSR PS700 Band Info Narrow Channel 6 UL Input
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "BAND_INPWR_NB_700_CH6_UL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps700_bi_narrow_ch7_dl_bw:
+    name: PSR PS700 Band Info Narrow Channel 7 Dl BW
+    description: PSR PS700 Band Info Narrow Channel 7 DL BW
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "BAND_BW_NB_700_CH7_DL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps700_bi_narrow_ch7_dl_center_freq:
+    name: PSR PS700 Band Info Narrow Channel 7 DL Center Frequency
+    description: PSR PS700 Band Info Narrow Channel 7 DL Center Frequency
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "BAND_FREQ_NB_700_CH7_DL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps700_bi_narrow_ch7_dl_input:
+    name: PSR PS700 Band Info Narrow Channel 7 DL Input
+    description: PSR PS700 Band Info Narrow Channel 7 DL Input
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "BAND_INPWR_NB_700_CH7_DL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps700_bi_narrow_ch7_ul_bw:
+    name: PSR PS700 Band Info Narrow Channel 7 UL BW
+    description: PSR PS700 Band Info Narrow Channel 7 UL BW
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "BAND_BW_NB_700_CH7_UL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps700_bi_narrow_ch7_ul_center_freq:
+    name: PSR PS700 Band Info Narrow Channel 7 UL Center Frequency
+    description: PSR PS700 Band Info Narrow Channel 7 UL Center Frequency
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "BAND_FREQ_NB_700_CH7_UL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps700_bi_narrow_ch7_ul_input:
+    name: PSR PS700 Band Info Narrow Channel 7 UL Input
+    description: PSR PS700 Band Info Narrow Channel 7 UL Input
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "BAND_INPWR_NB_700_CH7_UL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps700_bi_narrow_ch8_dl_bw:
+    name: PSR PS700 Band Info Narrow Channel 8 DL BW
+    description: PSR PS700 Band Info Narrow Channel 8 DL BW
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "BAND_BW_NB_700_CH8_DL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps700_bi_narrow_ch8_dl_center_freq:
+    name: PSR PS700 Band Info Narrow Channel 8 DL Center Frequency
+    description: PSR PS700 Band Info Narrow Channel 8 DL Center Frequency
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "BAND_FREQ_NB_700_CH8_DL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps700_bi_narrow_ch8_dl_input:
+    name: PSR PS700 Band Info Narrow Channel 8 DL Input
+    description: PSR PS700 Band Info Narrow Channel 8 DL Input
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "BAND_INPWR_NB_700_CH8_DL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps700_bi_narrow_ch8_ul_bw:
+    name: PSR PS700 Band Info Narrow Channel 8 UL BW
+    description: PSR PS700 Band Info Narrow Channel 8 UL BW
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "BAND_BW_NB_700_CH8_UL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps700_bi_narrow_ch8_ul_center_freq:
+    name: PSR PS700 Band Info Narrow Channel 8 UL Center Frequency
+    description: PSR PS700 Band Info Narrow Channel 8 UL Center Frequency
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "BAND_FREQ_NB_700_CH8_UL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps700_bi_narrow_ch8_ul_input:
+    name: PSR PS700 Band Info Narrow Channel 8 UL Input
+    description: PSR PS700 Band Info Narrow Channel 8 UL Input
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "BAND_INPWR_NB_700_CH8_UL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps700_bi_narrow_ch9_dl_bw:
+    name: PSR PS700 Band Info Narrow Channel 9 DL BW
+    description: PSR PS700 Band Info Narrow Channel 9 DL BW
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "BAND_BW_NB_700_CH9_DL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps700_bi_narrow_ch9_dl_center_freq:
+    name: PSR PS700 Band Info Narrow Channel 9 DL Center Frequency
+    description: PSR PS700 Band Info Narrow Channel 9 DL Center Frequency
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "BAND_FREQ_NB_700_CH9_DL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps700_bi_narrow_ch9_dl_input:
+    name: PSR PS700 Band Info Narrow Channel 9 DL Input
+    description: PSR PS700 Band Info Narrow Channel 9 DL Input
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "BAND_INPWR_NB_700_CH9_DL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps700_bi_narrow_ch9_ul_bw:
+    name: PSR PS700 Band Info Narrow Channel 9 UL BW
+    description: PSR PS700 Band Info Narrow Channel 9 UL BW
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "BAND_BW_NB_700_CH9_UL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps700_bi_narrow_ch9_ul_center_freq:
+    name: PSR PS700 Band Info Narrow Channel 9 UL Center Frequency
+    description: PSR PS700 Band Info Narrow Channel 9 Ul Center Frequency
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "BAND_FREQ_NB_700_CH9_UL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps700_bi_narrow_ch9_ul_input:
+    name: PSR PS700 Band Info Narrow Channel 9 UL Input
+    description: PSR PS700 Band Info Narrow Channel 9 UL Input
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "BAND_INPWR_NB_700_CH9_UL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps700_bi_narrow_ch10_dl_bw:
+    name: PSR PS700 Band Info Narrow Channel 10 DL BW
+    description: PSR PS700 Band Info Narrow Channel 10 DL BW
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "BAND_BW_NB_700_CH10_DL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps700_bi_narrow_ch10_dl_center_freq:
+    name: PSR PS700 Band Info Narrow Channel 10 DL Center Frequency
+    description: PSR PS700 Band Info Narrow Channel 10 DL Center Frequency
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "BAND_FREQ_NB_700_CH10_DL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps700_bi_narrow_ch10_dl_input:
+    name: PSR PS700 Band Info Narrow Channel 10 DL Input
+    description: PSR PS700 Band Info Narrow Channel 10 DL Input
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "BAND_INPWR_NB_700_CH10_DL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps700_bi_narrow_ch10_ul_bw:
+    name: PSR PS700 Band Info Narrow Channel 10 UL BW
+    description: PSR PS700 Band Info Narrow Channel 10 UL BW
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "BAND_BW_NB_700_CH10_UL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps700_bi_narrow_ch10_ul_center_freq:
+    name: PSR PS700 Band Info Narrow Channel 10 UL Center Frequency
+    description: PSR PS700 Band Info Narrow Channel 10 UL Center Frequency
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "BAND_FREQ_NB_700_CH10_UL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps700_bi_narrow_ch10_ul_input:
+    name: PSR PS700 Band Info Narrow Channel 10 UL Input
+    description: PSR PS700 Band Info Narrow Channel 10 UL Input
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "BAND_INPWR_NB_700_CH10_UL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps700_bi_narrow_ch11_dl_bw:
+    name: PSR PS700 Band Info Narrow Channel 11 DL BW
+    description: PSR PS700 Band Info Narrow Channel 11 DL BW
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "BAND_BW_NB_700_CH11_DL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps700_bi_narrow_ch11_dl_center_freq:
+    name: PSR PS700 Band Info Narrow Channel 11 DL Center Frequency
+    description: PSR PS700 Band Info Narrow Channel 11 DL Center Frequency
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "BAND_FREQ_NB_700_CH11_DL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps700_bi_narrow_ch11_dl_input:
+    name: PSR PS700 Band Info Narrow Channel 11 DL Input
+    description: PSR PS700 Band Info Narrow Channel 11 DL Input
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "BAND_INPWR_NB_700_CH11_DL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps700_bi_narrow_ch11_ul_bw:
+    name: PSR PS700 Band Info Narrow Channel 11 UL BW
+    description: PSR PS700 Band Info Narrow Channel 11 UL BW
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "BAND_BW_NB_700_CH11_UL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps700_bi_narrow_ch11_ul_center_freq:
+    name: PSR PS700 Band Info Narrow Channel 11 UL Center Frequency
+    description: PSR PS700 Band Info Narrow Channel 11 UL Center Frequency
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "BAND_FREQ_NB_700_CH11_UL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps700_bi_narrow_ch11_ul_input:
+    name: PSR PS700 Band Info Narrow Channel 11 UL Input
+    description: PSR PS700 Band Info Narrow Channel 11 UL Input
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "BAND_INPWR_NB_700_CH11_UL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps700_bi_narrow_ch12_dl_bw:
+    name: PSR PS700 Band Info Narrow Channel 12 DL BW
+    description: PSR PS700 Band Info Narrow Channel 12 DL BW
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "BAND_BW_NB_700_CH12_DL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps700_bi_narrow_ch12_dl_center_freq:
+    name: PSR PS700 Band Info Narrow Channel 12 DL Center Frequency
+    description: PSR PS700 Band Info Narrow Channel 12 DL Center Frequency
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "BAND_FREQ_NB_700_CH12_DL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps700_bi_narrow_ch12_dl_input:
+    name: PSR PS700 Band Info Narrow Channel 12 DL Input
+    description: PSR PS700 Band Info Narrow Channel 12 DL Input
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "BAND_INPWR_NB_700_CH12_DL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps700_bi_narrow_ch12_ul_bw:
+    name: PSR PS700 Band Info Narrow Channel 12 UL BW
+    description: PSR PS700 Band Info Narrow Channel 12 UL BW
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "BAND_BW_NB_700_CH12_UL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps700_bi_narrow_ch12_ul_center_freq:
+    name: PSR PS700 Band Info Narrow Channel 12 Ul Center Frequency
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "BAND_FREQ_NB_700_CH12_UL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps700_bi_narrow_ch12_ul_input:
+    name: PSR PS700 Band Info Narrow Channel 12 UL Input
+    description: PSR PS700 Band Info Narrow Channel 12 UL Input
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "BAND_INPWR_NB_700_CH12_UL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps700_dl_dsp_input_overload_alarm:
+    name: PSR PS700 DL DSP Input Overload Alarm
+    description: PSR PS700 DL DSP Input Overload Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: 
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps700_dl_input_overload_alarm:
+    name: PSR PS700 DL Input Overload Alarm
+    description: PSR PS700 DL Input Overload Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: 
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps700_dl_oscillation_alarm:
+    name: PSR PS700 DL Oscillation Alarm
+    description: PSR PS700 DL Oscillation Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: 
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps700_dl_out_of_band_overload_alarm:
+    name: PSR PS700 DL Out Of Band Overload Alarm
+    description: PSR PS700 DL Out Of Band Overload Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: 
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps700_dl_over_input_alarm:
+    name: PSR PS700 DL Over Input Alarm
+    description: PSR PS700 DL Over Input Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: 
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps700_dl_over_power_alarm:
+    name: PSR PS700 DL Over Power Alarm
+    description: PSR PS700 DL Over Power Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: 
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps700_dl_rf_power_alarm:
+    name: PSR PS700 DL RF Power Alarm
+    description: PSR PS700 DL RF Power Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: 
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps700_dl_signal_low_alarm:
+    name: PSR PS700 DL Signal Low Alarm
+    description: PSR PS700 DL Signal Low Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: 
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps700_dl_signal_not_detected_alarm:
+    name: PSR PS700 DL Signal Not Detected Alarm
+    description: PSR PS700 DL Signal Not Detected Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: 
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps700_dl_synthesizer_lock_fail_alarm:
+    name: PSR PS700 DL Synthesizer Lock Fail Alarm
+    description: PSR PS700 DL Synthesizer Lock Fail Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: 
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps700_dl_vswr_alarm:
+    name: PSR PS700 DL VSWR Alarm
+    description: PSR PS700 DL VSWR Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: 
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps700_pg_dl_actual:
+    name: PSR PS700 Power And Gain DL Actual
+    description: PSR PS700 Power And Gain DL Actual
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "RF_700_ACTUAL_GAIN_DL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps700_pg_dl_input:
+    name: PSR PS700 Power And Gain DL Input
+    description: PSR PS700 Power And Gain DL Input
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "RF_700_INPUT_DL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps700_pg_dl_outband:
+    name: PSR PS700 Power And Gain DL Outband
+    description: PSR PS700 Power And Gain DL Outband
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "RF_700_OUTBAND_DL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps700_pg_dl_output:
+    name: PSR PS700 Power And Gain DL Output
+    description: PSR PS700 Power And Gain DL Output
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "RF_700_OUTPUT_DL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps700_pg_dl_user_set:
+    name: PSR PS700 Power And Gain DL User Set
+    description: PSR PS700 Power And Gain DL User Set
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "RF_700_USER_GAIN_DL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps700_pg_ul_actual:
+    name: PSR PS700 Power And Gain UL Actual
+    description: PSR PS700 Power And Gain UL Actual
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "RF_700_ACTUAL_GAIN_UL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps700_pg_ul_input:
+    name: PSR PS700 Power And Gain UL Input
+    description: PSR PS700 Power And Gain UL Input
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "RF_700_INPUT_UL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps700_pg_ul_outband:
+    name: PSR PS700 Power And Gain UL Outband
+    description: PSR PS700 Power And Gain UL Outband
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "RF_700_OUTBAND_UL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps700_pg_ul_output:
+    name: PSR PS700 Power And Gain UL Output
+    description: PSR PS700 Power And Gain UL Output
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "RF_700_OUTPUT_UL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps700_pg_ul_user_set:
+    name: PSR PS700 Power And Gain UL User Set
+    description: PSR PS700 Power And Gain UL User Set
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "RF_700_USER_GAIN_UL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps700_ul_dsp_input_overload_alarm:
+    name: PSR PS700 UL DSP Input Overload Alarm
+    description: PSR PS700 UL DSP Input Overload Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: 
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps700_ul_input_overload_alarm:
+    name: PSR PS700 UL Input Overload Alarm
+    description: PSR PS700 UL Input Overload Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: 
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps700_ul_out_of_band_overload_alarm:
+    name: PSR PS700 UL Out Of Band Overload Alarm
+    description: PSR PS700 UL Out Of Band Overload Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: 
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps700_ul_over_input_alarm:
+    name: PSR PS700 UL Over Input Alarm
+    description: PSR PS700 UL Over Input Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: 
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps700_ul_over_power_alarm:
+    name: PSR PS700 UL Over Power Alarm
+    description: PSR PS700 UL Over Power Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: 
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps700_ul_synthesizer_lock_fail_alarm:
+    name: PSR PS700 UL Synthesizer Lock Fail Alarm
+    description: PSR PS700 UL Synthesizer Lock Fail Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: 
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps700_ul_vswr_alarm:
+    name: PSR PS700 UL VSWR Alarm
+    description: PSR PS700 UL VSWR Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: 
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps800_bi_broad_ch1_dl_bw:
+    name: PSR PS800 Band Info Broad Channel 1 DL BW
+    description: PSR PS800 Band Info Broad Channel 1 DL BW
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "BAND_BW_800_WB_CH1_DL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps800_bi_broad_ch1_dl_center_freq:
+    name: PSR PS800 Band Info Broad Channel 1 DL Center Frequency
+    description: PSR PS800 Band Info Broad Channel 1 DL Center Frequency
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "BAND_FREQ_800_WB_CH1_DL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps800_bi_broad_ch1_dl_input:
+    name: PSR PS800 Band Info Broad Channel 1 DL Input
+    description: PSR PS800 Band Info Broad Channel 1 DL Input
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "BAND_INPWR_800_WB_CH1_DL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps800_bi_broad_ch1_ul_bw:
+    name: PSR PS800 Band Info Broad Channel 1 UL BW
+    description: PSR PS800 Band Info Broad Channel 1 UL BW
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "BAND_BW_800_WB_CH1_UL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps800_bi_broad_ch1_ul_center_freq:
+    name: PSR PS800 Band Info Broad Channel 1 UL Center Frequency
+    description: PSR PS800 Band Info Broad Channel 1 UL Center Frequency
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "BAND_FREQ_800_WB_CH1_UL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps800_bi_broad_ch1_ul_input:
+    name: PSR PS800 Band Info Broad Channel 1 UL Input
+    description: PSR PS800 Band Info Broad Channel 1 UL Input
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "BAND_INPWR_800_WB_CH1_UL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps800_bi_broad_ch2_dl_bw:
+    name: PSR PS800 Band Info Broad Channel 2 DL BW
+    description: PSR PS800 Band Info Broad Channel 2 DL BW
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "BAND_BW_800_WB_CH2_DL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps800_bi_broad_ch2_dl_center_freq:
+    name: PSR PS800 Band Info Broad Channel 2 DL Center Frequency
+    description: PSR PS800 Band Info Broad Channel 2 DL Center Frequency
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "BAND_FREQ_800_WB_CH2_DL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps800_bi_broad_ch2_dl_input:
+    name: PSR PS800 Band Info Broad Channel 2 DL Input
+    description: PSR PS800 Band Info Broad Channel 2 DL Input
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "BAND_INPWR_800_WB_CH2_DL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps800_bi_broad_ch2_ul_bw:
+    name: PSR PS800 Band Info Broad Channel 2 UL BW
+    description: PSR PS800 Band Info Broad Channel 2 UL BW
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "BAND_BW_800_WB_CH2_UL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps800_bi_broad_ch2_ul_center_freq:
+    name: PSR PS800 Band Info Broad Channel 2 UL Center Frequency
+    description: PSR PS800 Band Info Broad Channel 2 Center Frequency
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "BAND_FREQ_800_WB_CH2_UL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps800_bi_broad_ch2_ul_input:
+    name: PSR PS800 Band Info Broad Channel 2 UL Input
+    description: PSR PS800 Band Info Broad Channel 2 UL Input
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "BAND_INPWR_800_WB_CH2_UL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps800_bi_narrow_ch1_dl_bw:
+    name: PSR PS800 Band Info Narrow Channel 1 DL BW
+    description: PSR PS800 Band Info Narrow Channel 1 DL BW
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "BAND_BW_NB_800_CH1_DL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps800_bi_narrow_ch1_dl_center_freq:
+    name: PSR PS800 Band Info Narrow Channel 1 DL Center Frequency
+    description: PSR PS800 Band Info Narrow Channel 1 DL Center Frequency
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "BAND_FREQ_NB_800_CH1_DL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps800_bi_narrow_ch1_dl_input:
+    name: PSR PS800 Band Info Narrow Channel 1 DL Input
+    description: PSR PS800 Band Info Narrow Channel 1 DL Input
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "BAND_INPWR_NB_800_CH1_DL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps800_bi_narrow_ch1_ul_bw:
+    name: PSR PS800 Band Info Narrow Channel 1 UL BW
+    description: PSR PS800 Band Info Narrow Channel 1 UL BW
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "BAND_BW_NB_800_CH1_UL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps800_bi_narrow_ch1_ul_center_freq:
+    name: PSR PS800 Band Info Narrow Channel 1 UL Center Frequency
+    description: PSR PS800 Band Info Narrow Channel 1 UL Center Frequency
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "BAND_FREQ_NB_800_CH1_UL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps800_bi_narrow_ch1_ul_input:
+    name: PSR PS800 Band Info Narrow Channel 1 UL Input
+    description: PSR PS800 Band Info Narrow Channel 1 UL Input
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "BAND_INPWR_NB_800_CH1_UL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps800_bi_narrow_ch2_dl_bw:
+    name: PSR PS800 Band Info Narrow Channel 2 DL BW
+    description: PSR PS800 Band Info Narrow Channel 2 DL BW
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "BAND_BW_NB_800_CH2_DL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps800_bi_narrow_ch2_dl_center_freq:
+    name: PSR PS800 Band Info Narrow Channel 2 DL Center Frequency
+    description: PSR PS800 Band Info Narrow Channel 2 DL Center Frequency
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "BAND_FREQ_NB_800_CH2_DL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps800_bi_narrow_ch2_dl_input:
+    name: PSR PS800 Band Info Narrow Channel 2 DL Input
+    description: PSR PS800 Band Info Narrow Channel 2 DL Input
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "BAND_INPWR_NB_800_CH2_DL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps800_bi_narrow_ch2_ul_bw:
+    name: PSR PS800 Band Info Narrow Channel 2 UL BW
+    description: PSR PS800 Band Info Narrow Channel 2 UL BW
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "BAND_BW_NB_800_CH2_UL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps800_bi_narrow_ch2_ul_center_freq:
+    name: PSR PS800 Band Info Narrow Channel 2 UL Center Frequency
+    description: PSR PS800 Band Info Narrow Channel 2 UL Center Frequency
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "BAND_FREQ_NB_800_CH2_UL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps800_bi_narrow_ch2_ul_input:
+    name: PSR PS800 Band Info Narrow Channel 2 UL Input
+    description: PSR PS800 Band Info Narrow Channel 2 UL Input
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "BAND_INPWR_NB_800_CH2_UL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps800_bi_narrow_ch3_dl_bw:
+    name: PSR PS800 Band Info Narrow Channel 3 DL BW
+    description: PSR PS800 Band Info Narrow Channel 3 DL BW
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "BAND_BW_NB_800_CH3_DL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps800_bi_narrow_ch3_dl_center_freq:
+    name: PSR PS800 Band Info Narrow Channel 3 DL Center Frequency
+    description: PSR PS800 Band Info Narrow Channel 3 DL Center Frequency
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "BAND_FREQ_NB_800_CH3_DL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps800_bi_narrow_ch3_dl_input:
+    name: PSR PS800 Band Info Narrow Channel 3 DL Input
+    description: PSR PS800 Band Info Narrow Channel 3 DL Input
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "BAND_INPWR_NB_800_CH3_DL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps800_bi_narrow_ch3_ul_bw:
+    name: PSR PS800 Band Info Narrow Channel 3 UL BW
+    description: PSR PS800 Band Info Narrow Channel 3 UL BW
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "BAND_BW_NB_800_CH3_UL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps800_bi_narrow_ch3_ul_center_freq:
+    name: PSR PS800 Band Info Narrow Channel 3 UL Center Frequency
+    description: PSR PS800 Band Info Narrow Channel 3 UL Center Frequency
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "BAND_FREQ_NB_800_CH3_UL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps800_bi_narrow_ch3_ul_input:
+    name: PSR PS800 Band Info Narrow Channel 3 UL Input
+    description: PSR PS800 Band Info Narrow Channel 3 UL Input
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "BAND_INPWR_NB_800_CH3_UL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps800_bi_narrow_ch4_dl_bw:
+    name: PSR PS800 Band Info Narrow Channel 4 DL BW
+    description: PSR PS800 Band Info Narrow Channel 4 DL BW
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "BAND_BW_NB_800_CH4_DL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps800_bi_narrow_ch4_dl_center_freq:
+    name: PSR PS800 Band Info Narrow Channel 4 DL Center Frequency
+    description: PSR PS800 Band Info Narrow Channel 4 DL Center Frequency
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "BAND_FREQ_NB_800_CH4_DL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps800_bi_narrow_ch4_dl_input:
+    name: PSR PS800 Band Info Narrow Channel 4 DL Input
+    description: PSR PS800 Band Info Narrow Channel 4 DL Input
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "BAND_INPWR_NB_800_CH4_DL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps800_bi_narrow_ch4_ul_bw:
+    name: PSR PS800 Band Info Narrow Channel 4 UL BW
+    description: PSR PS800 Band Info Narrow Channel 4 UL BW
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "BAND_BW_NB_800_CH4_UL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps800_bi_narrow_ch4_ul_center_freq:
+    name: PSR PS800 Band Info Narrow Channel 4 UL Center Frequency
+    description: PSR PS800 Band Info Narrow Channel 4 UL Center Frequency
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "BAND_FREQ_NB_800_CH4_UL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps800_bi_narrow_ch4_ul_input:
+    name: PSR PS800 Band Info Narrow Channel 4 UL Input
+    description: PSR PS800 Band Info Narrow Channel 4 UL Input
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "BAND_INPWR_NB_800_CH4_UL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps800_bi_narrow_ch5_dl_bw:
+    name: PSR PS800 Band Info Narrow Channel 5 DL BW
+    description: PSR PS800 Band Info Narrow Channel 5 DL BW
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "BAND_BW_NB_800_CH5_DL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps800_bi_narrow_ch5_dl_center_freq:
+    name: PSR PS800 Band Info Narrow Channel 5 DL Center Frequency
+    description: PSR PS800 Band Info Narrow Channel 5 DL Center Frequency
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "BAND_FREQ_NB_800_CH5_DL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps800_bi_narrow_ch5_dl_input:
+    name: PSR PS800 Band Info Narrow Channel 5 DL Input
+    description: PSR PS800 Band Info Narrow Channel 5 DL Input
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "BAND_INPWR_NB_800_CH5_DL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps800_bi_narrow_ch5_ul_bw:
+    name: PSR PS800 Band Info Narrow Channel 5 UL BW
+    description: PSR PS800 Band Info Narrow Channel 5 UL BW
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "BAND_BW_NB_800_CH5_UL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps800_bi_narrow_ch5_ul_center_freq:
+    name: PSR PS800 Band Info Narrow Channel 5 UL Center Frequency
+    description: PSR PS800 Band Info Narrow Channel 5 UL Center Frequency
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "BAND_FREQ_NB_800_CH5_UL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps800_bi_narrow_ch5_ul_input:
+    name: PSR PS800 Band Info Narrow Channel 5 UL Input
+    description: PSR PS800 Band Info Narrow Channel 5 UL Input
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "BAND_INPWR_NB_800_CH5_UL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps800_bi_narrow_ch6_dl_bw:
+    name: PSR PS800 Band Info Narrow Channel 6 DL BW
+    description: PSR PS800 Band Info Narrow Channel 6 DL BW
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "BAND_BW_NB_800_CH6_DL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps800_bi_narrow_ch6_dl_center_freq:
+    name: PSR PS800 Band Info Narrow Channel 6 DL Center Frequency
+    description: PSR PS800 Band Info Narrow Channel 6 DL Center Frequency
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "BAND_FREQ_NB_800_CH6_DL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps800_bi_narrow_ch6_dl_input:
+    name: PSR PS800 Band Info Narrow Channel 6 DL Input
+    description: PSR PS800 Band Info Narrow Channel 6 DL Input
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "BAND_INPWR_NB_800_CH6_DL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps800_bi_narrow_ch6_ul_bw:
+    name: PSR PS800 Band Info Narrow Channel 6 UL BW
+    description: PSR PS800 Band Info Narrow Channel 6 UL BW
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "BAND_BW_NB_800_CH6_UL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps800_bi_narrow_ch6_ul_center_freq:
+    name: PSR PS800 Band Info Narrow Channel 6 UL Center Frequency
+    description: PSR PS800 Band Info Narrow Channel 6 UL Center Frequency
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "BAND_FREQ_NB_800_CH6_UL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps800_bi_narrow_ch6_ul_input:
+    name: PSR PS800 Band Info Narrow Channel 6 UL Input
+    description: PSR PS800 Band Info Narrow Channel 6 UL Input
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "BAND_INPWR_NB_800_CH6_UL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps800_bi_narrow_ch7_dl_bw:
+    name: PSR PS800 Band Info Narrow Channel 7 DL BW
+    description: PSR PS800 Band Info Narrow Channel 7 DL BW
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "BAND_BW_NB_800_CH7_DL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps800_bi_narrow_ch7_dl_center_freq:
+    name: PSR PS800 Band Info Narrow Channel 7 DL Center Frequency
+    description: PSR PS800 Band Info Narrow Channel 7 DL Center Frequency
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "BAND_FREQ_NB_800_CH7_DL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps800_bi_narrow_ch7_dl_input:
+    name: PSR PS800 Band Info Narrow Channel 7 DL Input
+    description: PSR PS800 Band Info Narrow Channel 7 DL Input
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "BAND_INPWR_NB_800_CH7_DL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps800_bi_narrow_ch7_ul_bw:
+    name: PSR PS800 Band Info Narrow Channel 7 UL BW
+    description: PSR PS800 Band Info Narrow Channel 7 UL BW
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "BAND_BW_NB_800_CH7_UL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps800_bi_narrow_ch7_ul_center_freq:
+    name: PSR PS800 Band Info Narrow Channel 7 UL Center Frequency
+    description: PSR PS800 Band Info Narrow Channel 7 UL Center Frequency
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "BAND_FREQ_NB_800_CH7_UL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps800_bi_narrow_ch7_ul_input:
+    name: PSR PS800 Band Info Narrow Channel 7 UL Input
+    description: PSR PS800 Band Info Narrow Channel 7 UL Input
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "BAND_INPWR_NB_800_CH7_UL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps800_bi_narrow_ch8_dl_bw:
+    name: PSR PS800 Band Info Narrow Channel 8 DL BW
+    description: PSR PS800 Band Info Narrow Channel 8 DL BW
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "BAND_BW_NB_800_CH8_DL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps800_bi_narrow_ch8_dl_center_freq:
+    name: PSR PS800 Band Info Narrow Channel 8 DL Center Frequency
+    description: PSR PS800 Band Info Narrow Channel 8 DL Center Frequency
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "BAND_FREQ_NB_800_CH8_DL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps800_bi_narrow_ch8_dl_input:
+    name: PSR PS800 Band Info Narrow Channel 8 DL Input
+    description: PSR PS800 Band Info Narrow Channel 8 DL Input
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "BAND_INPWR_NB_800_CH8_DL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps800_bi_narrow_ch8_ul_bw:
+    name: PSR PS800 Band Info Narrow Channel 8 UL BW
+    description: PSR PS800 Band Info Narrow Channel 8 UL BW
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "BAND_BW_NB_800_CH8_UL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps800_bi_narrow_ch8_ul_center_freq:
+    name: PSR PS800 Band Info Narrow Channel 8 UL Center Frequency
+    description: PSR PS800 Band Info Narrow Channel 8 UL Center Frequency
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "BAND_FREQ_NB_800_CH8_UL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps800_bi_narrow_ch8_ul_input:
+    name: PSR PS800 Band Info Narrow Channel 8 UL Input
+    description: PSR PS800 Band Info Narrow Channel 8 UL Input
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "BAND_INPWR_NB_800_CH8_UL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps800_bi_narrow_ch9_dl_bw:
+    name: PSR PS800 Band Info Narrow Channel 9 DL BW
+    description: PSR PS800 Band Info Narrow Channel 9 DL BW
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "BAND_BW_NB_800_CH9_DL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps800_bi_narrow_ch9_dl_center_freq:
+    name: PSR PS800 Band Info Narrow Channel 9 DL Center Frequency
+    description: PSR PS800 Band Info Narrow Channel 9 DL Center Frequency
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "BAND_FREQ_NB_800_CH9_DL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps800_bi_narrow_ch9_dl_input:
+    name: PSR PS800 Band Info Narrow Channel 9 DL Input
+    description: PSR PS800 Band Info Narrow Channel 9 DL Input
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "BAND_INPWR_NB_800_CH9_DL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps800_bi_narrow_ch9_ul_bw:
+    name: PSR PS800 Band Info Narrow Channel 9 UL BW
+    description: PSR PS800 Band Info Narrow Channel 9 UL BW
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "BAND_BW_NB_800_CH9_UL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps800_bi_narrow_ch9_ul_center_freq:
+    name: PSR PS800 Band Info Narrow Channel 9 UL Center Frequency
+    description: PSR PS800 Band Info Narrow Channel 9 UL Center Frequency
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "BAND_FREQ_NB_800_CH9_UL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps800_bi_narrow_ch9_ul_input:
+    name: PSR PS800 Band Info Narrow Channel 9 UL Input
+    description: PSR PS800 Band Info Narrow Channel 9 UL Input
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "BAND_INPWR_NB_800_CH9_UL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps800_bi_narrow_ch10_dl_bw:
+    name: PSR PS800 Band Info Narrow Channel 10 DL BW
+    description: PSR PS800 Band Info Narrow Channel 10 DL BW
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "BAND_BW_NB_800_CH10_DL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps800_bi_narrow_ch10_dl_center_freq:
+    name: PSR PS800 Band Info Narrow Channel 10 DL Center Frequency
+    description: PSR PS800 Band Info Narrow Channel 10 DL Center Frequency
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "BAND_FREQ_NB_800_CH10_DL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps800_bi_narrow_ch10_dl_input:
+    name: PSR PS800 Band Info Narrow Channel 10 DL Input
+    description: PSR PS800 Band Info Narrow Channel 10 DL Input
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "BAND_INPWR_NB_800_CH10_DL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps800_bi_narrow_ch10_ul_bw:
+    name: PSR PS800 Band Info Narrow Channel 10 UL BW
+    description: PSR PS800 Band Info Narrow Channel 10 UL BW
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "BAND_BW_NB_800_CH10_UL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps800_bi_narrow_ch10_ul_center_freq:
+    name: PSR PS800 Band Info Narrow Channel 10 UL Center Frequency
+    description: PSR PS800 Band Info Narrow Channel 10 UL Center Frequency
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "BAND_FREQ_NB_800_CH10_UL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps800_bi_narrow_ch10_ul_input:
+    name: PSR PS800 Band Info Narrow Channel 10 UL Input
+    description: PSR PS800 Band Info Narrow Channel 10 UL Input
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "BAND_INPWR_NB_800_CH10_UL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps800_bi_narrow_ch11_dl_bw:
+    name: PSR PS800 Band Info Narrow Channel 11 DL BW
+    description: PSR PS800 Band Info Narrow Channel 11 DL BW
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "BAND_BW_NB_800_CH11_DL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps800_bi_narrow_ch11_dl_center_freq:
+    name: PSR PS800 Band Info Narrow Channel 11 DL Center Frequency
+    description: PSR PS800 Band Info Narrow Channel 11 DL Center Frequency
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "BAND_FREQ_NB_800_CH11_DL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps800_bi_narrow_ch11_dl_input:
+    name: PSR PS800 Band Info Narrow Channel 11 DL Input
+    description: PSR PS800 Band Info Narrow Channel 11 DL Input
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "BAND_INPWR_NB_800_CH11_DL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps800_bi_narrow_ch11_ul_bw:
+    name: PSR PS800 Band Info Narrow Channel 11 UL BW
+    description: PSR PS800 Band Info Narrow Channel 11 UL BW
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "BAND_BW_NB_800_CH11_UL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps800_bi_narrow_ch11_ul_center_freq:
+    name: PSR PS800 Band Info Narrow Channel 11 UL Center Frequency
+    description: PSR PS800 Band Info Narrow Channel 11 UL Center Frequency
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "BAND_FREQ_NB_800_CH11_UL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps800_bi_narrow_ch11_ul_input:
+    name: PSR PS800 Band Info Narrow Channel 11 UL Input
+    description: PSR PS800 Band Info Narrow Channel 11 UL Input
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "BAND_INPWR_NB_800_CH11_UL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps800_bi_narrow_ch12_dl_bw:
+    name: PSR PS800 Band Info Narrow Channel 12 DL BW
+    description: PSR PS800 Band Info Narrow Channel 12 DL BW
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "BAND_BW_NB_800_CH12_DL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps800_bi_narrow_ch12_dl_center_freq:
+    name: PSR PS800 Band Info Narrow Channel 12 DL Center Frequency
+    description: PSR PS800 Band Info Narrow Channel 12 DL Center Frequency
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "BAND_FREQ_NB_800_CH12_DL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps800_bi_narrow_ch12_dl_input:
+    name: PSR PS800 Band Info Narrow Channel 12 DL Input
+    description: PSR PS800 Band Info Narrow Channel 12 DL Input
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "BAND_INPWR_NB_800_CH12_DL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps800_bi_narrow_ch12_ul_bw:
+    name: PSR PS800 Band Info Narrow Channel 12 UL BW
+    description: PSR PS800 Band Info Narrow Channel 12 UL BW
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "BAND_BW_NB_800_CH12_UL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps800_bi_narrow_ch12_ul_center_freq:
+    name: PSR PS800 Band Info Narrow Channel 12 UL Center Frequency
+    description: PSR PS800 Band Info Narrow Channel 12 UL Center Frequency
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "BAND_FREQ_NB_800_CH12_UL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps800_bi_narrow_ch12_ul_input:
+    name: PSR PS800 Band Info Narrow Channel 12 UL Input
+    description: PSR PS800 Band Info Narrow Channel 12 UL Input
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "BAND_INPWR_NB_800_CH12_UL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps800_bi_narrow_ch13_dl_bw:
+    name: PSR PS800 Band Info Narrow Channel 13 DL BW
+    description: PSR PS800 Band Info Narrow Channel 13 DL BW
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "BAND_BW_NB_800_CH13_DL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps800_bi_narrow_ch13_dl_center_freq:
+    name: PSR PS800 Band Info Narrow Channel 13 DL Center Frequency
+    description: PSR PS800 Band Info Narrow Channel 13 DL Center Frequency
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "BAND_FREQ_NB_800_CH13_DL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps800_bi_narrow_ch13_dl_input:
+    name: PSR PS800 Band Info Narrow Channel 13 DL Input
+    description: PSR PS800 Band Info Narrow Channel 13 DL Input
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "BAND_INPWR_NB_800_CH13_DL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps800_bi_narrow_ch13_ul_bw:
+    name: PSR PS800 Band Info Narrow Channel 13 UL BW
+    description: PSR PS800 Band Info Narrow Channel 13 UL BW
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "BAND_BW_NB_800_CH13_UL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps800_bi_narrow_ch13_ul_center_freq:
+    name: PSR PS800 Band Info Narrow Channel 13 UL Center Frequency
+    description: PSR PS800 Band Info Narrow Channel 13 UL Center Frequency
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "BAND_FREQ_NB_800_CH13_UL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps800_bi_narrow_ch13_ul_input:
+    name: PSR PS800 Band Info Narrow Channel 13 UL Input
+    description: PSR PS800 Band Info Narrow Channel 13 UL Input
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "BAND_INPWR_NB_800_CH13_UL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps800_bi_narrow_ch14_dl_bw:
+    name: PSR PS800 Band Info Narrow Channel 14 DL BW
+    description: PSR PS800 Band Info Narrow Channel 14 DL BW
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "BAND_BW_NB_800_CH14_DL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps800_bi_narrow_ch14_dl_center_freq:
+    name: PSR PS800 Band Info Narrow Channel 14 DL Center Frequency
+    description: PSR PS800 Band Info Narrow Channel 14 DL Center Frequency
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "BAND_FREQ_NB_800_CH14_DL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps800_bi_narrow_ch14_dl_input:
+    name: PSR PS800 Band Info Narrow Channel 14 DL Input
+    description: PSR PS800 Band Info Narrow Channel 14 DL Input
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "BAND_INPWR_NB_800_CH14_DL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps800_bi_narrow_ch14_ul_bw:
+    name: PSR PS800 Band Info Narrow Channel 14 UL BW
+    description: PSR PS800 Band Info Narrow Channel 14 UL BW
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "BAND_BW_NB_800_CH14_UL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps800_bi_narrow_ch14_ul_center_freq:
+    name: PSR PS800 Band Info Narrow Channel 14 UL Center Frequency
+    description: PSR PS800 Band Info Narrow Channel 14 UL Center Frequency
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "BAND_FREQ_NB_800_CH14_UL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps800_bi_narrow_ch14_ul_input:
+    name: PSR PS800 Band Info Narrow Channel 14 UL Input
+    description: PSR PS800 Band Info Narrow Channel 14 UL Input
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "BAND_INPWR_NB_800_CH14_UL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps800_bi_narrow_ch15_dl_bw:
+    name: PSR PS800 Band Info Narrow Channel 15 DL BW
+    description: PSR PS800 Band Info Narrow Channel 15 DL BW
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "BAND_BW_NB_800_CH15_DL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps800_bi_narrow_ch15_dl_center_freq:
+    name: PSR PS800 Band Info Narrow Channel 15 DL Center Frequency
+    description: PSR PS800 Band Info Narrow Channel 15 DL Center Frequency
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "BAND_FREQ_NB_800_CH15_DL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps800_bi_narrow_ch15_dl_input:
+    name: PSR PS800 Band Info Narrow Channel 15 DL Input
+    description: PSR PS800 Band Info Narrow Channel 15 DL Input
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "BAND_INPWR_NB_800_CH15_DL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps800_bi_narrow_ch15_ul_bw:
+    name: PSR PS800 Band Info Narrow Channel 15 UL BW
+    description: PSR PS800 Band Info Narrow Channel 15 UL BW
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "BAND_BW_NB_800_CH15_UL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps800_bi_narrow_ch15_ul_center_freq:
+    name: PSR PS800 Band Info Narrow Channel 15 UL Center Frequency
+    description: PSR PS800 Band Info Narrow Channel 15 UL Center Frequency
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "BAND_FREQ_NB_800_CH15_UL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps800_bi_narrow_ch15_ul_input:
+    name: PSR PS800 Band Info Narrow Channel 15 UL Input
+    description: PSR PS800 Band Info Narrow Channel 15 UL Input
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "BAND_INPWR_NB_800_CH15_UL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps800_bi_narrow_ch16_dl_bw:
+    name: PSR PS800 Band Info Narrow Channel 16 DL BW
+    description: PSR PS800 Band Info Narrow Channel 16 DL BW
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "BAND_BW_NB_800_CH16_DL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps800_bi_narrow_ch16_dl_center_freq:
+    name: PSR PS800 Band Info Narrow Channel 16 DL Center Frequency
+    description: PSR PS800 Band Info Narrow Channel 16 DL Center Frequency
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "BAND_FREQ_NB_800_CH16_DL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps800_bi_narrow_ch16_dl_input:
+    name: PSR PS800 Band Info Narrow Channel 16 DL Input
+    description: PSR PS800 Band Info Narrow Channel 16 DL Input
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "BAND_INPWR_NB_800_CH16_DL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps800_bi_narrow_ch16_ul_bw:
+    name: PSR PS800 Band Info Narrow Channel 16 UL BW
+    description: PSR PS800 Band Info Narrow Channel 16 UL BW
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "BAND_BW_NB_800_CH16_UL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps800_bi_narrow_ch16_ul_center_freq:
+    name: PSR PS800 Band Info Narrow Channel 16 UL Center Frequency
+    description: PSR PS800 Band Info Narrow Channel 16 UL Center Frequency
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "BAND_FREQ_NB_800_CH16_UL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps800_bi_narrow_ch16_ul_input:
+    name: PSR PS800 Band Info Narrow Channel 16 UL Input
+    description: PSR PS800 Band Info Narrow Channel 16 UL Input
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "BAND_INPWR_NB_800_CH16_UL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps800_bi_narrow_ch17_dl_bw:
+    name: PSR PS800 Band Info Narrow Channel 17 DL BW
+    description: PSR PS800 Band Info Narrow Channel 17 DL BW
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "BAND_BW_NB_800_CH17_DL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps800_bi_narrow_ch17_dl_center_freq:
+    name: PSR PS800 Band Info Narrow Channel 17 DL Center Frequency
+    description: PSR PS800 Band Info Narrow Channel 17 DL Center Frequency
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "BAND_FREQ_NB_800_CH17_DL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps800_bi_narrow_ch17_dl_input:
+    name: PSR PS800 Band Info Narrow Channel 17 DL Input
+    description: PSR PS800 Band Info Narrow Channel 17 DL Input
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "BAND_INPWR_NB_800_CH17_DL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps800_bi_narrow_ch17_ul_bw:
+    name: PSR PS800 Band Info Narrow Channel 17 UL BW
+    description: PSR PS800 Band Info Narrow Channel 17 UL BW
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "BAND_BW_NB_800_CH17_UL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps800_bi_narrow_ch17_ul_center_freq:
+    name: PSR PS800 Band Info Narrow Channel 17 UL Center Frequency
+    description: PSR PS800 Band Info Narrow Channel 17 UL Center Frequency
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "BAND_FREQ_NB_800_CH17_UL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps800_bi_narrow_ch17_ul_input:
+    name: PSR PS800 Band Info Narrow Channel 17 UL Input
+    description: PSR PS800 Band Info Narrow Channel 17 UL Input
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "BAND_INPWR_NB_800_CH17_UL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps800_bi_narrow_ch18_dl_bw:
+    name: PSR PS800 Band Info Narrow Channel 18 DL BW
+    description: PSR PS800 Band Info Narrow Channel 18 DL BW
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "BAND_BW_NB_800_CH18_DL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps800_bi_narrow_ch18_dl_center_freq:
+    name: PSR PS800 Band Info Narrow Channel 18 DL Center Frequency
+    description: PSR PS800 Band Info Narrow Channel 18 DL Center Frequency
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "BAND_FREQ_NB_800_CH18_DL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps800_bi_narrow_ch18_dl_input:
+    name: PSR PS800 Band Info Narrow Channel 18 DL Input
+    description: PSR PS800 Band Info Narrow Channel 18 DL Input
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "BAND_INPWR_NB_800_CH18_DL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps800_bi_narrow_ch18_ul_bw:
+    name: PSR PS800 Band Info Narrow Channel 18 UL BW
+    description: PSR PS800 Band Info Narrow Channel 18 UL BW
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "BAND_BW_NB_800_CH18_UL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps800_bi_narrow_ch18_ul_center_freq:
+    name: PSR PS800 Band Info Narrow Channel 18 UL Center Frequency
+    description: PSR PS800 Band Info Narrow Channel 18 UL Center Frequency
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "BAND_FREQ_NB_800_CH18_UL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps800_bi_narrow_ch18_ul_input:
+    name: PSR PS800 Band Info Narrow Channel 18 UL Input
+    description: PSR PS800 Band Info Narrow Channel 18 UL Input
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "BAND_INPWR_NB_800_CH18_UL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps800_bi_narrow_ch19_dl_bw:
+    name: PSR PS800 Band Info Narrow Channel 19 DL BW
+    description: PSR PS800 Band Info Narrow Channel 19 DL BW
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "BAND_BW_NB_800_CH19_DL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps800_bi_narrow_ch19_dl_center_freq:
+    name: PSR PS800 Band Info Narrow Channel 19 DL Center Frequency
+    description: PSR PS800 Band Info Narrow Channel 19 DL Center Frequency
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "BAND_FREQ_NB_800_CH19_DL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps800_bi_narrow_ch19_dl_input:
+    name: PSR PS800 Band Info Narrow Channel 19 DL Input
+    description: PSR PS800 Band Info Narrow Channel 19 DL Input
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "BAND_INPWR_NB_800_CH19_DL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps800_bi_narrow_ch19_ul_bw:
+    name: PSR PS800 Band Info Narrow Channel 19 UL BW
+    description: PSR PS800 Band Info Narrow Channel 19 UL BW
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "BAND_BW_NB_800_CH19_UL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps800_bi_narrow_ch19_ul_center_freq:
+    name: PSR PS800 Band Info Narrow Channel 19 UL Center Frequency
+    description: PSR PS800 Band Info Narrow Channel 19 UL Center Frequency
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "BAND_FREQ_NB_800_CH19_UL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps800_bi_narrow_ch19_ul_input:
+    name: PSR PS800 Band Info Narrow Channel 19 UL Input
+    description: PSR PS800 Band Info Narrow Channel 19 UL Input
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "BAND_INPWR_NB_800_CH19_UL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps800_bi_narrow_ch20_dl_bw:
+    name: PSR PS800 Band Info Narrow Channel 20 DL BW
+    description: PSR PS800 Band Info Narrow Channel 20 DL BW
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "BAND_BW_NB_800_CH20_DL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps800_bi_narrow_ch20_dl_center_freq:
+    name: PSR PS800 Band Info Narrow Channel 20 DL Center Frequency
+    description: PSR PS800 Band Info Narrow Channel 20 DL Center Frequency
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "BAND_FREQ_NB_800_CH20_DL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps800_bi_narrow_ch20_dl_input:
+    name: PSR PS800 Band Info Narrow Channel 20 DL Input
+    description: PSR PS800 Band Info Narrow Channel 20 DL Input
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "BAND_INPWR_NB_800_CH20_DL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps800_bi_narrow_ch20_ul_bw:
+    name: PSR PS800 Band Info Narrow Channel 20 UL BW
+    description: PSR PS800 Band Info Narrow Channel 20 UL BW
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "BAND_BW_NB_800_CH20_UL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps800_bi_narrow_ch20_ul_center_freq:
+    name: PSR PS800 Band Info Narrow Channel 20 UL Center Frequency
+    description: PSR PS800 Band Info Narrow Channel 20 UL Center Frequency
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "BAND_FREQ_NB_800_CH20_UL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps800_bi_narrow_ch20_ul_input:
+    name: PSR PS800 Band Info Narrow Channel 20 UL Input
+    description: PSR PS800 Band Info Narrow Channel 20 UL Input
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "BAND_INPWR_NB_800_CH20_UL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps800_dl_dsp_input_overload_alarm:
+    name: PSR PS800 DL DSP Input Overload Alarm
+    description: PSR PS800 DL DSP Input Overload Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: 
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps800_dl_input_overload_alarm:
+    name: PSR PS800 DL Input Overload Alarm
+    description: PSR PS800 DL Input Overload Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: 
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps800_dl_oscillation_alarm:
+    name: PSR PS800 DL Oscillation Alarm
+    description: PSR PS800 DL Oscillation Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: 
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps800_dl_out_of_band_overload_alarm:
+    name: PSR PS800 DL Out Of Band Overload Alarm
+    description: PSR PS800 DL Out Of Band Overload Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: 
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps800_dl_over_input_alarm:
+    name: PSR PS800 DL Over Input Alarm
+    description: PSR PS800 DL Over Input Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: 
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps800_dl_over_power_alarm:
+    name: PSR PS800 DL Over Power Alarm
+    description: PSR PS800 DL Over Power Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: 
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps800_dl_rf_power_alarm:
+    name: PSR PS800 DL RF Power Alarm
+    description: PSR PS800 DL RF Power Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: 
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps800_dl_signal_low_alarm:
+    name: PSR PS800 DL Signal Low Alarm
+    description: PSR PS800 DL Signal Low Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: 
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps800_dl_signal_not_detected_alarm:
+    name: PSR PS800 DL Signal Not Detected Alarm
+    description: PSR PS800 DL Signal Not Detected Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: 
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps800_dl_synthesizer_lock_fail_alarm:
+    name: PSR PS800 DL Synthesizer Lock Fail Alarm
+    description: PSR PS800 DL Synthesizer Lock Fail Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: 
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps800_dl_vswr_alarm:
+    name: PSR PS800 DL VSWR Alarm
+    description: PSR PS800 DL VSWR Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: 
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps800_pg_dl_actual:
+    name: PSR PS800 Power And Gain DL Actual
+    description: PSR PS800 Power And Gain DL Actual
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "RF_800_ACTUAL_GAIN_DL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps800_pg_dl_input:
+    name: PSR PS800 Power And Gain DL Input
+    description: PSR PS800 Power And Gain DL Input
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "RF_800_INPUT_DL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps800_pg_dl_outband:
+    name: PSR PS800 Power And Gain DL Outband
+    description: PSR PS800 Power And Gain DL Outband
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "RF_800_OUTBAND_DL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps800_pg_dl_output:
+    name: PSR PS800 Power And Gain DL Output
+    description: PSR PS800 Power And Gain DL Output
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "RF_800_OUTPUT_DL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps800_pg_dl_user_set:
+    name: PSR PS800 Power And Gain DL User Set
+    description: PSR PS800 Power And Gain DL User Set
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "RF_800_USER_GAIN_DL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps800_pg_ul_actual:
+    name: PSR PS800 Power And Gain UL Actual
+    description: PSR PS800 Power And Gain UL Actual
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "RF_800_ACTUAL_GAIN_UL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps800_pg_ul_input:
+    name: PSR PS800 Power And Gain UL Input
+    description: PSR PS800 Power And Gain UL Input
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "RF_800_INPUT_UL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps800_pg_ul_outband:
+    name: PSR PS800 Power And Gain UL Outband
+    description: PSR PS800 Power And Gain UL Outband
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "RF_800_OUTBAND_UL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps800_pg_ul_output:
+    name: PSR PS800 Power And Gain UL Output
+    description: PSR PS800 Power And Gain UL Output
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "RF_800_OUTPUT_UL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps800_pg_ul_user_set:
+    name: PSR PS800 Power And Gain UL User Set
+    description: PSR PS800 Power And Gain UL User Set
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[@id = "RF_800_USER_GAIN_UL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps800_ul_dsp_input_overload_alarm:
+    name: PSR PS800 UL DSP Input Overload Alarm
+    description: PSR PS800 UL DSP Input Overload Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: 
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps800_ul_input_overload_alarm:
+    name: PSR PS800 UL Input Overload Alarm
+    description: PSR PS800 UL Input Overload Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: 
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps800_ul_out_of_band_overload_alarm:
+    name: PSR PS800 UL Out Of Band Overload Alarm
+    description: PSR PS800 UL Out Of Band Overload Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: 
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps800_ul_over_input_alarm:
+    name: PSR PS800 UL Over Input Alarm
+    description: PSR PS800 UL Over Input Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: 
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps800_ul_over_power_alarm:
+    name: PSR PS800 UL Over Power Alarm
+    description: PSR PS800 UL Over Power Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: 
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps800_ul_synthesizer_lock_fail_alarm:
+    name: PSR PS800 UL Synthesizer Lock Fail Alarm
+    description: PSR PS800 UL Synthesizer Lock Fail Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: 
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps800_ul_vswr_alarm:
+    name: PSR PS800 UL VSWR Alarm
+    description: PSR PS800 UL VSWR Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: 
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_system_door_open_alarm:
+    name: PSR System Door Open Alarm
+    description: PSR System Door Open Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: 
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_system_dsp_fail_alarm:
+    name: PSR System DSP Fail Alarm
+    description: PSR System DSP Fail Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: 
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_system_over_temperature_alarm:
+    name: PSR System Over temperature Alarm
+    description: PSR System Over temperature Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: 
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_system_system_halt_alarm:
+    name: PSR System System Halt Alarm
+    description: PSR System System Halt Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: 
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+resources:
+  auths:
+    upgraded-http:
+      http:
+        httpUri: false
+        actions:
+          login:
+            dataEngine: '%{engines.upgraded-http}'
+            dataSource: '%{resources.http.requests.login}'
+            selector:
+              type: cookie
+              expression: PHPSESSID
+            dataSink: ${resources.globals.auth.sessionId}
+          logout:
+            dataEngine: '%{engines.upgraded-http}'
+            dataSource: '%{resources.http.requests.logout}'
+            selector:
+              type: cookie
+              expression: PHPSESSID
+            dataSink: ${resources.globals.auth.sessionId}
+  mappers:
+    active:
+      keyType: String
+      valueType: String
+      map:
+        blue_aai: Inactive
+        red_aai: Active
+    alarm:
+      keyType: String
+      valueType: String
+      map:
+        gray: Inactive
+        green: Normal
+        red: Hard Fail
+        yellow: Soft Fail
+  globals:
+    auth:
+      sessionId: 0
+    reg:
+      ip: ${registration.form.properties.ip}
+      password: ${registration.vault.properties.password}
+      port: ${registration.form.properties.port}
+      url: http://${registration.form.properties.ip}:${registration.form.properties.port}
+      username: ${registration.vault.properties.username}
+  http:
+    requests:
+      get_status:
+        uri: ${resources.globals.reg.url}/status.php
+        responseContentType: text/html
+        query:
+          ?cascadecode: ""
+          ipaddress: ""
+        responses:
+          success:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: "200"
+          failure:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: ^(?!200)
+      login:
+        method: POST
+        uri: ${resources.globals.reg.url}/functions/setFormData.php
+        requestContentType: application/x-www-form-urlencoded
+        responseContentType: text/html
+        query:
+          ?cascadecode: ""
+          ipaddress: ""
+        body:
+          password: ${resources.globals.reg.password}
+          submit_login: Login
+          username: ${resources.globals.reg.username}
+        responses:
+          success:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: "200"
+          failure:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: ^(?!200)
+      logout:
+        uri: ${resources.globals.reg.url}/status.php
+        responseContentType: text/html
+        query:
+          logout: "1"
+        responses:
+          success:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: "200"
+          failure:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: ^(?!200)

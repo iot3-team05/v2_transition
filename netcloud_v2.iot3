@@ -1,0 +1,2162 @@
+iot3: 2.0.0
+info:
+  name: Netcloud by Cradlepoint
+  oem: Cradlepoint
+  model: Netcloud
+  versions:
+    - "2.0"
+  author: Kiara L'Herpiniere <support@qeleo.com>
+  stage: alpha
+  revision: 4
+  labels:
+    - netcloud
+    - cradlepoint
+    - auto upgraded to v2
+  created: "2021-08-04"
+  updated: "2022-11-28"
+  documentation:
+    description: This IoT3 file supports the Cradelpoint Netcloud system.
+registration:
+  vault:
+    properties:
+      X-CP-API-ID:
+        hide: false
+        key: cpapiid
+        placeholder: ""
+        required: true
+        title: CP API ID
+        type: number
+      X-CP-API-KEY:
+        hide: false
+        key: cpapikey
+        placeholder: ""
+        required: true
+        title: CP API Key
+        type: number
+      X-ECM-API-ID:
+        hide: false
+        key: ecmapiid
+        placeholder: ""
+        required: true
+        title: ECM API ID
+        type: number
+      X-ECM-API-KEY:
+        hide: false
+        key: ecmapikey
+        placeholder: ""
+        required: true
+        title: ECM API Key
+        type: number
+    required:
+      - X-CP-API-ID
+      - X-CP-API-KEY
+      - X-ECM-API-ID
+      - X-ECM-API-KEY
+  form:
+    properties:
+      routerId:
+        hide: false
+        key: routerId
+        placeholder: ""
+        required: true
+        title: routerId
+        type: string
+      vault_id:
+        key: vault_id
+        pattern: ^(cu\w{6})(-av\w{6})$
+        placeholder: Vault ID
+        required: true
+        title: Vault ID
+        type: string
+    required:
+      - vault_id
+      - routerId
+engines:
+  tunnel:
+    ssh:
+      supported: false
+    http:
+      supported: true
+  upgraded-http:
+    schedule: '@always'
+    type: HTTP
+    options:
+      tls:
+        minVersion: "1.0"
+topology:
+  rootType: device
+  nodes: false
+types:
+  netcloud:
+    name: Netcloud Device
+    version: '[0.1,)'
+    reference: netcloud
+    attributes:
+      - netcloud_router_config_status
+      - netcloud_router_description
+      - netcloud_router_device_type
+      - netcloud_router_full_product_name
+      - netcloud_router_group
+      - netcloud_router_id
+      - netcloud_router_ipv4_address
+      - netcloud_router_locality
+      - netcloud_router_mac
+      - netcloud_router_name
+      - netcloud_router_serial_number
+      - netcloud_router_state_alarm
+      - netcloud_router_created_at
+      - netcloud_router_custom_1
+      - netcloud_router_custom_2
+      - netcloud_router_reboot_required
+      - netcloud_router_state_updated
+      - netcloud_router_target_firmware
+      - netcloud_router_updated_at
+      - netcloud_router_upgrade_pending
+      - netcloud_router_lan_id
+      - netcloud_router_lan_ip_address
+      - netcloud_router_lan_name
+      - netcloud_router_lan_netmask
+      - netcloud_router_lan_created_at
+      - netcloud_router_lan_enabled
+      - netcloud_router_lan_updated_at
+      - netcloud_router_overlay_network_binding_gateway_id
+      - netcloud_router_overlay_network_binding_id
+      - netcloud_router_overlay_network_binding_network_id
+      - netcloud_router_overlay_network_binding_state
+      - netcloud_router_overlay_network_binding_state_details
+      - netcloud_router_overlay_network_binding_updated_at
+      - netcloud_router_overlay_network_binding_refresh_pending
+      - netcloud_router_overlay_network_binding_auto_whitelist
+      - netcloud_router_overlay_network_binding_created_at
+      - netcloud_device_bytes_in
+      - netcloud_device_bytes_out
+      - netcloud_device_service_type
+      - netcloud_device_bsid
+      - netcloud_device_carrier
+      - netcloud_device_carrier_id
+      - netcloud_device_channel
+      - netcloud_device_connection_state_alarm
+      - netcloud_device_dns_0
+      - netcloud_device_dns_1
+      - netcloud_device_esn
+      - netcloud_device_gateway
+      - netcloud_device_gsn
+      - netcloud_device_homecarrid
+      - netcloud_device_hostname
+      - netcloud_device_iccid
+      - netcloud_device_id
+      - netcloud_device_imei
+      - netcloud_device_imsi
+      - netcloud_device_ipv4_address
+      - netcloud_device_is_asset
+      - netcloud_device_is_gps_supported
+      - netcloud_device_is_upgrade_available
+      - netcloud_device_is_upgrade_supported
+      - netcloud_device_lte_bandwidth
+      - netcloud_device_mac
+      - netcloud_device_manufacturer
+      - netcloud_device_mdn
+      - netcloud_device_meid
+      - netcloud_device_mfg_model
+      - netcloud_device_mfg_product
+      - netcloud_device_mn_ha_spi
+      - netcloud_device_mn_ha_ss
+      - netcloud_device_mode
+      - netcloud_device_model
+      - netcloud_device_modem_fw
+      - netcloud_device_mtu
+      - netcloud_device_nai
+      - netcloud_device_name
+      - netcloud_device_netmask
+      - netcloud_device_pin_status
+      - netcloud_device_port
+      - netcloud_device_prlv
+      - netcloud_device_profile
+      - netcloud_device_rfband
+      - netcloud_device_rfchannel
+      - netcloud_device_roam
+      - netcloud_device_rxchannel
+      - netcloud_device_serial
+      - netcloud_device_service_type
+      - netcloud_device_ssid
+      - netcloud_device_summary
+      - netcloud_device_txchannel
+      - netcloud_device_type
+      - netcloud_device_uid
+      - netcloud_device_updated_at
+      - netcloud_device_ver_pkg
+      - netcloud_device_version
+      - netcloud_device_wimax_realm
+    alarms:
+      netcloud_device_connection_alarm:
+        attributes:
+          - netcloud_device_connection_state_alarm
+        mapper: '%{resources.mappers.connection_status}'
+      netcloud_router_connection_alarm:
+        attributes:
+          - netcloud_router_state_alarm
+        mapper: '%{resources.mappers.connection_status}'
+    price:
+      value: 0
+      unit: USD
+    energy:
+      value: 0
+      unit: W
+attributes:
+  netcloud_device_bsid:
+    name: BSID
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_router}'
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_netDevice}'
+      selector:
+        type: gjson
+        expression: data.bsid
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  netcloud_device_bytes_in:
+    name: Bytes In
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_router}'
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_netDeviceM}'
+      selector:
+        type: gjson
+        expression: data.bytes_in
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: Int32
+      write:
+        type: object
+        properties: {}
+  netcloud_device_bytes_out:
+    name: Bytes Out
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_router}'
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_netDeviceM}'
+      selector:
+        type: gjson
+        expression: data.bytes_out
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: Int32
+      write:
+        type: object
+        properties: {}
+  netcloud_device_carrier:
+    name: Carrier
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_router}'
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_netDevice}'
+      selector:
+        type: gjson
+        expression: data.carrier
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  netcloud_device_carrier_id:
+    name: Carrier Id
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_router}'
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_netDevice}'
+      selector:
+        type: gjson
+        expression: data.carrier_id
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  netcloud_device_channel:
+    name: Channel
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_router}'
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_netDevice}'
+      selector:
+        type: gjson
+        expression: data.channel
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  netcloud_device_connection_state_alarm:
+    name: Connection State
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_router}'
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: 
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  netcloud_device_dns_0:
+    name: DNS 0
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_router}'
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_netDevice}'
+      selector:
+        type: gjson
+        expression: data.dns0
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  netcloud_device_dns_1:
+    name: DNS 1
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_router}'
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_netDevice}'
+      selector:
+        type: gjson
+        expression: data.dns1
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  netcloud_device_esn:
+    name: ESN
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_router}'
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_netDevice}'
+      selector:
+        type: gjson
+        expression: data.esn
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  netcloud_device_gateway:
+    name: Gateway
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_router}'
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_netDevice}'
+      selector:
+        type: gjson
+        expression: data.gateway
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  netcloud_device_gsn:
+    name: GSN
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_router}'
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_netDevice}'
+      selector:
+        type: gjson
+        expression: data.gsn
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: Int32
+      write:
+        type: object
+        properties: {}
+  netcloud_device_homecarrid:
+    name: Home Carrier Id
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_router}'
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_netDevice}'
+      selector:
+        type: gjson
+        expression: data.homecarrid
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  netcloud_device_hostname:
+    name: Hostname
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_router}'
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_netDevice}'
+      selector:
+        type: gjson
+        expression: data.hostname
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  netcloud_device_iccid:
+    name: Icc ID
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_router}'
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_netDevice}'
+      selector:
+        type: gjson
+        expression: data.iccid
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  netcloud_device_id:
+    name: Net Device ID
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_router}'
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_netDevice}'
+      selector:
+        type: gjson
+        expression: data.id
+      extractor: {}
+      dataSink: ${resources.globals.id.netDeviceId}
+    properties:
+      readWrite: R
+      read:
+        type: Int32
+      write:
+        type: object
+        properties: {}
+  netcloud_device_imei:
+    name: IMEI
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_router}'
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_netDevice}'
+      selector:
+        type: gjson
+        expression: data.imei
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: Int32
+      write:
+        type: object
+        properties: {}
+  netcloud_device_imsi:
+    name: IMSI
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_router}'
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_netDevice}'
+      selector:
+        type: gjson
+        expression: data.imsi
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  netcloud_device_ipv4_address:
+    name: IPv4 Address
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_router}'
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_netDevice}'
+      selector:
+        type: gjson
+        expression: data.ipv4_address
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  netcloud_device_is_asset:
+    name: Is Asset
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_router}'
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_netDevice}'
+      selector:
+        type: gjson
+        expression: data.is_asset
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  netcloud_device_is_gps_supported:
+    name: GPS Supported
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_router}'
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_netDevice}'
+      selector:
+        type: gjson
+        expression: data.is_gps_supported
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  netcloud_device_is_upgrade_available:
+    name: Upgrade Available
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_router}'
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_netDevice}'
+      selector:
+        type: gjson
+        expression: data.is_upgrade_available
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  netcloud_device_is_upgrade_supported:
+    name: Upgrade Supported
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_router}'
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_netDevice}'
+      selector:
+        type: gjson
+        expression: data.is_upgrade_supported
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  netcloud_device_lte_bandwidth:
+    name: LTE Bandwidth
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_router}'
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_netDevice}'
+      selector:
+        type: gjson
+        expression: data.ltebandwidth
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  netcloud_device_mac:
+    name: Net Device MAC
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_router}'
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_netDevice}'
+      selector:
+        type: gjson
+        expression: data.mac
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  netcloud_device_manufacturer:
+    name: Manufacturer
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_router}'
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_netDevice}'
+      selector:
+        type: gjson
+        expression: data.manufacturer
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  netcloud_device_mdn:
+    name: MDN
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_router}'
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_netDevice}'
+      selector:
+        type: gjson
+        expression: data.mdn
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  netcloud_device_meid:
+    name: Meid
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_router}'
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_netDevice}'
+      selector:
+        type: gjson
+        expression: data.meid
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: Int32
+      write:
+        type: object
+        properties: {}
+  netcloud_device_mfg_model:
+    name: MFG Model
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_router}'
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_netDevice}'
+      selector:
+        type: gjson
+        expression: data.mfg_model
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  netcloud_device_mfg_product:
+    name: MFG Product
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_router}'
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_netDevice}'
+      selector:
+        type: gjson
+        expression: data.mfg_product
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  netcloud_device_mn_ha_spi:
+    name: MN HA SPI
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_router}'
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_netDevice}'
+      selector:
+        type: gjson
+        expression: data.mn_ha_spi
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  netcloud_device_mn_ha_ss:
+    name: MN HA SS
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_router}'
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_netDevice}'
+      selector:
+        type: gjson
+        expression: data.mn_ha_ss
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  netcloud_device_mode:
+    name: Mode
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_router}'
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_netDevice}'
+      selector:
+        type: gjson
+        expression: data.mode
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  netcloud_device_model:
+    name: Model
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_router}'
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_netDevice}'
+      selector:
+        type: gjson
+        expression: data.model
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  netcloud_device_modem_fw:
+    name: Modem FW
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_router}'
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_netDevice}'
+      selector:
+        type: gjson
+        expression: data.modem_fw
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  netcloud_device_mtu:
+    name: MTU
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_router}'
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_netDevice}'
+      selector:
+        type: gjson
+        expression: data.mtu
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: Int32
+      write:
+        type: object
+        properties: {}
+  netcloud_device_nai:
+    name: NAI
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_router}'
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_netDevice}'
+      selector:
+        type: gjson
+        expression: data.nai
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  netcloud_device_name:
+    name: Name
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_router}'
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_netDevice}'
+      selector:
+        type: gjson
+        expression: data.name
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  netcloud_device_netmask:
+    name: Netmask
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_router}'
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_netDevice}'
+      selector:
+        type: gjson
+        expression: data.netmask
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  netcloud_device_pin_status:
+    name: Pin Status
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_router}'
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_netDevice}'
+      selector:
+        type: gjson
+        expression: data.pin_status
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  netcloud_device_port:
+    name: Port
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_router}'
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_netDevice}'
+      selector:
+        type: gjson
+        expression: data.port
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  netcloud_device_prlv:
+    name: PRLV
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_router}'
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_netDevice}'
+      selector:
+        type: gjson
+        expression: data.prlv
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  netcloud_device_profile:
+    name: Profile
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_router}'
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_netDevice}'
+      selector:
+        type: gjson
+        expression: data.profile
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  netcloud_device_rfband:
+    name: RF Band
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_router}'
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_netDevice}'
+      selector:
+        type: gjson
+        expression: data.rfband
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  netcloud_device_rfchannel:
+    name: RF Channel
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_router}'
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_netDevice}'
+      selector:
+        type: gjson
+        expression: data.rfchannel
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  netcloud_device_roam:
+    name: Roam
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_router}'
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_netDevice}'
+      selector:
+        type: gjson
+        expression: data.roam
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  netcloud_device_rxchannel:
+    name: RX Channel
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_router}'
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_netDevice}'
+      selector:
+        type: gjson
+        expression: data.rxchannel
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  netcloud_device_serial:
+    name: Serial
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_router}'
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_netDevice}'
+      selector:
+        type: gjson
+        expression: data.serial
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  netcloud_device_service_type:
+    name: Service Type
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_router}'
+        - '%{resources.http.requests.get_router}'
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_netDeviceM}'
+      selector:
+        type: gjson
+        expression: data.service_type
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: Int32
+      write:
+        type: object
+        properties: {}
+  netcloud_device_ssid:
+    name: SSID
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_router}'
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_netDevice}'
+      selector:
+        type: gjson
+        expression: data.ssid
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  netcloud_device_summary:
+    name: Summary
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_router}'
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_netDevice}'
+      selector:
+        type: gjson
+        expression: data.summary
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  netcloud_device_txchannel:
+    name: TX Channel
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_router}'
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_netDevice}'
+      selector:
+        type: gjson
+        expression: data.txchannel
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  netcloud_device_type:
+    name: Type
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_router}'
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_netDevice}'
+      selector:
+        type: gjson
+        expression: data.type
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  netcloud_device_uid:
+    name: UID
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_router}'
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_netDevice}'
+      selector:
+        type: gjson
+        expression: data.uid
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  netcloud_device_updated_at:
+    name: Updated At
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_router}'
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_netDevice}'
+      selector:
+        type: gjson
+        expression: data.updated_at
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: DateTime
+      write:
+        type: object
+        properties: {}
+  netcloud_device_ver_pkg:
+    name: Ver Pkg
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_router}'
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_netDevice}'
+      selector:
+        type: gjson
+        expression: data.ver_pkg
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  netcloud_device_version:
+    name: Version
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_router}'
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_netDevice}'
+      selector:
+        type: gjson
+        expression: data.version
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  netcloud_device_wimax_realm:
+    name: Wimax Realm
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_router}'
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_netDevice}'
+      selector:
+        type: gjson
+        expression: data.wimax_realm
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  netcloud_router_config_status:
+    name: Configuration Status
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_router}'
+      selector:
+        type: gjson
+        expression: config_status
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  netcloud_router_created_at:
+    name: Created At Date/Time
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_router}'
+      selector:
+        type: gjson
+        expression: created_at
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: DateTime
+      write:
+        type: object
+        properties: {}
+  netcloud_router_custom_1:
+    name: Custom 1
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_router}'
+      selector:
+        type: gjson
+        expression: custom1
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  netcloud_router_custom_2:
+    name: Custom 2
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_router}'
+      selector:
+        type: gjson
+        expression: custom2
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  netcloud_router_description:
+    name: Description
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_router}'
+      selector:
+        type: gjson
+        expression: description
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  netcloud_router_device_type:
+    name: Device Type
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_router}'
+      selector:
+        type: gjson
+        expression: device_type
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  netcloud_router_full_product_name:
+    name: Full Product Name
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_router}'
+      selector:
+        type: gjson
+        expression: full_product_name
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  netcloud_router_group:
+    name: Group
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_router}'
+      selector:
+        type: gjson
+        expression: group
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  netcloud_router_id:
+    name: ID
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_router}'
+      selector:
+        type: gjson
+        expression: id
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: Int32
+      write:
+        type: object
+        properties: {}
+  netcloud_router_ipv4_address:
+    name: IPV4 Address
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_router}'
+      selector:
+        type: gjson
+        expression: ipv4_address
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  netcloud_router_lan_created_at:
+    name: Lan Created At
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_router}'
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_lan}'
+      selector:
+        type: gjson
+        expression: created_at
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: DateTime
+      write:
+        type: object
+        properties: {}
+  netcloud_router_lan_enabled:
+    name: Lan Enabled
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_router}'
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_lan}'
+      selector:
+        type: gjson
+        expression: enabled
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  netcloud_router_lan_id:
+    name: Lan ID
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_router}'
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_lan}'
+      selector:
+        type: gjson
+        expression: id
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: Int32
+      write:
+        type: object
+        properties: {}
+  netcloud_router_lan_ip_address:
+    name: Lan IP Address
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_router}'
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_lan}'
+      selector:
+        type: gjson
+        expression: ip_address
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  netcloud_router_lan_name:
+    name: Lan Name
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_router}'
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_lan}'
+      selector:
+        type: gjson
+        expression: name
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  netcloud_router_lan_netmask:
+    name: Lan Netmask
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_router}'
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_lan}'
+      selector:
+        type: gjson
+        expression: netmask
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  netcloud_router_lan_updated_at:
+    name: Lan Updated At
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_router}'
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_lan}'
+      selector:
+        type: gjson
+        expression: updated_at
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: DateTime
+      write:
+        type: object
+        properties: {}
+  netcloud_router_locality:
+    name: Locality
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_router}'
+      selector:
+        type: gjson
+        expression: locality
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  netcloud_router_mac:
+    name: MAC
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_router}'
+      selector:
+        type: gjson
+        expression: mac
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  netcloud_router_name:
+    name: Name
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_router}'
+      selector:
+        type: gjson
+        expression: name
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  netcloud_router_overlay_network_binding_auto_whitelist:
+    name: Auto Whitelist
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_router}'
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_overlay}'
+      selector:
+        type: gjson
+        expression: auto_whitelist
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  netcloud_router_overlay_network_binding_created_at:
+    name: Created At
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_router}'
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_overlay}'
+      selector:
+        type: gjson
+        expression: created_at
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: DateTime
+      write:
+        type: object
+        properties: {}
+  netcloud_router_overlay_network_binding_gateway_id:
+    name: Gateway ID
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_router}'
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_overlay}'
+      selector:
+        type: gjson
+        expression: gateway_id
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: Int32
+      write:
+        type: object
+        properties: {}
+  netcloud_router_overlay_network_binding_id:
+    name: ID
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_router}'
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_overlay}'
+      selector:
+        type: gjson
+        expression: id
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: Int32
+      write:
+        type: object
+        properties: {}
+  netcloud_router_overlay_network_binding_network_id:
+    name: Network ID
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_router}'
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_overlay}'
+      selector:
+        type: gjson
+        expression: network_id
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: Int32
+      write:
+        type: object
+        properties: {}
+  netcloud_router_overlay_network_binding_refresh_pending:
+    name: Refresh Pending
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_router}'
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_overlay}'
+      selector:
+        type: gjson
+        expression: refresh_pending
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  netcloud_router_overlay_network_binding_state:
+    name: Router State
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_router}'
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_overlay}'
+      selector:
+        type: gjson
+        expression: state
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  netcloud_router_overlay_network_binding_state_details:
+    name: State Details
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_router}'
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_overlay}'
+      selector:
+        type: gjson
+        expression: state_details
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  netcloud_router_overlay_network_binding_updated_at:
+    name: Updated At
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_router}'
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_overlay}'
+      selector:
+        type: gjson
+        expression: updated_at
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: DateTime
+      write:
+        type: object
+        properties: {}
+  netcloud_router_reboot_required:
+    name: Reboot Required
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_router}'
+      selector:
+        type: gjson
+        expression: reboot_required
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  netcloud_router_serial_number:
+    name: Serial Number
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_router}'
+      selector:
+        type: gjson
+        expression: serial_number
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  netcloud_router_state_alarm:
+    name: State
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: 
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  netcloud_router_state_updated:
+    name: State Updated Date/Time
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_router}'
+      selector:
+        type: gjson
+        expression: state_updated_at
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: DateTime
+      write:
+        type: object
+        properties: {}
+  netcloud_router_target_firmware:
+    name: Target Firmware
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_router}'
+      selector:
+        type: gjson
+        expression: target_firmware
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  netcloud_router_updated_at:
+    name: Firmware Update Date/Time
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_router}'
+      selector:
+        type: gjson
+        expression: updated_at
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: DateTime
+      write:
+        type: object
+        properties: {}
+  netcloud_router_upgrade_pending:
+    name: Upgrade Pending
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_router}'
+      selector:
+        type: gjson
+        expression: upgrade_pending
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+resources:
+  mappers:
+    connection_status:
+      keyType: String
+      valueType: String
+      map:
+        Initialized: Warning
+        Offline: Severe
+        Online: Normal
+  globals:
+    id:
+      routerId: ${registration.form.properties.routerId}
+    reg:
+      X-CP-API-ID: ${registration.vault.properties.X-CP-API-ID}
+      X-CP-API-KEY: ${registration.vault.properties.X-CP-API-KEY}
+      X-ECM-API-ID: ${registration.vault.properties.X-ECM-API-ID}
+      X-ECM-API-KEY: ${registration.vault.properties.X-ECM-API-KEY}
+  http:
+    requests:
+      get_alerts:
+        uri: ${resources.globals.reg.url}/api/v2/alerts/
+        query:
+          router: ${resources.globals.routerId}
+        header:
+          X-CP-API-ID:
+            - ${resources.globals.reg.X-CP-API-ID}
+          X-CP-API-KEY:
+            - ${resources.globals.reg.X-CP-API-KEY}
+          X-ECM-API-ID:
+            - ${resources.globals.reg.X-ECM-API-ID}
+          X-ECM-API-KEY:
+            - ${resources.globals.reg.X-ECM-API-KEY}
+        responses:
+          success:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: "200"
+          failure:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: ^(?!200)
+      get_lan:
+        uri: ${resources.globals.reg.url}/api/v2/routers/${resources.globals.id.routerId}/lans/
+        header:
+          X-CP-API-ID:
+            - ${resources.globals.reg.X-CP-API-ID}
+          X-CP-API-KEY:
+            - ${resources.globals.reg.X-CP-API-KEY}
+          X-ECM-API-ID:
+            - ${resources.globals.reg.X-ECM-API-ID}
+          X-ECM-API-KEY:
+            - ${resources.globals.reg.X-ECM-API-KEY}
+        responses:
+          success:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: "200"
+          failure:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: ^(?!200)
+      get_locations:
+        uri: ${resources.globals.reg.url}/api/v2/locations/
+        query:
+          router: ${resources.globals.routerId}
+        header:
+          X-CP-API-ID:
+            - ${resources.globals.reg.X-CP-API-ID}
+          X-CP-API-KEY:
+            - ${resources.globals.reg.X-CP-API-KEY}
+          X-ECM-API-ID:
+            - ${resources.globals.reg.X-ECM-API-ID}
+          X-ECM-API-KEY:
+            - ${resources.globals.reg.X-ECM-API-KEY}
+        responses:
+          success:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: "200"
+          failure:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: ^(?!200)
+      get_netDevice:
+        uri: ${resources.globals.reg.url}/api/v1/net_device/
+        query:
+          router: ${resources.globals.routerId}
+        header:
+          X-CP-API-ID:
+            - ${resources.globals.reg.X-CP-API-ID}
+          X-CP-API-KEY:
+            - ${resources.globals.reg.X-CP-API-KEY}
+          X-ECM-API-ID:
+            - ${resources.globals.reg.X-ECM-API-ID}
+          X-ECM-API-KEY:
+            - ${resources.globals.reg.X-ECM-API-KEY}
+        responses:
+          success:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: "200"
+          failure:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: ^(?!200)
+      get_netDeviceH:
+        uri: ${resources.globals.reg.url}/api/v1/netcloud_device_health/
+        query:
+          netDeviceId: ${resources.globals.netDeviceId}
+        header:
+          X-CP-API-ID:
+            - ${resources.globals.reg.X-CP-API-ID}
+          X-CP-API-KEY:
+            - ${resources.globals.reg.X-CP-API-KEY}
+          X-ECM-API-ID:
+            - ${resources.globals.reg.X-ECM-API-ID}
+          X-ECM-API-KEY:
+            - ${resources.globals.reg.X-ECM-API-KEY}
+        responses:
+          success:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: "200"
+          failure:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: ^(?!200)
+      get_netDeviceM:
+        uri: ${resources.globals.reg.url}/api/v1/netcloud_device_metrics/
+        query:
+          netDeviceId: ${resources.globals.id.netDeviceId}
+        header:
+          X-CP-API-ID:
+            - ${resources.globals.reg.X-CP-API-ID}
+          X-CP-API-KEY:
+            - ${resources.globals.reg.X-CP-API-KEY}
+          X-ECM-API-ID:
+            - ${resources.globals.reg.X-ECM-API-ID}
+          X-ECM-API-KEY:
+            - ${resources.globals.reg.X-ECM-API-KEY}
+        responses:
+          success:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: "200"
+          failure:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: ^(?!200)
+      get_overlay:
+        uri: ${resources.globals.reg.url}/api/v2/routers/${resources.globals.id.routerId}/overlay_network_binding/
+        header:
+          X-CP-API-ID:
+            - ${resources.globals.reg.X-CP-API-ID}
+          X-CP-API-KEY:
+            - ${resources.globals.reg.X-CP-API-KEY}
+          X-ECM-API-ID:
+            - ${resources.globals.reg.X-ECM-API-ID}
+          X-ECM-API-KEY:
+            - ${resources.globals.reg.X-ECM-API-KEY}
+        responses:
+          success:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: "200"
+          failure:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: ^(?!200)
+      get_rebootRouter:
+        uri: ${resources.globals.reg.url}/api/v2/reboot_activity/
+        query:
+          router: ${resources.globals.routerId}
+        header:
+          X-CP-API-ID:
+            - ${resources.globals.reg.X-CP-API-ID}
+          X-CP-API-KEY:
+            - ${resources.globals.reg.X-CP-API-KEY}
+          X-ECM-API-ID:
+            - ${resources.globals.reg.X-ECM-API-ID}
+          X-ECM-API-KEY:
+            - ${resources.globals.reg.X-ECM-API-KEY}
+        responses:
+          success:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: "200"
+          failure:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: ^(?!200)
+      get_router:
+        uri: ${resources.globals.reg.url}/api/v2/routers/${resources.globals.id.routerId}/
+        header:
+          X-CP-API-ID:
+            - ${resources.globals.reg.X-CP-API-ID}
+          X-CP-API-KEY:
+            - ${resources.globals.reg.X-CP-API-KEY}
+          X-ECM-API-ID:
+            - ${resources.globals.reg.X-ECM-API-ID}
+          X-ECM-API-KEY:
+            - ${resources.globals.reg.X-ECM-API-KEY}
+        responses:
+          success:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: "200"
+          failure:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: ^(?!200)
