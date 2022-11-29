@@ -1,0 +1,4866 @@
+iot3: 2.0.0
+info:
+  name: '[Compact] SOLiD Express'
+  oem: SOLiD
+  model: Express
+  versions:
+    - "3.2"
+  author: Kiara L'Herpiniere <support@qeleo.com>
+  stage: alpha
+  revision: 3
+  labels:
+    - das
+    - express
+    - rf
+    - solid
+    - telecommunication
+    - compact
+    - auto upgraded to v2
+  created: "2021-04-16"
+  updated: "2022-11-24"
+  documentation:
+    description: This IoT3 file supports the SOLiD Express distributed antenna system (DAS). [Alarms Only]
+registration:
+  vaultId: expressVaultId
+  tunnelIp: ip
+  fingerprint:
+    - port
+    - ip
+    - biuNumber
+    - expressVaultId
+  vault:
+    properties:
+      password:
+        description: The password to log into the device.
+        title: Password
+        type: string
+      username:
+        description: The username to log into the device.
+        title: Username
+        type: string
+    required:
+      - username
+      - password
+  form:
+    properties:
+      biuNumber:
+        description: The number of the BIU and its optional slave.
+        inputType: number
+        title: BIU Number
+        type: number
+      expressVaultId:
+        description: The vault containing the credentials to access the device.
+        title: Vault
+        type: string
+      ip:
+        key: ip
+        placeholder: IP Address
+        required: true
+        title: IP
+        type: string
+      port:
+        inputType: number
+        key: port
+        maximum: 65535
+        minimum: 1
+        placeholder: Port
+        required: true
+        title: Port
+        type: number
+    required:
+      - port
+      - ip
+      - biuNumber
+      - expressVaultId
+engines:
+  tunnel:
+    http:
+      supported: true
+  upgraded-http:
+    schedule: '@always'
+    auth: '%{resources.auths.upgraded-http}'
+    type: HTTP
+    options:
+      tls:
+        minVersion: "1.0"
+topology:
+  rootType: biu
+  verify:
+    - dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.siteInfo}'
+      selector:
+        type: xpath
+        expression: //*[@id="container"]/*/table[1]//table/*/tr[3]//table//tr[2]//table/*/tr[3]/td/text()
+      extractor:
+        filters:
+          1: trimSpace
+      match: ^3\.2$
+  nodes: true
+  discovery:
+    dataEngine: '%{engines.upgraded-http}'
+    dataSource: '%{resources.http.requests.get_inventory}'
+    type: http
+    selectors:
+      nodes:
+        dataEngine: '%{engines.upgraded-http}'
+        selector:
+          type: xpath
+          expression: //a/@href
+    flatten:
+      type:
+        transform: ${topology.discovery.selectors.nodes}
+        filters:
+          1: tokenizeUrl
+          2: use %{1.path}
+          3: regexpExtract /^(.*)\// => $1
+          4: regexpReplace /^[a-z]{3}_/ => ''
+          5: |
+            switch
+            "%{1.query.DAS_NAME}" ~= "ODU~\\d$": ""
+            default: "%{4}"
+      topology:
+        transform: ${topology.discovery.selectors.nodes}
+        filters:
+          1: tokenizeUrl
+          2: use %{1.query.DAS_NAME}
+          3: |
+            switch
+            "%{1.query.DAS_NAME}" ~= "^BIU":  "BIU~%{1.query.DAS_BIU_IDX}"
+            "%{1.query.DAS_SISO_MIMO}" != "": "BIU~%{1.query.DAS_BIU_IDX}-%{1.query.DAS_SISO_MIMO}-%{1.query.DAS_NAME}"
+            default:                          "BIU~%{1.query.DAS_BIU_IDX}-%{1.query.DAS_NAME}"
+          4: regexpReplace /\(.+$/ => ''
+          5: wrap "
+          6: regexpReplace /-/ => '"->"'
+          7: regexpReplace /~(\d+)/ => ' [$1]'
+      version:
+        transform: '%{resources.http.requests.get_deviceStatus}'
+        filters:
+          1: xpath //input[@name = 'mdbu_ver' or @name = 'fw_version' or @name = 'd1_fw_version' or @name = 'f/w_version']/@value
+          2: trimSpace
+          3: version
+      douNumber:
+        transform: ${topology.discovery.selectors.nodes}
+        filters:
+          1: tokenizeUrl
+          2: use %{1.query.DAS_NAME}
+          3: regexpExtract /\d$/ => $0
+      mdbuNumber:
+        transform: ${topology.discovery.selectors.nodes}
+        filters:
+          1: tokenizeUrl
+          2: use %{1.query.DAS_MDBU_NUM}
+      uri:
+        transform: ${topology.discovery.selectors.nodes}
+        filters:
+          1: replace content.php => status.php
+types:
+  aru:
+    name: ARU
+    version: '[1.0,)'
+    reference: aru
+    attributes:
+      - aru_band1_on_off
+      - aru_band2_on_off
+    alarms:
+      aru_band1_tx_out_high_alarm:
+        attributes:
+          - aru_band1_tx_out_high_alarm
+        mapper: '%{resources.mappers.alarms}'
+      aru_band1_tx_out_low_alarm:
+        attributes:
+          - aru_band1_tx_out_low_alarm
+        mapper: '%{resources.mappers.alarms}'
+      aru_band1_tx_out_sd_alarm:
+        attributes:
+          - aru_band1_tx_out_sd_alarm
+        mapper: '%{resources.mappers.alarms}'
+      aru_band2_tx_out_high_alarm:
+        attributes:
+          - aru_band2_tx_out_high_alarm
+        mapper: '%{resources.mappers.alarms}'
+      aru_band2_tx_out_low_alarm:
+        attributes:
+          - aru_band2_tx_out_low_alarm
+        mapper: '%{resources.mappers.alarms}'
+      aru_band2_tx_out_sd_alarm:
+        attributes:
+          - aru_band2_tx_out_sd_alarm
+        mapper: '%{resources.mappers.alarms}'
+      aru_enviro_high_temperature_limit_alarm:
+        attributes:
+          - aru_enviro_high_temperature_limit_alarm
+        mapper: '%{resources.mappers.alarms}'
+      aru_enviro_link_fail_alarm:
+        attributes:
+          - aru_enviro_link_fail_alarm
+        mapper: '%{resources.mappers.alarms}'
+      aru_enviro_low_temperature_limit_alarm:
+        attributes:
+          - aru_enviro_low_temperature_limit_alarm
+        mapper: '%{resources.mappers.alarms}'
+    variables:
+      topology.discovery.uri: ${type.topology.uri}
+    price:
+      value: 0
+      unit: W
+    energy:
+      value: 0
+      unit: USD
+  biu:
+    name: BIU
+    version: '[1.0,)'
+    reference: biu
+    attributes:
+      - biu_high_temperature_limit_alarm
+      - biu_low_temperature_limit_alarm
+      - biu_dc_alarm_alarm
+      - biu_siso_odu1_dou1_alarm
+      - biu_siso_odu1_dou2_alarm
+      - biu_mimo_odu1_dou1_alarm
+      - biu_mimo_odu1_dou2_alarm
+    alarms:
+      biu_dc_alarm_alarm:
+        attributes:
+          - biu_dc_alarm_alarm
+        mapper: '%{resources.mappers.alarms}'
+      biu_high_temperature_limit_alarm:
+        attributes:
+          - biu_high_temperature_limit_alarm
+        mapper: '%{resources.mappers.alarms}'
+      biu_low_temperature_limit_alarm:
+        attributes:
+          - biu_low_temperature_limit_alarm
+        mapper: '%{resources.mappers.alarms}'
+      biu_mimo_odu1_dou1_alarm:
+        attributes:
+          - biu_mimo_odu1_dou1_alarm
+        mapper: '%{resources.mappers.alarms}'
+      biu_mimo_odu1_dou2_alarm:
+        attributes:
+          - biu_mimo_odu1_dou2_alarm
+        mapper: '%{resources.mappers.alarms}'
+      biu_siso_odu1_dou1_alarm:
+        attributes:
+          - biu_siso_odu1_dou1_alarm
+        mapper: '%{resources.mappers.alarms}'
+      biu_siso_odu1_dou2_alarm:
+        attributes:
+          - biu_siso_odu1_dou2_alarm
+        mapper: '%{resources.mappers.alarms}'
+    variables:
+      topology.discovery.uri: ${type.topology.uri}
+    price:
+      value: 0
+      unit: W
+    energy:
+      value: 0
+      unit: USD
+  dou:
+    name: DOU
+    version: '[1.0,)'
+    reference: dou
+    attributes:
+      - odu_dou_ld_power_alarm
+    alarms:
+      odu_dou_ld_power_alarm:
+        attributes:
+          - odu_dou_ld_power_alarm
+        mapper: '%{resources.mappers.alarms}'
+      odu_dou_overload_alarm:
+        attributes:
+          - odu_dou_overload_alarm
+        mapper: '%{resources.mappers.alarms}'
+      odu_dou_port1_pd_power_alarm:
+        attributes:
+          - odu_dou_port1_pd_power_alarm
+        mapper: '%{resources.mappers.alarms}'
+      odu_dou_port2_pd_power_alarm:
+        attributes:
+          - odu_dou_port2_pd_power_alarm
+        mapper: '%{resources.mappers.alarms}'
+      odu_dou_port3_pd_power_alarm:
+        attributes:
+          - odu_dou_port3_pd_power_alarm
+        mapper: '%{resources.mappers.alarms}'
+      odu_dou_port4_pd_power_alarm:
+        attributes:
+          - odu_dou_port4_pd_power_alarm
+        mapper: '%{resources.mappers.alarms}'
+    variables:
+      topology.discovery.uri: ${type.topology.uri}
+    price:
+      value: 0
+      unit: W
+    energy:
+      value: 0
+      unit: USD
+  ext_alarm:
+    name: Ext.ALM
+    version: '[1.0,)'
+    reference: ext_alm
+    attributes:
+      - external_alarm_1_alarm
+      - external_alarm_2_alarm
+      - external_alarm_3_alarm
+      - external_alarm_4_alarm
+      - external_alarm_in_1_alarm
+      - external_alarm_in_2_alarm
+      - external_alarm_in_3_alarm
+    alarms:
+      external_alarm_1_alarm:
+        attributes:
+          - external_alarm_1_alarm
+        mapper: '%{resources.mappers.alarms}'
+      external_alarm_2_alarm:
+        attributes:
+          - external_alarm_2_alarm
+        mapper: '%{resources.mappers.alarms}'
+      external_alarm_3_alarm:
+        attributes:
+          - external_alarm_3_alarm
+        mapper: '%{resources.mappers.alarms}'
+      external_alarm_4_alarm:
+        attributes:
+          - external_alarm_4_alarm
+        mapper: '%{resources.mappers.alarms}'
+      external_alarm_in_1_alarm:
+        attributes:
+          - external_alarm_in_1_alarm
+        mapper: '%{resources.mappers.alarms}'
+      external_alarm_in_2_alarm:
+        attributes:
+          - external_alarm_in_2_alarm
+        mapper: '%{resources.mappers.alarms}'
+      external_alarm_in_3_alarm:
+        attributes:
+          - external_alarm_in_3_alarm
+        mapper: '%{resources.mappers.alarms}'
+      #OEU Alarms traps  
+      oeu_dc_alarm:
+        attributes:
+          - oeu_dc_alarm
+        mapper: '%{resources.mappers.alarms}'
+      oeu_high_temperature_alarm:
+        attributes:
+          - oeu_high_temperature_alarm
+        mapper: '%{resources.mappers.alarms}'
+      oeu_low_temperature_alarm:
+        attributes:
+          - oeu_low_temperature_alarm
+        mapper: '%{resources.mappers.alarms}'
+      oeu_ld_alarm:
+        attributes:
+          - oeu_ld_alarm
+        mapper: '%{resources.mappers.alarms}'
+      oeu_pd_alarm:
+        attributes:
+          - oeu_pd_alarm
+        mapper: '%{resources.mappers.alarms}'
+      oeu_link_fail_alarm:
+        attributes:
+          - oeu_link_fail_alarm
+        mapper: '%{resources.mappers.alarms}'
+      oeu_tx_optic_result_alarm:
+        attributes:
+          - oeu_tx_optic_result_alarm
+        mapper: '%{resources.mappers.alarms}'
+      #RDU Alarms traps  
+      rdu_link_fail_alarm:
+        attributes:
+          - rdu_link_fail_alarm
+        mapper: '%{resources.mappers.alarms}'
+      rdu_vhf_tx_out_high_alarm:
+        attributes:
+          - rdu_vhf_tx_out_high_alarm
+        mapper: '%{resources.mappers.alarms}'
+      rdu_vhf_tx_out_low_alarm:
+        attributes:
+          - rdu_vhf_tx_out_low_alarm
+        mapper: '%{resources.mappers.alarms}'
+      rdu_vhf_tx_out_sd_alarm:
+        attributes:
+          - rdu_vhf_tx_out_sd_alarm
+        mapper: '%{resources.mappers.alarms}'
+      rdu_vhf_rx_pll_alarm:
+        attributes:
+          - rdu_vhf_rx_pll_alarm
+        mapper: '%{resources.mappers.alarms}'
+      rdu_uhf_tx_out_high_alarm:
+        attributes:
+          - rdu_uhf_tx_out_high_alarm
+        mapper: '%{resources.mappers.alarms}'
+      rdu_uhf_tx_out_low_alarm:
+        attributes:
+          - rdu_uhf_tx_out_low_alarm
+        mapper: '%{resources.mappers.alarms}'
+      rdu_uhf_tx_out_sd_alarm:
+        attributes:
+          - rdu_uhf_tx_out_sd_alarm
+        mapper: '%{resources.mappers.alarms}'
+      rdu_uhf_rx_pll_alarm:
+        attributes:
+          - rdu_uhf_rx_pll_alarm
+        mapper: '%{resources.mappers.alarms}'
+      #RDU Alarms traps  
+      hmru_link_fail_alarm:
+        attributes:
+          - hmru_link_fail_alarm
+        mapper: '%{resources.mappers.alarms}' 
+      hmru_high_temperature_alarm:
+        attributes:
+          - hmru_high_temperature_alarm
+        mapper: '%{resources.mappers.alarms}'
+      hmru_low_temperature_alarm:
+        attributes:
+          - hmru_low_temperature_alarm
+        mapper: '%{resources.mappers.alarms}'
+      hmru_ld_alarm:
+        attributes:
+          - hmru_ld_alarm
+        mapper: '%{resources.mappers.alarms}'
+      hmru_pd_alarm:
+        attributes:
+          - hmru_pd_alarm
+        mapper: '%{resources.mappers.alarms}'
+      hmru_tx_optic_result_alarm:
+        attributes:
+          - hmru_tx_optic_result_alarm
+        mapper: '%{resources.mappers.alarms}'
+      hmru_door_alarm:
+        attributes:
+          - hmru_door_alarm
+        mapper: '%{resources.mappers.alarms}'
+      hmru_battery_low_alarm:
+        attributes:
+          - hmru_battery_low_alarm
+        mapper: '%{resources.mappers.alarms}'
+      hmru_direct_current_alarm:
+        attributes:
+          - hmru_direct_current_alarm
+        mapper: '%{resources.mappers.alarms}'
+      hmru_alternating_current_alarm:
+        attributes:
+          - hmru_alternating_current_alarm
+        mapper: '%{resources.mappers.alarms}'
+      hmru_band_1_tx_out_high_alarm:
+        attributes:
+          - hmru_band_1_tx_out_high_alarm
+        mapper: '%{resources.mappers.alarms}'
+      hmru_band_1_tx_out_low_alarm:
+        attributes:
+          - hmru_band_1_tx_out_low_alarm
+        mapper: '%{resources.mappers.alarms}'
+      hmru_band_1_tx_out_sd_alarm:
+        attributes:
+          - hmru_band_1_tx_out_sd_alarm
+        mapper: '%{resources.mappers.alarms}'
+      hmru_band_2_tx_out_high_alarm:
+        attributes:
+          - hmru_band_2_tx_out_high_alarm
+        mapper: '%{resources.mappers.alarms}'
+      hmru_band_2_tx_out_low_alarm:
+        attributes:
+          - hmru_band_2_tx_out_low_alarm
+        mapper: '%{resources.mappers.alarms}'
+      hmru_band_2_tx_out_sd_alarm:
+        attributes:
+          - hmru_band_2_tx_out_sd_alarm
+        mapper: '%{resources.mappers.alarms}'
+      hmru_band_1_amp_vswr_alarm:
+        attributes:
+          - hmru_band_1_amp_vswr_alarm
+        mapper: '%{resources.mappers.alarms}'
+      hmru_band_1_amp_fail_alarm:
+        attributes:
+          - hmru_band_1_amp_fail_alarm
+        mapper: '%{resources.mappers.alarms}'
+      hmru_band_1_amp_over_power_alarm:
+        attributes:
+          - hmru_band_1_amp_over_power_alarm
+        mapper: '%{resources.mappers.alarms}'
+      hmru_band_1_amp_high_temperature_alarm:
+        attributes:
+          - hmru_band_1_amp_high_temperature_alarm
+        mapper: '%{resources.mappers.alarms}'
+      hmru_band_1_fan_alarm:
+        attributes:
+          - hmru_band_1_fan_alarm
+        mapper: '%{resources.mappers.alarms}'
+      hmru_band_2_amp_vswr_alarm:
+        attributes:
+          - hmru_band_2_amp_vswr_alarm
+        mapper: '%{resources.mappers.alarms}'
+      hmru_band_2_amp_fail_alarm:
+        attributes:
+          - hmru_band_2_amp_fail_alarm
+        mapper: '%{resources.mappers.alarms}'
+      hmru_band_2_amp_over_power_alarm:
+        attributes:
+          - hmru_band_2_amp_over_power_alarm
+        mapper: '%{resources.mappers.alarms}'
+      hmru_band_2_amp_high_temperature_alarm:
+        attributes:
+          - hmru_band_2_amp_high_temperature_alarm
+        mapper: '%{resources.mappers.alarms}'
+      hmru_band_2_fan_alarm:
+        attributes:
+          - hmru_band_2_fan_alarm
+        mapper: '%{resources.mappers.alarms}'
+      #HARU Alarms traps  
+      haru_link_fail_alarm:
+        attributes:
+          - haru_link_fail_alarm
+        mapper: '%{resources.mappers.alarms}' 
+      haru_high_temperature_alarm:
+        attributes:
+          - haru_high_temperature_alarm
+        mapper: '%{resources.mappers.alarms}' 
+      haru_low_temperature_alarm:
+        attributes:
+          - haru_low_temperature_alarm
+        mapper: '%{resources.mappers.alarms}' 
+      haru_door_alarm:
+        attributes:
+          - haru_door_alarm
+        mapper: '%{resources.mappers.alarms}' 
+      haru_battery_low_alarm:
+        attributes:
+          - haru_battery_low_alarm
+        mapper: '%{resources.mappers.alarms}' 
+      haru_direct_current_alarm:
+        attributes:
+          - haru_direct_current_alarm
+        mapper: '%{resources.mappers.alarms}'  
+      haru_alternating_current_alarm:
+        attributes:
+          - haru_alternating_current_alarm
+        mapper: '%{resources.mappers.alarms}'   
+      haru_band_1_tx_out_high_alarm:
+        attributes:
+          - haru_band_1_tx_out_high_alarm
+        mapper: '%{resources.mappers.alarms}'  
+      haru_band_1_tx_out_low_alarm:
+        attributes:
+          - haru_band_1_tx_out_low_alarm
+        mapper: '%{resources.mappers.alarms}'  
+      haru_band_1_tx_out_sd_alarm:
+        attributes:
+          - haru_band_1_tx_out_sd_alarm
+        mapper: '%{resources.mappers.alarms}' 
+      haru_band_2_tx_out_high_alarm:
+        attributes:
+          - haru_band_2_tx_out_high_alarm
+        mapper: '%{resources.mappers.alarms}' 
+      haru_band_2_tx_out_low_alarm:
+        attributes:
+          - haru_band_2_tx_out_low_alarm
+        mapper: '%{resources.mappers.alarms}' 
+      haru_band_2_tx_out_sd_alarm:
+        attributes:
+          - haru_band_2_tx_out_sd_alarm
+        mapper: '%{resources.mappers.alarms}' 
+      haru_band_1_amp_vswr_alarm:
+        attributes:
+          - haru_band_1_amp_vswr_alarm
+        mapper: '%{resources.mappers.alarms}' 
+      haru_band_1_amp_fail_alarm:
+        attributes:
+          - haru_band_1_amp_fail_alarm
+        mapper: '%{resources.mappers.alarms}' 
+      haru_band_1_amp_over_power_alarm:
+        attributes:
+          - haru_band_1_amp_over_power_alarm
+        mapper: '%{resources.mappers.alarms}' 
+      haru_band_1_amp_high_temperature_alarm:
+        attributes:
+          - haru_band_1_amp_high_temperature_alarm
+        mapper: '%{resources.mappers.alarms}' 
+      haru_band_1_fan_alarm:
+        attributes:
+          - haru_band_1_fan_alarm
+        mapper: '%{resources.mappers.alarms}' 
+      haru_band_2_amp_vswr_alarm:
+        attributes:
+          - haru_band_2_amp_vswr_alarm
+        mapper: '%{resources.mappers.alarms}' 
+      haru_band_2_amp_fail_alarm:
+        attributes:
+          - haru_band_2_amp_fail_alarm
+        mapper: '%{resources.mappers.alarms}' 
+      haru_band_2_amp_over_power_alarm:
+        attributes:
+          - haru_band_2_amp_over_power_alarm
+        mapper: '%{resources.mappers.alarms}' 
+      haru_band_2_amp_high_temperature_alarm:
+        attributes:
+          - haru_band_2_amp_high_temperature_alarm
+        mapper: '%{resources.mappers.alarms}' 
+      haru_band_2_fan_alarm:
+        attributes:
+          - haru_band_2_fan_alarm
+        mapper: '%{resources.mappers.alarms}' 
+    variables:
+      topology.discovery.uri: ${type.topology.uri}
+    price:
+      value: 0
+      unit: W
+    energy:
+      value: 0
+      unit: USD
+  mcpu:
+    name: MCPU
+    version: '[1.0,)'
+    reference: mcpu
+    attributes:
+      - mcpu_status_alarm
+    alarms:
+      mcpu_status_alarm:
+        attributes:
+          - mcpu_status_alarm
+        mapper: '%{resources.mappers.alarms}'
+    variables:
+      topology.discovery.uri: ${type.topology.uri}
+    price:
+      value: 0
+      unit: W
+    energy:
+      value: 0
+      unit: USD
+  mdbu:
+    name: MDBU
+    version: '[1.0,)'
+    reference: mdbu
+    attributes:
+      - mdbu_port1_on_off
+      - mdbu_port2_on_off
+      - mdbu_port3_on_off
+      - mdbu_port4_on_off
+    alarms:
+      mdbu_port1_rx_out_high_alarm:
+        attributes:
+          - mdbu_port1_rx_out_high_alarm
+        mapper: '%{resources.mappers.alarms}'
+      mdbu_port1_tx_in_high_alarm:
+        attributes:
+          - mdbu_port1_tx_in_high_alarm
+        mapper: '%{resources.mappers.alarms}'
+      mdbu_port1_tx_in_low_alarm:
+        attributes:
+          - mdbu_port1_tx_in_low_alarm
+        mapper: '%{resources.mappers.alarms}'
+      mdbu_port2_rx_out_high_alarm:
+        attributes:
+          - mdbu_port2_rx_out_high_alarm
+        mapper: '%{resources.mappers.alarms}'
+      mdbu_port2_tx_in_high_alarm:
+        attributes:
+          - mdbu_port2_tx_in_high_alarm
+        mapper: '%{resources.mappers.alarms}'
+      mdbu_port2_tx_in_low_alarm:
+        attributes:
+          - mdbu_port2_tx_in_low_alarm
+        mapper: '%{resources.mappers.alarms}'
+      mdbu_port3_rx_out_high_alarm:
+        attributes:
+          - mdbu_port3_rx_out_high_alarm
+        mapper: '%{resources.mappers.alarms}'
+      mdbu_port3_tx_in_high_alarm:
+        attributes:
+          - mdbu_port3_tx_in_high_alarm
+        mapper: '%{resources.mappers.alarms}'
+      mdbu_port3_tx_in_low_alarm:
+        attributes:
+          - mdbu_port3_tx_in_low_alarm
+        mapper: '%{resources.mappers.alarms}'
+      mdbu_port4_rx_out_high_alarm:
+        attributes:
+          - mdbu_port4_rx_out_high_alarm
+        mapper: '%{resources.mappers.alarms}'
+      mdbu_port4_tx_in_high_alarm:
+        attributes:
+          - mdbu_port4_tx_in_high_alarm
+        mapper: '%{resources.mappers.alarms}'
+      mdbu_port4_tx_in_low_alarm:
+        attributes:
+          - mdbu_port4_tx_in_low_alarm
+        mapper: '%{resources.mappers.alarms}'
+    variables:
+      topology.discovery.uri: ${type.topology.uri}
+    price:
+      value: 0
+      unit: W
+    energy:
+      value: 0
+      unit: USD
+  mru:
+    name: MRU
+    version: '[1.0,)'
+    reference: mru
+    attributes:
+      - mru_band1_on_off
+    alarms:
+      mru_band1_tx_out_high_alarm:
+        attributes:
+          - mru_band1_tx_out_high_alarm
+        mapper: '%{resources.mappers.alarms}'
+      mru_band1_tx_out_low_alarm:
+        attributes:
+          - mru_band1_tx_out_low_alarm
+        mapper: '%{resources.mappers.alarms}'
+      mru_band1_tx_out_sd_alarm:
+        attributes:
+          - mru_band1_tx_out_sd_alarm
+        mapper: '%{resources.mappers.alarms}'
+      mru_band2_tx_out_high_alarm:
+        attributes:
+          - mru_band2_tx_out_high_alarm
+        mapper: '%{resources.mappers.alarms}'
+      mru_band2_tx_out_low_alarm:
+        attributes:
+          - mru_band2_tx_out_low_alarm
+        mapper: '%{resources.mappers.alarms}'
+      mru_band2_tx_out_sd_alarm:
+        attributes:
+          - mru_band2_tx_out_sd_alarm
+        mapper: '%{resources.mappers.alarms}'
+      mru_enviro_high_temperature_limit_alarm:
+        attributes:
+          - mru_enviro_high_temperature_limit_alarm
+        mapper: '%{resources.mappers.alarms}'
+      mru_enviro_link_fail_alarm:
+        attributes:
+          - mru_enviro_link_fail_alarm
+        mapper: '%{resources.mappers.alarms}'
+      mru_enviro_low_temperature_limit_alarm:
+        attributes:
+          - mru_enviro_low_temperature_limit_alarm
+        mapper: '%{resources.mappers.alarms}'
+      mru_optical_info_ld_power_alarm:
+        attributes:
+          - mru_optical_info_ld_power_alarm
+        mapper: '%{resources.mappers.alarms}'
+      mru_optical_info_pd_power_alarm:
+        attributes:
+          - mru_optical_info_pd_power_alarm
+        mapper: '%{resources.mappers.alarms}'
+      mru_optical_info_tx_optic_result_alarm:
+        attributes:
+          - mru_optical_info_tx_optic_result_alarm
+        mapper: '%{resources.mappers.alarms}'
+    variables:
+      topology.discovery.uri: ${type.topology.uri}
+    price:
+      value: 0
+      unit: W
+    energy:
+      value: 0
+      unit: USD
+  vuhf:
+    name: VUHF
+    version: '[1.0,)'
+    reference: vuhf
+    attributes:
+      - vuhf_alarm_on_off
+    alarms:
+      vuhf_rx_high_limit_alarm:
+        attributes:
+          - vuhf_rx_high_limit_alarm
+        mapper: '%{resources.mappers.alarms}'
+      vuhf_tx_high_limit_alarm:
+        attributes:
+          - vuhf_tx_high_limit_alarm
+        mapper: '%{resources.mappers.alarms}'
+      vuhf_tx_low_limit_alarm:
+        attributes:
+          - vuhf_tx_low_limit_alarm
+        mapper: '%{resources.mappers.alarms}'
+    variables:
+      topology.discovery.uri: ${type.topology.uri}
+    price:
+      value: 0
+      unit: W
+    energy:
+      value: 0
+      unit: USD
+attributes:
+  aru_band1_on_off:
+    name: Band 1 On/Off Option
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(), '1st Band')]/../td[3]/select/option[1]/@value
+      extractor: {}
+    properties:
+      readWrite: RW
+      read:
+        type: String
+      write:
+        type: object
+        properties:
+          aru_band1_on_off:
+            enum:
+              - "On"
+              - "Off"
+            inputType: dropdown
+            key: aru_band1_on_off
+            required: false
+            title: On/Off Option
+            type: string
+  aru_band2_on_off:
+    name: Band 2 On/Off Option
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(), '2nd Band')]/../td[3]/select/option[1]/@value
+      extractor: {}
+    properties:
+      readWrite: RW
+      read:
+        type: String
+      write:
+        type: object
+        properties:
+          aru_band2_on_off:
+            enum:
+              - "On"
+              - "Off"
+            inputType: dropdown
+            key: aru_band2_on_off
+            required: false
+            title: On/Off Option
+            type: string
+  aru_band1_tx_out_high_alarm:
+    name: Band 1 TX Out High
+    conditions:
+      read:
+        - '"%{attributes.aru_band1_on_off}" == "On"'
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression:
+          - '"${resources.globals.oids.trapAruOid}.51" == "variable_by_oid(snmpTrapOID).value"'
+          - '"variable_by_oid(${resources.globals.oids.trapAlarmDevice}).value" == ""'
+      extractor:
+        mapper: '%{resources.mappers.alarms}'
+        filters:
+          1: xpath '//[oid = ${resources.globals.oids.trapAlarmState}]/value/text()'
+          2: base64decode
+          3: cast String
+          4: use %{0}
+          5: xpath '//[oid = ${resources.globals.oids.trapActiveAlarmLevel}]/value/text()'
+          6: |
+            switch
+            "%{3}" == "0": "Normal"
+            # REVIEW(bg): The MIB defined alarm values, these are assumptions...
+            "%{5}" == "1": "Warning"
+            "%{5}" == "2": "Minor"
+            "%{5}" == "3": "Major"
+            "%{5}" == "4": "Critical"
+            default: "Normal"
+      extractor:
+        mapper: '%{resources.mappers.alarms}'
+    properties:
+      readWrite: R
+      read:
+        type: String
+  aru_band1_tx_out_low_alarm:
+    name: Band 1 TX Out Low
+    conditions:
+      read:
+        - '"%{attributes.aru_band1_on_off}" == "On"'
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression:
+          - '"${resources.globals.oids.trapAruOid}.52" == "variable_by_oid(snmpTrapOID).value"'
+          - '"variable_by_oid(${resources.globals.oids.trapAlarmDevice}).value" == ""'
+      extractor:
+        mapper: '%{resources.mappers.alarms}'
+        filters:
+          1: xpath '//[oid = ${resources.globals.oids.trapAlarmState}]/value/text()'
+          2: base64decode
+          3: cast String
+          4: use %{0}
+          5: xpath '//[oid = ${resources.globals.oids.trapActiveAlarmLevel}]/value/text()'
+          6: |
+            switch
+            "%{3}" == "0": "Normal"
+            # REVIEW(bg): The MIB defined alarm values, these are assumptions...
+            "%{5}" == "1": "Warning"
+            "%{5}" == "2": "Minor"
+            "%{5}" == "3": "Major"
+            "%{5}" == "4": "Critical"
+            default: "Normal"
+      extractor:
+        mapper: '%{resources.mappers.alarms}'
+    properties:
+      readWrite: R
+      read:
+        type: String
+  aru_band1_tx_out_sd_alarm:
+    name: Band 1 TX Out Shutdown
+    conditions:
+      read:
+        - '"%{attributes.aru_band1_on_off}" == "On"'
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression:
+          - '"${resources.globals.oids.trapAruOid}.53" == "variable_by_oid(snmpTrapOID).value"'
+          - '"variable_by_oid(${resources.globals.oids.trapAlarmDevice}).value" == ""'
+      extractor:
+        mapper: '%{resources.mappers.alarms}'
+        filters:
+          1: xpath '//[oid = ${resources.globals.oids.trapAlarmState}]/value/text()'
+          2: base64decode
+          3: cast String
+          4: use %{0}
+          5: xpath '//[oid = ${resources.globals.oids.trapActiveAlarmLevel}]/value/text()'
+          6: |
+            switch
+            "%{3}" == "0": "Normal"
+            # REVIEW(bg): The MIB defined alarm values, these are assumptions...
+            "%{5}" == "1": "Warning"
+            "%{5}" == "2": "Minor"
+            "%{5}" == "3": "Major"
+            "%{5}" == "4": "Critical"
+            default: "Normal"
+      extractor:
+        mapper: '%{resources.mappers.alarms}'
+    properties:
+      readWrite: R
+      read:
+        type: String
+  aru_band2_tx_out_high_alarm:
+    name: Band 2 TX Out High
+    conditions:
+      read:
+        - '"%{attributes.aru_band2_on_off}" == "On"'
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression:
+          - '"${resources.globals.oids.trapAruOid}.61" == "variable_by_oid(snmpTrapOID).value"'
+          - '"variable_by_oid(${resources.globals.oids.trapAlarmDevice}).value" == ""'
+      extractor:
+        mapper: '%{resources.mappers.alarms}'
+        filters:
+          1: xpath '//[oid = ${resources.globals.oids.trapAlarmState}]/value/text()'
+          2: base64decode
+          3: cast String
+          4: use %{0}
+          5: xpath '//[oid = ${resources.globals.oids.trapActiveAlarmLevel}]/value/text()'
+          6: |
+            switch
+            "%{3}" == "0": "Normal"
+            # REVIEW(bg): The MIB defined alarm values, these are assumptions...
+            "%{5}" == "1": "Warning"
+            "%{5}" == "2": "Minor"
+            "%{5}" == "3": "Major"
+            "%{5}" == "4": "Critical"
+            default: "Normal"
+      extractor:
+        mapper: '%{resources.mappers.alarms}'
+    properties:
+      readWrite: R
+      read:
+        type: String
+  aru_band2_tx_out_low_alarm:
+    name: Band 2 TX Out Low
+    conditions:
+      read:
+        - '"%{attributes.aru_band2_on_off}" == "On"'
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression:
+          - '"${resources.globals.oids.trapAruOid}.62" == "variable_by_oid(snmpTrapOID).value"'
+          - '"variable_by_oid(${resources.globals.oids.trapAlarmDevice}).value" == ""'
+      extractor:
+        mapper: '%{resources.mappers.alarms}'
+        filters:
+          1: xpath '//[oid = ${resources.globals.oids.trapAlarmState}]/value/text()'
+          2: base64decode
+          3: cast String
+          4: use %{0}
+          5: xpath '//[oid = ${resources.globals.oids.trapActiveAlarmLevel}]/value/text()'
+          6: |
+            switch
+            "%{3}" == "0": "Normal"
+            # REVIEW(bg): The MIB defined alarm values, these are assumptions...
+            "%{5}" == "1": "Warning"
+            "%{5}" == "2": "Minor"
+            "%{5}" == "3": "Major"
+            "%{5}" == "4": "Critical"
+            default: "Normal"
+      extractor:
+        mapper: '%{resources.mappers.alarms}'
+    properties:
+      readWrite: R
+      read:
+        type: String
+  aru_band2_tx_out_sd_alarm:
+    name: Band 2 TX Out Shutdown
+    conditions:
+      read:
+        - '"%{attributes.aru_band2_on_off}" == "On"'
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression:
+          - '"${resources.globals.oids.trapAruOid}.63" == "variable_by_oid(snmpTrapOID).value"'
+          - '"variable_by_oid(${resources.globals.oids.trapAlarmDevice}).value" == ""'
+      extractor:
+        mapper: '%{resources.mappers.alarms}'
+        filters:
+          1: xpath '//[oid = ${resources.globals.oids.trapAlarmState}]/value/text()'
+          2: base64decode
+          3: cast String
+          4: use %{0}
+          5: xpath '//[oid = ${resources.globals.oids.trapActiveAlarmLevel}]/value/text()'
+          6: |
+            switch
+            "%{3}" == "0": "Normal"
+            # REVIEW(bg): The MIB defined alarm values, these are assumptions...
+            "%{5}" == "1": "Warning"
+            "%{5}" == "2": "Minor"
+            "%{5}" == "3": "Major"
+            "%{5}" == "4": "Critical"
+            default: "Normal"
+      extractor:
+        mapper: '%{resources.mappers.alarms}'
+    properties:
+      readWrite: R
+      read:
+        type: String
+  aru_enviro_high_temperature_limit_alarm:
+    name: Environment High Temperature Limit
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression:
+          - '"${resources.globals.oids.trapAruOid}.13" == "variable_by_oid(snmpTrapOID).value"'
+          - '"variable_by_oid(${resources.globals.oids.trapAlarmDevice}).value" == ""'
+      extractor:
+        mapper: '%{resources.mappers.alarms}'
+        filters:
+          1: xpath '//[oid = ${resources.globals.oids.trapAlarmState}]/value/text()'
+          2: base64decode
+          3: cast String
+          4: use %{0}
+          5: xpath '//[oid = ${resources.globals.oids.trapActiveAlarmLevel}]/value/text()'
+          6: |
+            switch
+            "%{3}" == "0": "Normal"
+            # REVIEW(bg): The MIB defined alarm values, these are assumptions...
+            "%{5}" == "1": "Warning"
+            "%{5}" == "2": "Minor"
+            "%{5}" == "3": "Major"
+            "%{5}" == "4": "Critical"
+            default: "Normal"
+      extractor:
+        mapper: '%{resources.mappers.alarms}'
+    properties:
+      readWrite: R
+      read:
+        type: String
+  aru_enviro_link_fail_alarm:
+    name: Environment Link Fail
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression:
+          - '"${resources.globals.oids.trapAruOid}.11" == "variable_by_oid(snmpTrapOID).value"'
+          - '"variable_by_oid(${resources.globals.oids.trapAlarmDevice}).value" == ""'
+      extractor:
+        mapper: '%{resources.mappers.alarms}'
+        filters:
+          1: xpath '//[oid = ${resources.globals.oids.trapAlarmState}]/value/text()'
+          2: base64decode
+          3: cast String
+          4: use %{0}
+          5: xpath '//[oid = ${resources.globals.oids.trapActiveAlarmLevel}]/value/text()'
+          6: |
+            switch
+            "%{3}" == "0": "Normal"
+            # REVIEW(bg): The MIB defined alarm values, these are assumptions...
+            "%{5}" == "1": "Warning"
+            "%{5}" == "2": "Minor"
+            "%{5}" == "3": "Major"
+            "%{5}" == "4": "Critical"
+            default: "Normal"
+      extractor:
+        mapper: '%{resources.mappers.alarms}'
+    properties:
+      readWrite: R
+      read:
+        type: String
+  aru_enviro_low_temperature_limit_alarm:
+    name: Environment Low Temperature Limit
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression:
+          - '"${resources.globals.oids.trapAruOid}.14" == "variable_by_oid(snmpTrapOID).value"'
+          - '"variable_by_oid(${resources.globals.oids.trapAlarmDevice}).value" == ""'
+      extractor:
+        mapper: '%{resources.mappers.alarms}'
+        filters:
+          1: xpath '//[oid = ${resources.globals.oids.trapAlarmState}]/value/text()'
+          2: base64decode
+          3: cast String
+          4: use %{0}
+          5: xpath '//[oid = ${resources.globals.oids.trapActiveAlarmLevel}]/value/text()'
+          6: |
+            switch
+            "%{3}" == "0": "Normal"
+            # REVIEW(bg): The MIB defined alarm values, these are assumptions...
+            "%{5}" == "1": "Warning"
+            "%{5}" == "2": "Minor"
+            "%{5}" == "3": "Major"
+            "%{5}" == "4": "Critical"
+            default: "Normal"
+      extractor:
+        mapper: '%{resources.mappers.alarms}'
+    properties:
+      readWrite: R
+      read:
+        type: String
+  biu_dc_alarm_alarm:
+    name: DC Alarm
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression:
+          - '"${resources.globals.oids.trapBiuOid}.13" == "variable_by_oid(snmpTrapOID).value"'
+          - '"variable_by_oid(${resources.globals.oids.trapAlarmDevice}).value" == ""'
+      extractor:
+        mapper: '%{resources.mappers.alarms}'
+        filters:
+          1: xpath '//[oid = ${resources.globals.oids.trapAlarmState}]/value/text()'
+          2: base64decode
+          3: cast String
+          4: use %{0}
+          5: xpath '//[oid = ${resources.globals.oids.trapActiveAlarmLevel}]/value/text()'
+          6: |
+            switch
+            "%{3}" == "0": "Normal"
+            # REVIEW(bg): The MIB defined alarm values, these are assumptions...
+            "%{5}" == "1": "Warning"
+            "%{5}" == "2": "Minor"
+            "%{5}" == "3": "Major"
+            "%{5}" == "4": "Critical"
+            default: "Normal"
+      extractor:
+        mapper: '%{resources.mappers.alarms}'
+    properties:
+      readWrite: R
+      read:
+        type: String
+  biu_high_temperature_limit_alarm:
+    name: BIU High Temperature Limit
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor:
+        mapper: '%{resources.mappers.alarms}'
+    properties:
+      readWrite: R
+      read:
+        type: String
+  biu_low_temperature_limit_alarm:
+    name: BIU Low Temperature Limit
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor:
+        mapper: '%{resources.mappers.alarms}'
+    properties:
+      readWrite: R
+      read:
+        type: String
+  biu_mimo_odu1_dou1_alarm:
+    name: MIMO ODU1 DOU1 Status
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor:
+        mapper: '%{resources.mappers.alarms}'
+    properties:
+      readWrite: R
+      read:
+        type: String
+  biu_mimo_odu1_dou2_alarm:
+    name: MIMO ODU1 DOU2 Status
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor:
+        mapper: '%{resources.mappers.alarms}'
+    properties:
+      readWrite: R
+      read:
+        type: String
+  biu_siso_odu1_dou1_alarm:
+    name: SISO ODU1 DOU1 Status
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor:
+        mapper: '%{resources.mappers.alarms}'
+    properties:
+      readWrite: R
+      read:
+        type: String
+  biu_siso_odu1_dou2_alarm:
+    name: SISO ODU1 DOU2 Status
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor:
+        mapper: '%{resources.mappers.alarms}'
+    properties:
+      readWrite: R
+      read:
+        type: String
+  external_alarm_1_alarm:
+    name: External Alarm 1
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor:
+        mapper: '%{resources.mappers.alarms}'
+    properties:
+      readWrite: R
+      read:
+        type: String
+  external_alarm_2_alarm:
+    name: External Alarm 2
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor:
+        mapper: '%{resources.mappers.alarms}'
+    properties:
+      readWrite: R
+      read:
+        type: String
+  external_alarm_3_alarm:
+    name: External Alarm 3
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor:
+        mapper: '%{resources.mappers.alarms}'
+    properties:
+      readWrite: R
+      read:
+        type: String
+  external_alarm_4_alarm:
+    name: External Alarm 4
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor:
+        mapper: '%{resources.mappers.alarms}'
+    properties:
+      readWrite: R
+      read:
+        type: String
+  external_alarm_in_1_alarm:
+    name: Alarm In 1
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor:
+        mapper: '%{resources.mappers.alarms}'
+    properties:
+      readWrite: R
+      read:
+        type: String
+  external_alarm_in_2_alarm:
+    name: Alarm In 2
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor:
+        mapper: '%{resources.mappers.alarms}'
+    properties:
+      readWrite: R
+      read:
+        type: String
+  external_alarm_in_3_alarm:
+    name: Alarm In 3
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor:
+        mapper: '%{resources.mappers.alarms}'
+    properties:
+      readWrite: R
+      read:
+        type: String
+  mcpu_status_alarm:
+    name: MCPU Status Alarm
+    description: Status Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor:
+        filters:
+        mapper: '%{resources.mappers.alarms}'
+    properties:
+      readWrite: R
+      read:
+        type: String
+  mdbu_port1_on_off:
+    name: MDBU Port 1 On/Off option
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_mdbu}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(), 'MDBU#${topology.discovery.flatten.mdbuNumber}')]/../../tr[6]/td/table/tbody/tr/td[4]/select/option[1]/@value
+      extractor: {}
+    properties:
+      readWrite: RW
+      read:
+        type: String
+      write:
+        type: object
+        properties:
+          mdbu_port1_on_off:
+            enum:
+              - "On"
+              - "Off"
+            inputType: dropdown
+            key: mdbu_port1_on_off
+            required: false
+            title: On/Off Option
+            type: string
+  mdbu_port2_on_off:
+    name: MDBU Port 2 On/Off Option
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_mdbu}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(), 'MDBU#${topology.discovery.flatten.mdbuNumber}')]/../../tr[7]/td/table/tbody/tr/td[4]/select/option[1]/@value
+      extractor: {}
+    properties:
+      readWrite: RW
+      read:
+        type: String
+      write:
+        type: object
+        properties:
+          mdbu_port2_on_off:
+            enum:
+              - "On"
+              - "Off"
+            inputType: dropdown
+            key: mdbu_port2_on_off
+            required: false
+            title: On/Off Option
+            type: string
+  mdbu_port3_on_off:
+    name: MDBU Port 3 On/Off Option
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_mdbu}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(), 'MDBU#${topology.discovery.flatten.mdbuNumber}')]/../../tr[8]/td/table/tbody/tr/td[4]/select/option[1]/@value
+      extractor: {}
+    properties:
+      readWrite: RW
+      read:
+        type: String
+      write:
+        type: object
+        properties:
+          mdbu_port3_on_off:
+            enum:
+              - "On"
+              - "Off"
+            inputType: dropdown
+            key: mdbu_port3_on_off
+            required: false
+            title: On/Off Option
+            type: string
+  mdbu_port4_on_off:
+    name: MDBU Port 4 On/Off Option
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_mdbu}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(), 'MDBU#${topology.discovery.flatten.mdbuNumber}')]/../../tr[9]/td/table/tbody/tr/td[4]/select/option[1]/@value
+      extractor: {}
+    properties:
+      readWrite: RW
+      read:
+        type: String
+      write:
+        type: object
+        properties:
+          mdbu_port4_on_off:
+            enum:
+              - "On"
+              - "Off"
+            inputType: dropdown
+            key: mdbu_port4_on_off
+            required: false
+            title: On/Off Option
+            type: string
+  mdbu_port1_rx_out_high_alarm:
+    name: MDBU Port 1 RX Out High
+    conditions:
+      read:
+        - '"%{attributes.mdbu_port1_on_off}" == "On"'
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression:
+          - '"${resources.globals.oids.trapMdbuOid}.13" == "variable_by_oid(snmpTrapOID).value"'
+          - '"variable_by_oid(${resources.globals.oids.trapAlarmDevice}).value" == ""'
+      extractor:
+        mapper: '%{resources.mappers.alarms}'
+        filters:
+          1: xpath '//[oid = ${resources.globals.oids.trapAlarmState}]/value/text()'
+          2: base64decode
+          3: cast String
+          4: use %{0}
+          5: xpath '//[oid = ${resources.globals.oids.trapActiveAlarmLevel}]/value/text()'
+          6: |
+            switch
+            "%{3}" == "0": "Normal"
+            # REVIEW(bg): The MIB defined alarm values, these are assumptions...
+            "%{5}" == "1": "Warning"
+            "%{5}" == "2": "Minor"
+            "%{5}" == "3": "Major"
+            "%{5}" == "4": "Critical"
+            default: "Normal"
+      extractor:
+        mapper: '%{resources.mappers.alarms}'
+    properties:
+      readWrite: R
+      read:
+        type: String
+  mdbu_port1_tx_in_high_alarm:
+    name: MDBU Port 1 TX In High
+    conditions:
+      read:
+        - '"%{attributes.mdbu_port1_on_off}" == "On"'
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression:
+          - '"${resources.globals.oids.trapMdbuOid}.11" == "variable_by_oid(snmpTrapOID).value"'
+          - '"variable_by_oid(${resources.globals.oids.trapAlarmDevice}).value" == ""'
+      extractor:
+        mapper: '%{resources.mappers.alarms}'
+        filters:
+          1: xpath '//[oid = ${resources.globals.oids.trapAlarmState}]/value/text()'
+          2: base64decode
+          3: cast String
+          4: use %{0}
+          5: xpath '//[oid = ${resources.globals.oids.trapActiveAlarmLevel}]/value/text()'
+          6: |
+            switch
+            "%{3}" == "0": "Normal"
+            # REVIEW(bg): The MIB defined alarm values, these are assumptions...
+            "%{5}" == "1": "Warning"
+            "%{5}" == "2": "Minor"
+            "%{5}" == "3": "Major"
+            "%{5}" == "4": "Critical"
+            default: "Normal"
+      extractor:
+        mapper: '%{resources.mappers.alarms}'
+    properties:
+      readWrite: R
+      read:
+        type: String
+  mdbu_port1_tx_in_low_alarm:
+    name: MDBU Port 1 TX In Low
+    conditions:
+      read:
+        - '"%{attributes.mdbu_port1_on_off}" == "On"'
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression:
+          - '"${resources.globals.oids.trapMdbuOid}.12" == "variable_by_oid(snmpTrapOID).value"'
+          - '"variable_by_oid(${resources.globals.oids.trapAlarmDevice}).value" == ""'
+      extractor:
+        mapper: '%{resources.mappers.alarms}'
+        filters:
+          1: xpath '//[oid = ${resources.globals.oids.trapAlarmState}]/value/text()'
+          2: base64decode
+          3: cast String
+          4: use %{0}
+          5: xpath '//[oid = ${resources.globals.oids.trapActiveAlarmLevel}]/value/text()'
+          6: |
+            switch
+            "%{3}" == "0": "Normal"
+            # REVIEW(bg): The MIB defined alarm values, these are assumptions...
+            "%{5}" == "1": "Warning"
+            "%{5}" == "2": "Minor"
+            "%{5}" == "3": "Major"
+            "%{5}" == "4": "Critical"
+            default: "Normal"
+      extractor:
+        mapper: '%{resources.mappers.alarms}'
+    properties:
+      readWrite: R
+      read:
+        type: String
+  mdbu_port2_rx_out_high_alarm:
+    name: MDBU Port 2 RX Out High
+    conditions:
+      read:
+        - '"%{attributes.mdbu_port2_on_off}" == "On"'
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression:
+          - '"${resources.globals.oids.trapMdbuOid}.23" == "variable_by_oid(snmpTrapOID).value"'
+          - '"variable_by_oid(${resources.globals.oids.trapAlarmDevice}).value" == ""'
+      extractor:
+        mapper: '%{resources.mappers.alarms}'
+        filters:
+          1: xpath '//[oid = ${resources.globals.oids.trapAlarmState}]/value/text()'
+          2: base64decode
+          3: cast String
+          4: use %{0}
+          5: xpath '//[oid = ${resources.globals.oids.trapActiveAlarmLevel}]/value/text()'
+          6: |
+            switch
+            "%{3}" == "0": "Normal"
+            # REVIEW(bg): The MIB defined alarm values, these are assumptions...
+            "%{5}" == "1": "Warning"
+            "%{5}" == "2": "Minor"
+            "%{5}" == "3": "Major"
+            "%{5}" == "4": "Critical"
+            default: "Normal"
+      extractor:
+        mapper: '%{resources.mappers.alarms}'
+    properties:
+      readWrite: R
+      read:
+        type: String
+  mdbu_port2_tx_in_high_alarm:
+    name: MDBU Port 2 TX In High
+    conditions:
+      read:
+        - '"%{attributes.mdbu_port2_on_off}" == "On"'
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression:
+          - '"${resources.globals.oids.trapMdbuOid}.21" == "variable_by_oid(snmpTrapOID).value"'
+          - '"variable_by_oid(${resources.globals.oids.trapAlarmDevice}).value" == ""'
+      extractor:
+        mapper: '%{resources.mappers.alarms}'
+        filters:
+          1: xpath '//[oid = ${resources.globals.oids.trapAlarmState}]/value/text()'
+          2: base64decode
+          3: cast String
+          4: use %{0}
+          5: xpath '//[oid = ${resources.globals.oids.trapActiveAlarmLevel}]/value/text()'
+          6: |
+            switch
+            "%{3}" == "0": "Normal"
+            # REVIEW(bg): The MIB defined alarm values, these are assumptions...
+            "%{5}" == "1": "Warning"
+            "%{5}" == "2": "Minor"
+            "%{5}" == "3": "Major"
+            "%{5}" == "4": "Critical"
+            default: "Normal"
+      extractor:
+        mapper: '%{resources.mappers.alarms}'
+    properties:
+      readWrite: R
+      read:
+        type: String
+  mdbu_port2_tx_in_low_alarm:
+    name: MDBU Port 2 TX In Low
+    conditions:
+      read:
+        - '"%{attributes.mdbu_port2_on_off}" == "On"'
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression:
+          - '"${resources.globals.oids.trapMdbuOid}.22" == "variable_by_oid(snmpTrapOID).value"'
+          - '"variable_by_oid(${resources.globals.oids.trapAlarmDevice}).value" == ""'
+      extractor:
+        mapper: '%{resources.mappers.alarms}'
+        filters:
+          1: xpath '//[oid = ${resources.globals.oids.trapAlarmState}]/value/text()'
+          2: base64decode
+          3: cast String
+          4: use %{0}
+          5: xpath '//[oid = ${resources.globals.oids.trapActiveAlarmLevel}]/value/text()'
+          6: |
+            switch
+            "%{3}" == "0": "Normal"
+            # REVIEW(bg): The MIB defined alarm values, these are assumptions...
+            "%{5}" == "1": "Warning"
+            "%{5}" == "2": "Minor"
+            "%{5}" == "3": "Major"
+            "%{5}" == "4": "Critical"
+            default: "Normal"
+      extractor:
+        mapper: '%{resources.mappers.alarms}'
+    properties:
+      readWrite: R
+      read:
+        type: String
+  mdbu_port3_rx_out_high_alarm:
+    name: MDBU Port 3 RX Out High
+    conditions:
+      read:
+        - '"%{attributes.mdbu_port3_on_off}" == "On"'
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression:
+          - '"${resources.globals.oids.trapMdbuOid}.33" == "variable_by_oid(snmpTrapOID).value"'
+          - '"variable_by_oid(${resources.globals.oids.trapAlarmDevice}).value" == ""'
+      extractor:
+        mapper: '%{resources.mappers.alarms}'
+        filters:
+          1: xpath '//[oid = ${resources.globals.oids.trapAlarmState}]/value/text()'
+          2: base64decode
+          3: cast String
+          4: use %{0}
+          5: xpath '//[oid = ${resources.globals.oids.trapActiveAlarmLevel}]/value/text()'
+          6: |
+            switch
+            "%{3}" == "0": "Normal"
+            # REVIEW(bg): The MIB defined alarm values, these are assumptions...
+            "%{5}" == "1": "Warning"
+            "%{5}" == "2": "Minor"
+            "%{5}" == "3": "Major"
+            "%{5}" == "4": "Critical"
+            default: "Normal"
+      extractor:
+        mapper: '%{resources.mappers.alarms}'
+    properties:
+      readWrite: R
+      read:
+        type: String
+  mdbu_port3_tx_in_high_alarm:
+    name: MDBU Port 3 TX In High
+    conditions:
+      read:
+        - '"%{attributes.mdbu_port3_on_off}" == "On"'
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression:
+          - '"${resources.globals.oids.trapMdbuOid}.31" == "variable_by_oid(snmpTrapOID).value"'
+          - '"variable_by_oid(${resources.globals.oids.trapAlarmDevice}).value" == ""'
+      extractor:
+        mapper: '%{resources.mappers.alarms}'
+        filters:
+          1: xpath '//[oid = ${resources.globals.oids.trapAlarmState}]/value/text()'
+          2: base64decode
+          3: cast String
+          4: use %{0}
+          5: xpath '//[oid = ${resources.globals.oids.trapActiveAlarmLevel}]/value/text()'
+          6: |
+            switch
+            "%{3}" == "0": "Normal"
+            # REVIEW(bg): The MIB defined alarm values, these are assumptions...
+            "%{5}" == "1": "Warning"
+            "%{5}" == "2": "Minor"
+            "%{5}" == "3": "Major"
+            "%{5}" == "4": "Critical"
+            default: "Normal"
+      extractor:
+        mapper: '%{resources.mappers.alarms}'
+    properties:
+      readWrite: R
+      read:
+        type: String
+  mdbu_port3_tx_in_low_alarm:
+    name: MDBU Port 3 TX In Low
+    conditions:
+      read:
+        - '"%{attributes.mdbu_port3_on_off}" == "On"'
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression:
+          - '"${resources.globals.oids.trapMdbuOid}.32" == "variable_by_oid(snmpTrapOID).value"'
+          - '"variable_by_oid(${resources.globals.oids.trapAlarmDevice}).value" == ""'
+      extractor:
+        mapper: '%{resources.mappers.alarms}'
+        filters:
+          1: xpath '//[oid = ${resources.globals.oids.trapAlarmState}]/value/text()'
+          2: base64decode
+          3: cast String
+          4: use %{0}
+          5: xpath '//[oid = ${resources.globals.oids.trapActiveAlarmLevel}]/value/text()'
+          6: |
+            switch
+            "%{3}" == "0": "Normal"
+            # REVIEW(bg): The MIB defined alarm values, these are assumptions...
+            "%{5}" == "1": "Warning"
+            "%{5}" == "2": "Minor"
+            "%{5}" == "3": "Major"
+            "%{5}" == "4": "Critical"
+            default: "Normal"
+      extractor:
+        mapper: '%{resources.mappers.alarms}'
+    properties:
+      readWrite: R
+      read:
+        type: String
+  mdbu_port4_rx_out_high_alarm:
+    name: MDBU Port 4 RX Out High
+    conditions:
+      read:
+        - '"%{attributes.mdbu_port4_on_off}" == "On"'
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression:
+          - '"${resources.globals.oids.trapMdbuOid}.43" == "variable_by_oid(snmpTrapOID).value"'
+          - '"variable_by_oid(${resources.globals.oids.trapAlarmDevice}).value" == ""'
+      extractor:
+        mapper: '%{resources.mappers.alarms}'
+        filters:
+          1: xpath '//[oid = ${resources.globals.oids.trapAlarmState}]/value/text()'
+          2: base64decode
+          3: cast String
+          4: use %{0}
+          5: xpath '//[oid = ${resources.globals.oids.trapActiveAlarmLevel}]/value/text()'
+          6: |
+            switch
+            "%{3}" == "0": "Normal"
+            # REVIEW(bg): The MIB defined alarm values, these are assumptions...
+            "%{5}" == "1": "Warning"
+            "%{5}" == "2": "Minor"
+            "%{5}" == "3": "Major"
+            "%{5}" == "4": "Critical"
+            default: "Normal"
+      extractor:
+        mapper: '%{resources.mappers.alarms}'
+    properties:
+      readWrite: R
+      read:
+        type: String
+  mdbu_port4_tx_in_high_alarm:
+    name: MDBU Port 4 TX In High
+    conditions:
+      read:
+        - '"%{attributes.mdbu_port4_on_off}" == "On"'
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression:
+          - '"${resources.globals.oids.trapMdbuOid}.41" == "variable_by_oid(snmpTrapOID).value"'
+          - '"variable_by_oid(${resources.globals.oids.trapAlarmDevice}).value" == ""'
+      extractor:
+        mapper: '%{resources.mappers.alarms}'
+        filters:
+          1: xpath '//[oid = ${resources.globals.oids.trapAlarmState}]/value/text()'
+          2: base64decode
+          3: cast String
+          4: use %{0}
+          5: xpath '//[oid = ${resources.globals.oids.trapActiveAlarmLevel}]/value/text()'
+          6: |
+            switch
+            "%{3}" == "0": "Normal"
+            # REVIEW(bg): The MIB defined alarm values, these are assumptions...
+            "%{5}" == "1": "Warning"
+            "%{5}" == "2": "Minor"
+            "%{5}" == "3": "Major"
+            "%{5}" == "4": "Critical"
+            default: "Normal"
+      extractor:
+        mapper: '%{resources.mappers.alarms}'
+    properties:
+      readWrite: R
+      read:
+        type: String
+  mdbu_port4_tx_in_low_alarm:
+    name: MDBU Port 4 TX In Low
+    conditions:
+      read:
+        - '"%{attributes.mdbu_port4_on_off}" == "On"'
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression:
+          - '"${resources.globals.oids.trapMdbuOid}.42" == "variable_by_oid(snmpTrapOID).value"'
+          - '"variable_by_oid(${resources.globals.oids.trapAlarmDevice}).value" == ""'
+      extractor:
+        mapper: '%{resources.mappers.alarms}'
+        filters:
+          1: xpath '//[oid = ${resources.globals.oids.trapAlarmState}]/value/text()'
+          2: base64decode
+          3: cast String
+          4: use %{0}
+          5: xpath '//[oid = ${resources.globals.oids.trapActiveAlarmLevel}]/value/text()'
+          6: |
+            switch
+            "%{3}" == "0": "Normal"
+            # REVIEW(bg): The MIB defined alarm values, these are assumptions...
+            "%{5}" == "1": "Warning"
+            "%{5}" == "2": "Minor"
+            "%{5}" == "3": "Major"
+            "%{5}" == "4": "Critical"
+            default: "Normal"
+      extractor:
+        mapper: '%{resources.mappers.alarms}'
+    properties:
+      readWrite: R
+      read:
+        type: String
+  mru_band1_on_off:
+    name: Band 1 On/Off Option
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_mru}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(), '1st Band')]/../td[3]/select/option[1]/@value
+      extractor: {}
+    properties:
+      readWrite: RW
+      read:
+        type: String
+      write:
+        type: object
+        properties:
+          mru_band1_on_off:
+            enum:
+              - "On"
+              - "Off"
+            inputType: dropdown
+            key: mru_band1_on_off
+            required: false
+            title: On/Off Option
+            type: string
+  mru_band1_tx_out_high_alarm:
+    name: Band 1 TX Out High
+    conditions:
+      read:
+        - '"%{attributes.mru_band1_on_off}" == "On"'
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression:
+          - '"${resources.globals.oids.trapMruOid}.51" == "variable_by_oid(snmpTrapOID).value"'
+          - '"variable_by_oid(${resources.globals.oids.trapAlarmDevice}).value" == ""'
+      extractor:
+        mapper: '%{resources.mappers.alarms}'
+        filters:
+          1: xpath '//[oid = ${resources.globals.oids.trapAlarmState}]/value/text()'
+          2: base64decode
+          3: cast String
+          4: use %{0}
+          5: xpath '//[oid = ${resources.globals.oids.trapActiveAlarmLevel}]/value/text()'
+          6: |
+            switch
+            "%{3}" == "0": "Normal"
+            # REVIEW(bg): The MIB defined alarm values, these are assumptions...
+            "%{5}" == "1": "Warning"
+            "%{5}" == "2": "Minor"
+            "%{5}" == "3": "Major"
+            "%{5}" == "4": "Critical"
+            default: "Normal"
+      extractor:
+        mapper: '%{resources.mappers.alarms}'
+    properties:
+      readWrite: R
+      read:
+        type: String
+  mru_band1_tx_out_low_alarm:
+    name: Band 1 TX Out Low
+    conditions:
+      read:
+        - '"%{attributes.mru_band1_on_off}" == "On"'
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression:
+          - '"${resources.globals.oids.trapMruOid}.52" == "variable_by_oid(snmpTrapOID).value"'
+          - '"variable_by_oid(${resources.globals.oids.trapAlarmDevice}).value" == ""'
+      extractor:
+        mapper: '%{resources.mappers.alarms}'
+        filters:
+          1: xpath '//[oid = ${resources.globals.oids.trapAlarmState}]/value/text()'
+          2: base64decode
+          3: cast String
+          4: use %{0}
+          5: xpath '//[oid = ${resources.globals.oids.trapActiveAlarmLevel}]/value/text()'
+          6: |
+            switch
+            "%{3}" == "0": "Normal"
+            # REVIEW(bg): The MIB defined alarm values, these are assumptions...
+            "%{5}" == "1": "Warning"
+            "%{5}" == "2": "Minor"
+            "%{5}" == "3": "Major"
+            "%{5}" == "4": "Critical"
+            default: "Normal"
+      extractor:
+        mapper: '%{resources.mappers.alarms}'
+    properties:
+      readWrite: R
+      read:
+        type: String
+  mru_band1_tx_out_sd_alarm:
+    name: Band 1 TX Out Shutdown
+    conditions:
+      read:
+        - '"%{attributes.mru_band1_on_off}" == "On"'
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression:
+          - '"${resources.globals.oids.trapMruOid}.53" == "variable_by_oid(snmpTrapOID).value"'
+          - '"variable_by_oid(${resources.globals.oids.trapAlarmDevice}).value" == ""'
+      extractor:
+        mapper: '%{resources.mappers.alarms}'
+        filters:
+          1: xpath '//[oid = ${resources.globals.oids.trapAlarmState}]/value/text()'
+          2: base64decode
+          3: cast String
+          4: use %{0}
+          5: xpath '//[oid = ${resources.globals.oids.trapActiveAlarmLevel}]/value/text()'
+          6: |
+            switch
+            "%{3}" == "0": "Normal"
+            # REVIEW(bg): The MIB defined alarm values, these are assumptions...
+            "%{5}" == "1": "Warning"
+            "%{5}" == "2": "Minor"
+            "%{5}" == "3": "Major"
+            "%{5}" == "4": "Critical"
+            default: "Normal"
+      extractor:
+        mapper: '%{resources.mappers.alarms}'
+    properties:
+      readWrite: R
+      read:
+        type: String
+  mru_band2_tx_out_high_alarm:
+    name: Band 2 TX Out High
+    conditions:
+      read:
+        - '"%{attributes.mru_band2_on_off}" == "On"'
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression:
+          - '"${resources.globals.oids.trapMruOid}.61" == "variable_by_oid(snmpTrapOID).value"'
+          - '"variable_by_oid(${resources.globals.oids.trapAlarmDevice}).value" == ""'
+      extractor:
+        mapper: '%{resources.mappers.alarms}'
+        filters:
+          1: xpath '//[oid = ${resources.globals.oids.trapAlarmState}]/value/text()'
+          2: base64decode
+          3: cast String
+          4: use %{0}
+          5: xpath '//[oid = ${resources.globals.oids.trapActiveAlarmLevel}]/value/text()'
+          6: |
+            switch
+            "%{3}" == "0": "Normal"
+            # REVIEW(bg): The MIB defined alarm values, these are assumptions...
+            "%{5}" == "1": "Warning"
+            "%{5}" == "2": "Minor"
+            "%{5}" == "3": "Major"
+            "%{5}" == "4": "Critical"
+            default: "Normal"
+      extractor:
+        mapper: '%{resources.mappers.alarms}'
+    properties:
+      readWrite: R
+      read:
+        type: String
+  mru_band2_tx_out_low_alarm:
+    name: Band 2 TX Out Low
+    conditions:
+      read:
+        - '"%{attributes.mru_band2_on_off}" == "On"'
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression:
+          - '"${resources.globals.oids.trapMruOid}.62" == "variable_by_oid(snmpTrapOID).value"'
+          - '"variable_by_oid(${resources.globals.oids.trapAlarmDevice}).value" == ""'
+      extractor:
+        mapper: '%{resources.mappers.alarms}'
+        filters:
+          1: xpath '//[oid = ${resources.globals.oids.trapAlarmState}]/value/text()'
+          2: base64decode
+          3: cast String
+          4: use %{0}
+          5: xpath '//[oid = ${resources.globals.oids.trapActiveAlarmLevel}]/value/text()'
+          6: |
+            switch
+            "%{3}" == "0": "Normal"
+            # REVIEW(bg): The MIB defined alarm values, these are assumptions...
+            "%{5}" == "1": "Warning"
+            "%{5}" == "2": "Minor"
+            "%{5}" == "3": "Major"
+            "%{5}" == "4": "Critical"
+            default: "Normal"
+      extractor:
+        mapper: '%{resources.mappers.alarms}'
+    properties:
+      readWrite: R
+      read:
+        type: String
+  mru_band2_tx_out_sd_alarm:
+    name: Band 2 TX Out Shutdown
+    conditions:
+      read:
+        - '"%{attributes.mru_band2_on_off}" == "On"'
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression:
+          - '"${resources.globals.oids.trapMruOid}.63" == "variable_by_oid(snmpTrapOID).value"'
+          - '"variable_by_oid(${resources.globals.oids.trapAlarmDevice}).value" == ""'
+      extractor:
+        mapper: '%{resources.mappers.alarms}'
+        filters:
+          1: xpath '//[oid = ${resources.globals.oids.trapAlarmState}]/value/text()'
+          2: base64decode
+          3: cast String
+          4: use %{0}
+          5: xpath '//[oid = ${resources.globals.oids.trapActiveAlarmLevel}]/value/text()'
+          6: |
+            switch
+            "%{3}" == "0": "Normal"
+            # REVIEW(bg): The MIB defined alarm values, these are assumptions...
+            "%{5}" == "1": "Warning"
+            "%{5}" == "2": "Minor"
+            "%{5}" == "3": "Major"
+            "%{5}" == "4": "Critical"
+            default: "Normal"
+      extractor:
+        mapper: '%{resources.mappers.alarms}'
+    properties:
+      readWrite: R
+      read:
+        type: String
+  mru_enviro_high_temperature_limit_alarm:
+    name: Environment High Temperature Limit
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression:
+          - '"${resources.globals.oids.trapMruOid}.13" == "variable_by_oid(snmpTrapOID).value"'
+          - '"variable_by_oid(${resources.globals.oids.trapAlarmDevice}).value" == ""'
+      extractor:
+        mapper: '%{resources.mappers.alarms}'
+        filters:
+          1: xpath '//[oid = ${resources.globals.oids.trapAlarmState}]/value/text()'
+          2: base64decode
+          3: cast String
+          4: use %{0}
+          5: xpath '//[oid = ${resources.globals.oids.trapActiveAlarmLevel}]/value/text()'
+          6: |
+            switch
+            "%{3}" == "0": "Normal"
+            # REVIEW(bg): The MIB defined alarm values, these are assumptions...
+            "%{5}" == "1": "Warning"
+            "%{5}" == "2": "Minor"
+            "%{5}" == "3": "Major"
+            "%{5}" == "4": "Critical"
+            default: "Normal"
+      extractor:
+        mapper: '%{resources.mappers.alarms}'
+    properties:
+      readWrite: R
+      read:
+        type: String
+  mru_enviro_link_fail_alarm:
+    name: Environment Link Fail
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression:
+          - '"${resources.globals.oids.trapMruOid}.11" == "variable_by_oid(snmpTrapOID).value"'
+          - '"variable_by_oid(${resources.globals.oids.trapAlarmDevice}).value" == ""'
+      extractor:
+        mapper: '%{resources.mappers.alarms}'
+        filters:
+          1: xpath '//[oid = ${resources.globals.oids.trapAlarmState}]/value/text()'
+          2: base64decode
+          3: cast String
+          4: use %{0}
+          5: xpath '//[oid = ${resources.globals.oids.trapActiveAlarmLevel}]/value/text()'
+          6: |
+            switch
+            "%{3}" == "0": "Normal"
+            # REVIEW(bg): The MIB defined alarm values, these are assumptions...
+            "%{5}" == "1": "Warning"
+            "%{5}" == "2": "Minor"
+            "%{5}" == "3": "Major"
+            "%{5}" == "4": "Critical"
+            default: "Normal"
+      extractor:
+        mapper: '%{resources.mappers.alarms}'
+    properties:
+      readWrite: R
+      read:
+        type: String
+  mru_enviro_low_temperature_limit_alarm:
+    name: Environment Low Temperature Limit
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression:
+          - '"${resources.globals.oids.trapMruOid}.14" == "variable_by_oid(snmpTrapOID).value"'
+          - '"variable_by_oid(${resources.globals.oids.trapAlarmDevice}).value" == ""'
+      extractor:
+        mapper: '%{resources.mappers.alarms}'
+        filters:
+          1: xpath '//[oid = ${resources.globals.oids.trapAlarmState}]/value/text()'
+          2: base64decode
+          3: cast String
+          4: use %{0}
+          5: xpath '//[oid = ${resources.globals.oids.trapActiveAlarmLevel}]/value/text()'
+          6: |
+            switch
+            "%{3}" == "0": "Normal"
+            # REVIEW(bg): The MIB defined alarm values, these are assumptions...
+            "%{5}" == "1": "Warning"
+            "%{5}" == "2": "Minor"
+            "%{5}" == "3": "Major"
+            "%{5}" == "4": "Critical"
+            default: "Normal"
+      extractor:
+        mapper: '%{resources.mappers.alarms}'
+    properties:
+      readWrite: R
+      read:
+        type: String
+  mru_optical_info_ld_power_alarm:
+    name: Optical Info Laser Diode Power
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression:
+          - '"${resources.globals.oids.trapMruOid}.15" == "variable_by_oid(snmpTrapOID).value"'
+          - '"variable_by_oid(${resources.globals.oids.trapAlarmDevice}).value" == ""'
+      extractor:
+        mapper: '%{resources.mappers.alarms}'
+        filters:
+          1: xpath '//[oid = ${resources.globals.oids.trapAlarmState}]/value/text()'
+          2: base64decode
+          3: cast String
+          4: use %{0}
+          5: xpath '//[oid = ${resources.globals.oids.trapActiveAlarmLevel}]/value/text()'
+          6: |
+            switch
+            "%{3}" == "0": "Normal"
+            # REVIEW(bg): The MIB defined alarm values, these are assumptions...
+            "%{5}" == "1": "Warning"
+            "%{5}" == "2": "Minor"
+            "%{5}" == "3": "Major"
+            "%{5}" == "4": "Critical"
+            default: "Normal"
+      extractor:
+        mapper: '%{resources.mappers.alarms}'
+    properties:
+      readWrite: R
+      read:
+        type: String
+  mru_optical_info_pd_power_alarm:
+    name: Optical Info Photo Diode Power
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression:
+          - '"${resources.globals.oids.trapMruOid}.16" == "variable_by_oid(snmpTrapOID).value"'
+          - '"variable_by_oid(${resources.globals.oids.trapAlarmDevice}).value" == ""'
+      extractor:
+        mapper: '%{resources.mappers.alarms}'
+        filters:
+          1: xpath '//[oid = ${resources.globals.oids.trapAlarmState}]/value/text()'
+          2: base64decode
+          3: cast String
+          4: use %{0}
+          5: xpath '//[oid = ${resources.globals.oids.trapActiveAlarmLevel}]/value/text()'
+          6: |
+            switch
+            "%{3}" == "0": "Normal"
+            # REVIEW(bg): The MIB defined alarm values, these are assumptions...
+            "%{5}" == "1": "Warning"
+            "%{5}" == "2": "Minor"
+            "%{5}" == "3": "Major"
+            "%{5}" == "4": "Critical"
+            default: "Normal"
+      extractor:
+        mapper: '%{resources.mappers.alarms}'
+    properties:
+      readWrite: R
+      read:
+        type: String
+  mru_optical_info_tx_optic_result_alarm:
+    name: Optical Info TX Optic Result
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression:
+          - '"${resources.globals.oids.trapMruOid}.20" == "variable_by_oid(snmpTrapOID).value"'
+          - '"variable_by_oid(${resources.globals.oids.trapAlarmDevice}).value" == ""'
+      extractor:
+        mapper: '%{resources.mappers.alarms}'
+        filters:
+          1: xpath '//[oid = ${resources.globals.oids.trapAlarmState}]/value/text()'
+          2: base64decode
+          3: cast String
+          4: use %{0}
+          5: xpath '//[oid = ${resources.globals.oids.trapActiveAlarmLevel}]/value/text()'
+          6: |
+            switch
+            "%{3}" == "0": "Normal"
+            # REVIEW(bg): The MIB defined alarm values, these are assumptions...
+            "%{5}" == "1": "Warning"
+            "%{5}" == "2": "Minor"
+            "%{5}" == "3": "Major"
+            "%{5}" == "4": "Critical"
+            default: "Normal"
+      extractor:
+        mapper: '%{resources.mappers.alarms}'
+    properties:
+      readWrite: R
+      read:
+        type: String
+  odu_dou_ld_power_alarm:
+    name: Laser Diode Power
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression:
+          - '"${resources.globals.oids.trapOduOid}.12" == "variable_by_oid(snmpTrapOID).value"'
+          - '"variable_by_oid(${resources.globals.oids.trapAlarmDevice}).value" == ""'
+      extractor:
+        mapper: '%{resources.mappers.alarms}'
+        filters:
+          1: xpath '//[oid = ${resources.globals.oids.trapAlarmState}]/value/text()'
+          2: base64decode
+          3: cast String
+          4: use %{0}
+          5: xpath '//[oid = ${resources.globals.oids.trapActiveAlarmLevel}]/value/text()'
+          6: |
+            switch
+            "%{3}" == "0": "Normal"
+            # REVIEW(bg): The MIB defined alarm values, these are assumptions...
+            "%{5}" == "1": "Warning"
+            "%{5}" == "2": "Minor"
+            "%{5}" == "3": "Major"
+            "%{5}" == "4": "Critical"
+            default: "Normal"
+      extractor:
+        mapper: '%{resources.mappers.alarms}'
+    properties:
+      readWrite: R
+      read:
+        type: String
+  odu_dou_overload_alarm:
+    name: Overload Alarm
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression:
+          - '"${resources.globals.oids.trapOduOid}.13" == "variable_by_oid(snmpTrapOID).value"'
+          - '"variable_by_oid(${resources.globals.oids.trapAlarmDevice}).value" == ""'
+      extractor:
+        mapper: '%{resources.mappers.alarms}'
+        filters:
+          1: xpath '//[oid = ${resources.globals.oids.trapAlarmState}]/value/text()'
+          2: base64decode
+          3: cast String
+          4: use %{0}
+          5: xpath '//[oid = ${resources.globals.oids.trapActiveAlarmLevel}]/value/text()'
+          6: |
+            switch
+            "%{3}" == "0": "Normal"
+            # REVIEW(bg): The MIB defined alarm values, these are assumptions...
+            "%{5}" == "1": "Warning"
+            "%{5}" == "2": "Minor"
+            "%{5}" == "3": "Major"
+            "%{5}" == "4": "Critical"
+            default: "Normal"
+      extractor:
+        mapper: '%{resources.mappers.alarms}'
+    properties:
+      readWrite: R
+      read:
+        type: String
+  odu_dou_port1_pd_power_alarm:
+    name: Port 1 Photo Diode Power
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression:
+          - '"${resources.globals.oids.trapOduOid}.14" == "variable_by_oid(snmpTrapOID).value"'
+          - '"variable_by_oid(${resources.globals.oids.trapAlarmDevice}).value" == ""'
+      extractor:
+        mapper: '%{resources.mappers.alarms}'
+        filters:
+          1: xpath '//[oid = ${resources.globals.oids.trapAlarmState}]/value/text()'
+          2: base64decode
+          3: cast String
+          4: use %{0}
+          5: xpath '//[oid = ${resources.globals.oids.trapActiveAlarmLevel}]/value/text()'
+          6: |
+            switch
+            "%{3}" == "0": "Normal"
+            # REVIEW(bg): The MIB defined alarm values, these are assumptions...
+            "%{5}" == "1": "Warning"
+            "%{5}" == "2": "Minor"
+            "%{5}" == "3": "Major"
+            "%{5}" == "4": "Critical"
+            default: "Normal"
+      extractor:
+        mapper: '%{resources.mappers.alarms}'
+    properties:
+      readWrite: R
+      read:
+        type: String
+  odu_dou_port2_pd_power_alarm:
+    name: Port 2 Photo Diode Power
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression:
+          - '"${resources.globals.oids.trapOduOid}.15" == "variable_by_oid(snmpTrapOID).value"'
+          - '"variable_by_oid(${resources.globals.oids.trapAlarmDevice}).value" == ""'
+      extractor:
+        mapper: '%{resources.mappers.alarms}'
+        filters:
+          1: xpath '//[oid = ${resources.globals.oids.trapAlarmState}]/value/text()'
+          2: base64decode
+          3: cast String
+          4: use %{0}
+          5: xpath '//[oid = ${resources.globals.oids.trapActiveAlarmLevel}]/value/text()'
+          6: |
+            switch
+            "%{3}" == "0": "Normal"
+            # REVIEW(bg): The MIB defined alarm values, these are assumptions...
+            "%{5}" == "1": "Warning"
+            "%{5}" == "2": "Minor"
+            "%{5}" == "3": "Major"
+            "%{5}" == "4": "Critical"
+            default: "Normal"
+      extractor:
+        mapper: '%{resources.mappers.alarms}'
+    properties:
+      readWrite: R
+      read:
+        type: String
+  odu_dou_port3_pd_power_alarm:
+    name: Port 3 Photo Diode Power
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression:
+          - '"${resources.globals.oids.trapOduOid}.16" == "variable_by_oid(snmpTrapOID).value"'
+          - '"variable_by_oid(${resources.globals.oids.trapAlarmDevice}).value" == ""'
+      extractor:
+        mapper: '%{resources.mappers.alarms}'
+        filters:
+          1: xpath '//[oid = ${resources.globals.oids.trapAlarmState}]/value/text()'
+          2: base64decode
+          3: cast String
+          4: use %{0}
+          5: xpath '//[oid = ${resources.globals.oids.trapActiveAlarmLevel}]/value/text()'
+          6: |
+            switch
+            "%{3}" == "0": "Normal"
+            # REVIEW(bg): The MIB defined alarm values, these are assumptions...
+            "%{5}" == "1": "Warning"
+            "%{5}" == "2": "Minor"
+            "%{5}" == "3": "Major"
+            "%{5}" == "4": "Critical"
+            default: "Normal"
+      extractor:
+        mapper: '%{resources.mappers.alarms}'
+    properties:
+      readWrite: R
+      read:
+        type: String
+  odu_dou_port4_pd_power_alarm:
+    name: Port 4 Photo Diode Power
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression:
+          - '"${resources.globals.oids.trapOduOid}.17" == "variable_by_oid(snmpTrapOID).value"'
+          - '"variable_by_oid(${resources.globals.oids.trapAlarmDevice}).value" == ""'
+      extractor:
+        mapper: '%{resources.mappers.alarms}'
+        filters:
+          1: xpath '//[oid = ${resources.globals.oids.trapAlarmState}]/value/text()'
+          2: base64decode
+          3: cast String
+          4: use %{0}
+          5: xpath '//[oid = ${resources.globals.oids.trapActiveAlarmLevel}]/value/text()'
+          6: |
+            switch
+            "%{3}" == "0": "Normal"
+            # REVIEW(bg): The MIB defined alarm values, these are assumptions...
+            "%{5}" == "1": "Warning"
+            "%{5}" == "2": "Minor"
+            "%{5}" == "3": "Major"
+            "%{5}" == "4": "Critical"
+            default: "Normal"
+      extractor:
+        mapper: '%{resources.mappers.alarms}'
+    properties:
+      readWrite: R
+      read:
+        type: String
+  vuhf_alarm_on_off:
+    name: VUHF On/Off Option
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_biu}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(), 'VHF+UHF')]/../td[4]/select/option[1]/@value
+      extractor: {}
+    properties:
+      readWrite: RW
+      read:
+        type: String
+      write:
+        type: object
+        properties:
+          vuhf_alarm_on_off:
+            enum:
+              - "On"
+              - "Off"
+            inputType: dropdown
+            key: vuhf_alarm_on_off
+            required: false
+            title: On/Off Option
+            type: string
+  vuhf_rx_high_limit_alarm:
+    name: VUHF RX High Limit
+    conditions:
+      read:
+        - '"%{attributes.vuhf_alarm_on_off}" == "On"'
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor:
+        mapper: '%{resources.mappers.alarms}'
+    properties:
+      readWrite: R
+      read:
+        type: String
+  vuhf_tx_high_limit_alarm:
+    name: VUHF TX High Limit
+    conditions:
+      read:
+        - '"%{attributes.vuhf_alarm_on_off}" == "On"'
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor:
+        mapper: '%{resources.mappers.alarms}'
+    properties:
+      readWrite: R
+      read:
+        type: String
+  vuhf_tx_low_limit_alarm:
+    name: VUHF TX Low Limit
+    conditions:
+      read:
+        - '"%{attributes.vuhf_alarm_on_off}" == "On"'
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor:
+        mapper: '%{resources.mappers.alarms}'
+    properties:
+      readWrite: R
+      read:
+        type: String
+  oeu_dc_alarm:
+    name: OEU DC Alarm
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression:
+          - '"${resources.globals.oids.trapOeuOid}.11" == "variable_by_oid(snmpTrapOID).value"'
+          - '"variable_by_oid(${resources.globals.oids.trapAlarmDevice}).value" == ""'
+      extractor:
+        mapper: '%{resources.mappers.alarms}'
+        filters:
+          1: xpath '//[oid = ${resources.globals.oids.trapAlarmState}]/value/text()'
+          2: base64decode
+          3: cast String
+          4: use %{0}
+          5: xpath '//[oid = ${resources.globals.oids.trapActiveAlarmLevel}]/value/text()'
+          6: |
+            switch
+            "%{3}" == "0": "Normal"
+            # REVIEW(bg): The MIB defined alarm values, these are assumptions...
+            "%{5}" == "1": "Warning"
+            "%{5}" == "2": "Minor"
+            "%{5}" == "3": "Major"
+            "%{5}" == "4": "Critical"
+            default: "Normal"
+      extractor:
+        mapper: '%{resources.mappers.alarms}'
+    properties:
+      readWrite: R
+      read:
+        type: String
+  oeu_high_temperature_alarm:
+    name: OEU High Temperature Alarm
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression:
+          - '"${resources.globals.oids.trapOeuOid}.12" == "variable_by_oid(snmpTrapOID).value"'
+          - '"variable_by_oid(${resources.globals.oids.trapAlarmDevice}).value" == ""'
+      extractor:
+        mapper: '%{resources.mappers.alarms}'
+        filters:
+          1: xpath '//[oid = ${resources.globals.oids.trapAlarmState}]/value/text()'
+          2: base64decode
+          3: cast String
+          4: use %{0}
+          5: xpath '//[oid = ${resources.globals.oids.trapActiveAlarmLevel}]/value/text()'
+          6: |
+            switch
+            "%{3}" == "0": "Normal"
+            # REVIEW(bg): The MIB defined alarm values, these are assumptions...
+            "%{5}" == "1": "Warning"
+            "%{5}" == "2": "Minor"
+            "%{5}" == "3": "Major"
+            "%{5}" == "4": "Critical"
+            default: "Normal"
+      extractor:
+        mapper: '%{resources.mappers.alarms}'
+    properties:
+      readWrite: R
+      read:
+        type: String
+  oeu_low_temperature_alarm:
+    name: OEU Low Temperature Alarm
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression:
+          - '"${resources.globals.oids.trapOeuOid}.13" == "variable_by_oid(snmpTrapOID).value"'
+          - '"variable_by_oid(${resources.globals.oids.trapAlarmDevice}).value" == ""'
+      extractor:
+        mapper: '%{resources.mappers.alarms}'
+        filters:
+          1: xpath '//[oid = ${resources.globals.oids.trapAlarmState}]/value/text()'
+          2: base64decode
+          3: cast String
+          4: use %{0}
+          5: xpath '//[oid = ${resources.globals.oids.trapActiveAlarmLevel}]/value/text()'
+          6: |
+            switch
+            "%{3}" == "0": "Normal"
+            # REVIEW(bg): The MIB defined alarm values, these are assumptions...
+            "%{5}" == "1": "Warning"
+            "%{5}" == "2": "Minor"
+            "%{5}" == "3": "Major"
+            "%{5}" == "4": "Critical"
+            default: "Normal"
+      extractor:
+        mapper: '%{resources.mappers.alarms}'
+    properties:
+      readWrite: R
+      read:
+        type: String
+  oeu_ld_alarm:
+    name: OEU LD Alarm
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression:
+          - '"${resources.globals.oids.trapOeuOid}.14" == "variable_by_oid(snmpTrapOID).value"'
+          - '"variable_by_oid(${resources.globals.oids.trapAlarmDevice}).value" == ""'
+      extractor:
+        mapper: '%{resources.mappers.alarms}'
+        filters:
+          1: xpath '//[oid = ${resources.globals.oids.trapAlarmState}]/value/text()'
+          2: base64decode
+          3: cast String
+          4: use %{0}
+          5: xpath '//[oid = ${resources.globals.oids.trapActiveAlarmLevel}]/value/text()'
+          6: |
+            switch
+            "%{3}" == "0": "Normal"
+            # REVIEW(bg): The MIB defined alarm values, these are assumptions...
+            "%{5}" == "1": "Warning"
+            "%{5}" == "2": "Minor"
+            "%{5}" == "3": "Major"
+            "%{5}" == "4": "Critical"
+            default: "Normal"
+      extractor:
+        mapper: '%{resources.mappers.alarms}'
+    properties:
+      readWrite: R
+      read:
+        type: String
+  oeu_pd_alarm:
+    name: OEU PD Alarm
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression:
+          - '"${resources.globals.oids.trapOeuOid}.15" == "variable_by_oid(snmpTrapOID).value"'
+          - '"variable_by_oid(${resources.globals.oids.trapAlarmDevice}).value" == ""'
+      extractor:
+        mapper: '%{resources.mappers.alarms}'
+        filters:
+          1: xpath '//[oid = ${resources.globals.oids.trapAlarmState}]/value/text()'
+          2: base64decode
+          3: cast String
+          4: use %{0}
+          5: xpath '//[oid = ${resources.globals.oids.trapActiveAlarmLevel}]/value/text()'
+          6: |
+            switch
+            "%{3}" == "0": "Normal"
+            # REVIEW(bg): The MIB defined alarm values, these are assumptions...
+            "%{5}" == "1": "Warning"
+            "%{5}" == "2": "Minor"
+            "%{5}" == "3": "Major"
+            "%{5}" == "4": "Critical"
+            default: "Normal"
+      extractor:
+        mapper: '%{resources.mappers.alarms}'
+    properties:
+      readWrite: R
+      read:
+        type: String
+  oeu_link_fail_alarm:
+    name: OEU Link Fail Alarm
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression:
+          - '"${resources.globals.oids.trapOeuOid}.16" == "variable_by_oid(snmpTrapOID).value"'
+          - '"variable_by_oid(${resources.globals.oids.trapAlarmDevice}).value" == ""'
+      extractor:
+        mapper: '%{resources.mappers.alarms}'
+        filters:
+          1: xpath '//[oid = ${resources.globals.oids.trapAlarmState}]/value/text()'
+          2: base64decode
+          3: cast String
+          4: use %{0}
+          5: xpath '//[oid = ${resources.globals.oids.trapActiveAlarmLevel}]/value/text()'
+          6: |
+            switch
+            "%{3}" == "0": "Normal"
+            # REVIEW(bg): The MIB defined alarm values, these are assumptions...
+            "%{5}" == "1": "Warning"
+            "%{5}" == "2": "Minor"
+            "%{5}" == "3": "Major"
+            "%{5}" == "4": "Critical"
+            default: "Normal"
+      extractor:
+        mapper: '%{resources.mappers.alarms}'
+    properties:
+      readWrite: R
+      read:
+        type: String
+  oeu_tx_optic_result_alarm:
+    name: OEU TX Optic Result Alarm
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression:
+          - '"${resources.globals.oids.trapOeuOid}.17" == "variable_by_oid(snmpTrapOID).value"'
+          - '"variable_by_oid(${resources.globals.oids.trapAlarmDevice}).value" == ""'
+      extractor:
+        mapper: '%{resources.mappers.alarms}'
+        filters:
+          1: xpath '//[oid = ${resources.globals.oids.trapAlarmState}]/value/text()'
+          2: base64decode
+          3: cast String
+          4: use %{0}
+          5: xpath '//[oid = ${resources.globals.oids.trapActiveAlarmLevel}]/value/text()'
+          6: |
+            switch
+            "%{3}" == "0": "Normal"
+            # REVIEW(bg): The MIB defined alarm values, these are assumptions...
+            "%{5}" == "1": "Warning"
+            "%{5}" == "2": "Minor"
+            "%{5}" == "3": "Major"
+            "%{5}" == "4": "Critical"
+            default: "Normal"
+      extractor:
+        mapper: '%{resources.mappers.alarms}'
+    properties:
+      readWrite: R
+      read:
+        type: String
+  rdu_link_fail_alarm:
+    name: RDU Link Fail Alarm
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression:
+          - '"${resources.globals.oids.trapRduOid}.11" == "variable_by_oid(snmpTrapOID).value"'
+          - '"variable_by_oid(${resources.globals.oids.trapAlarmDevice}).value" == ""'
+      extractor:
+        mapper: '%{resources.mappers.alarms}'
+        filters:
+          1: xpath '//[oid = ${resources.globals.oids.trapAlarmState}]/value/text()'
+          2: base64decode
+          3: cast String
+          4: use %{0}
+          5: xpath '//[oid = ${resources.globals.oids.trapActiveAlarmLevel}]/value/text()'
+          6: |
+            switch
+            "%{3}" == "0": "Normal"
+            # REVIEW(bg): The MIB defined alarm values, these are assumptions...
+            "%{5}" == "1": "Warning"
+            "%{5}" == "2": "Minor"
+            "%{5}" == "3": "Major"
+            "%{5}" == "4": "Critical"
+            default: "Normal"
+      extractor:
+        mapper: '%{resources.mappers.alarms}'
+    properties:
+      readWrite: R
+      read:
+        type: String
+  rdu_vhf_tx_out_high_alarm:
+    name: RDU VHF TX Out High Alarm
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression:
+          - '"${resources.globals.oids.trapRduOid}.21" == "variable_by_oid(snmpTrapOID).value"'
+          - '"variable_by_oid(${resources.globals.oids.trapAlarmDevice}).value" == ""'
+      extractor:
+        mapper: '%{resources.mappers.alarms}'
+        filters:
+          1: xpath '//[oid = ${resources.globals.oids.trapAlarmState}]/value/text()'
+          2: base64decode
+          3: cast String
+          4: use %{0}
+          5: xpath '//[oid = ${resources.globals.oids.trapActiveAlarmLevel}]/value/text()'
+          6: |
+            switch
+            "%{3}" == "0": "Normal"
+            # REVIEW(bg): The MIB defined alarm values, these are assumptions...
+            "%{5}" == "1": "Warning"
+            "%{5}" == "2": "Minor"
+            "%{5}" == "3": "Major"
+            "%{5}" == "4": "Critical"
+            default: "Normal"
+      extractor:
+        mapper: '%{resources.mappers.alarms}'
+    properties:
+      readWrite: R
+      read:
+        type: String
+  rdu_vhf_tx_out_low_alarm:
+    name: RDU VHF TX Out Low Alarm
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression:
+          - '"${resources.globals.oids.trapRduOid}.22" == "variable_by_oid(snmpTrapOID).value"'
+          - '"variable_by_oid(${resources.globals.oids.trapAlarmDevice}).value" == ""'
+      extractor:
+        mapper: '%{resources.mappers.alarms}'
+        filters:
+          1: xpath '//[oid = ${resources.globals.oids.trapAlarmState}]/value/text()'
+          2: base64decode
+          3: cast String
+          4: use %{0}
+          5: xpath '//[oid = ${resources.globals.oids.trapActiveAlarmLevel}]/value/text()'
+          6: |
+            switch
+            "%{3}" == "0": "Normal"
+            # REVIEW(bg): The MIB defined alarm values, these are assumptions...
+            "%{5}" == "1": "Warning"
+            "%{5}" == "2": "Minor"
+            "%{5}" == "3": "Major"
+            "%{5}" == "4": "Critical"
+            default: "Normal"
+      extractor:
+        mapper: '%{resources.mappers.alarms}'
+    properties:
+      readWrite: R
+      read:
+        type: String
+  rdu_vhf_tx_out_sd_alarm:
+    name: RDU VHF TX Out SD Alarm
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression:
+          - '"${resources.globals.oids.trapRduOid}.23" == "variable_by_oid(snmpTrapOID).value"'
+          - '"variable_by_oid(${resources.globals.oids.trapAlarmDevice}).value" == ""'
+      extractor:
+        mapper: '%{resources.mappers.alarms}'
+        filters:
+          1: xpath '//[oid = ${resources.globals.oids.trapAlarmState}]/value/text()'
+          2: base64decode
+          3: cast String
+          4: use %{0}
+          5: xpath '//[oid = ${resources.globals.oids.trapActiveAlarmLevel}]/value/text()'
+          6: |
+            switch
+            "%{3}" == "0": "Normal"
+            # REVIEW(bg): The MIB defined alarm values, these are assumptions...
+            "%{5}" == "1": "Warning"
+            "%{5}" == "2": "Minor"
+            "%{5}" == "3": "Major"
+            "%{5}" == "4": "Critical"
+            default: "Normal"
+      extractor:
+        mapper: '%{resources.mappers.alarms}'
+    properties:
+      readWrite: R
+      read:
+        type: String
+  rdu_vhf_rx_pll_alarm:
+    name: RDU VHF RX PLL Alarm
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression:
+          - '"${resources.globals.oids.trapRduOid}.24" == "variable_by_oid(snmpTrapOID).value"'
+          - '"variable_by_oid(${resources.globals.oids.trapAlarmDevice}).value" == ""'
+      extractor:
+        mapper: '%{resources.mappers.alarms}'
+        filters:
+          1: xpath '//[oid = ${resources.globals.oids.trapAlarmState}]/value/text()'
+          2: base64decode
+          3: cast String
+          4: use %{0}
+          5: xpath '//[oid = ${resources.globals.oids.trapActiveAlarmLevel}]/value/text()'
+          6: |
+            switch
+            "%{3}" == "0": "Normal"
+            # REVIEW(bg): The MIB defined alarm values, these are assumptions...
+            "%{5}" == "1": "Warning"
+            "%{5}" == "2": "Minor"
+            "%{5}" == "3": "Major"
+            "%{5}" == "4": "Critical"
+            default: "Normal"
+      extractor:
+        mapper: '%{resources.mappers.alarms}'
+    properties:
+      readWrite: R
+      read:
+        type: String
+  rdu_uhf_tx_out_high_alarm:
+    name: RDU UHF TX Out High Alarm
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression:
+          - '"${resources.globals.oids.trapRduOid}.31" == "variable_by_oid(snmpTrapOID).value"'
+          - '"variable_by_oid(${resources.globals.oids.trapAlarmDevice}).value" == ""'
+      extractor:
+        mapper: '%{resources.mappers.alarms}'
+        filters:
+          1: xpath '//[oid = ${resources.globals.oids.trapAlarmState}]/value/text()'
+          2: base64decode
+          3: cast String
+          4: use %{0}
+          5: xpath '//[oid = ${resources.globals.oids.trapActiveAlarmLevel}]/value/text()'
+          6: |
+            switch
+            "%{3}" == "0": "Normal"
+            # REVIEW(bg): The MIB defined alarm values, these are assumptions...
+            "%{5}" == "1": "Warning"
+            "%{5}" == "2": "Minor"
+            "%{5}" == "3": "Major"
+            "%{5}" == "4": "Critical"
+            default: "Normal"
+      extractor:
+        mapper: '%{resources.mappers.alarms}'
+    properties:
+      readWrite: R
+      read:
+        type: String
+  rdu_uhf_tx_out_low_alarm:
+    name: RDU UHF TX Out Low Alarm
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression:
+          - '"${resources.globals.oids.trapRduOid}.32" == "variable_by_oid(snmpTrapOID).value"'
+          - '"variable_by_oid(${resources.globals.oids.trapAlarmDevice}).value" == ""'
+      extractor:
+        mapper: '%{resources.mappers.alarms}'
+        filters:
+          1: xpath '//[oid = ${resources.globals.oids.trapAlarmState}]/value/text()'
+          2: base64decode
+          3: cast String
+          4: use %{0}
+          5: xpath '//[oid = ${resources.globals.oids.trapActiveAlarmLevel}]/value/text()'
+          6: |
+            switch
+            "%{3}" == "0": "Normal"
+            # REVIEW(bg): The MIB defined alarm values, these are assumptions...
+            "%{5}" == "1": "Warning"
+            "%{5}" == "2": "Minor"
+            "%{5}" == "3": "Major"
+            "%{5}" == "4": "Critical"
+            default: "Normal"
+      extractor:
+        mapper: '%{resources.mappers.alarms}'
+    properties:
+      readWrite: R
+      read:
+        type: String
+  rdu_uhf_tx_out_sd_alarm:
+    name: RDU UHF TX Out SD Alarm
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression:
+          - '"${resources.globals.oids.trapRduOid}.33" == "variable_by_oid(snmpTrapOID).value"'
+          - '"variable_by_oid(${resources.globals.oids.trapAlarmDevice}).value" == ""'
+      extractor:
+        mapper: '%{resources.mappers.alarms}'
+        filters:
+          1: xpath '//[oid = ${resources.globals.oids.trapAlarmState}]/value/text()'
+          2: base64decode
+          3: cast String
+          4: use %{0}
+          5: xpath '//[oid = ${resources.globals.oids.trapActiveAlarmLevel}]/value/text()'
+          6: |
+            switch
+            "%{3}" == "0": "Normal"
+            # REVIEW(bg): The MIB defined alarm values, these are assumptions...
+            "%{5}" == "1": "Warning"
+            "%{5}" == "2": "Minor"
+            "%{5}" == "3": "Major"
+            "%{5}" == "4": "Critical"
+            default: "Normal"
+      extractor:
+        mapper: '%{resources.mappers.alarms}'
+    properties:
+      readWrite: R
+      read:
+        type: String
+  rdu_uhf_rx_pll_alarm:
+    name: RDU UHF RX PLL Alarm
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression:
+          - '"${resources.globals.oids.trapRduOid}.34" == "variable_by_oid(snmpTrapOID).value"'
+          - '"variable_by_oid(${resources.globals.oids.trapAlarmDevice}).value" == ""'
+      extractor:
+        mapper: '%{resources.mappers.alarms}'
+        filters:
+          1: xpath '//[oid = ${resources.globals.oids.trapAlarmState}]/value/text()'
+          2: base64decode
+          3: cast String
+          4: use %{0}
+          5: xpath '//[oid = ${resources.globals.oids.trapActiveAlarmLevel}]/value/text()'
+          6: |
+            switch
+            "%{3}" == "0": "Normal"
+            # REVIEW(bg): The MIB defined alarm values, these are assumptions...
+            "%{5}" == "1": "Warning"
+            "%{5}" == "2": "Minor"
+            "%{5}" == "3": "Major"
+            "%{5}" == "4": "Critical"
+            default: "Normal"
+      extractor:
+        mapper: '%{resources.mappers.alarms}'
+    properties:
+      readWrite: R
+      read:
+        type: String
+  hmru_link_fail_alarm:
+    name: HMRU Link Fail Alarm
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression:
+          - '"${resources.globals.oids.trapHmruOid}.11" == "variable_by_oid(snmpTrapOID).value"'
+          - '"variable_by_oid(${resources.globals.oids.trapAlarmDevice}).value" == ""'
+      extractor:
+        mapper: '%{resources.mappers.alarms}'
+        filters:
+          1: xpath '//[oid = ${resources.globals.oids.trapAlarmState}]/value/text()'
+          2: base64decode
+          3: cast String
+          4: use %{0}
+          5: xpath '//[oid = ${resources.globals.oids.trapActiveAlarmLevel}]/value/text()'
+          6: |
+            switch
+            "%{3}" == "0": "Normal"
+            # REVIEW(bg): The MIB defined alarm values, these are assumptions...
+            "%{5}" == "1": "Warning"
+            "%{5}" == "2": "Minor"
+            "%{5}" == "3": "Major"
+            "%{5}" == "4": "Critical"
+            default: "Normal"
+      extractor:
+        mapper: '%{resources.mappers.alarms}'
+    properties:
+      readWrite: R
+      read:
+        type: String
+  hmru_high_temperature_alarm:
+    name: HMRU High Temperature Alarm
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression:
+          - '"${resources.globals.oids.trapHmruOid}.13" == "variable_by_oid(snmpTrapOID).value"'
+          - '"variable_by_oid(${resources.globals.oids.trapAlarmDevice}).value" == ""'
+      extractor:
+        mapper: '%{resources.mappers.alarms}'
+        filters:
+          1: xpath '//[oid = ${resources.globals.oids.trapAlarmState}]/value/text()'
+          2: base64decode
+          3: cast String
+          4: use %{0}
+          5: xpath '//[oid = ${resources.globals.oids.trapActiveAlarmLevel}]/value/text()'
+          6: |
+            switch
+            "%{3}" == "0": "Normal"
+            # REVIEW(bg): The MIB defined alarm values, these are assumptions...
+            "%{5}" == "1": "Warning"
+            "%{5}" == "2": "Minor"
+            "%{5}" == "3": "Major"
+            "%{5}" == "4": "Critical"
+            default: "Normal"
+      extractor:
+        mapper: '%{resources.mappers.alarms}'
+    properties:
+      readWrite: R
+      read:
+        type: String
+  hmru_low_temperature_alarm:
+    name: HMRU Low Temperature Alarm
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression:
+          - '"${resources.globals.oids.trapHmruOid}.14" == "variable_by_oid(snmpTrapOID).value"'
+          - '"variable_by_oid(${resources.globals.oids.trapAlarmDevice}).value" == ""'
+      extractor:
+        mapper: '%{resources.mappers.alarms}'
+        filters:
+          1: xpath '//[oid = ${resources.globals.oids.trapAlarmState}]/value/text()'
+          2: base64decode
+          3: cast String
+          4: use %{0}
+          5: xpath '//[oid = ${resources.globals.oids.trapActiveAlarmLevel}]/value/text()'
+          6: |
+            switch
+            "%{3}" == "0": "Normal"
+            # REVIEW(bg): The MIB defined alarm values, these are assumptions...
+            "%{5}" == "1": "Warning"
+            "%{5}" == "2": "Minor"
+            "%{5}" == "3": "Major"
+            "%{5}" == "4": "Critical"
+            default: "Normal"
+      extractor:
+        mapper: '%{resources.mappers.alarms}'
+    properties:
+      readWrite: R
+      read:
+        type: String
+  hmru_ld_alarm:
+    name: HMRU LD Alarm
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression:
+          - '"${resources.globals.oids.trapHmruOid}.15" == "variable_by_oid(snmpTrapOID).value"'
+          - '"variable_by_oid(${resources.globals.oids.trapAlarmDevice}).value" == ""'
+      extractor:
+        mapper: '%{resources.mappers.alarms}'
+        filters:
+          1: xpath '//[oid = ${resources.globals.oids.trapAlarmState}]/value/text()'
+          2: base64decode
+          3: cast String
+          4: use %{0}
+          5: xpath '//[oid = ${resources.globals.oids.trapActiveAlarmLevel}]/value/text()'
+          6: |
+            switch
+            "%{3}" == "0": "Normal"
+            # REVIEW(bg): The MIB defined alarm values, these are assumptions...
+            "%{5}" == "1": "Warning"
+            "%{5}" == "2": "Minor"
+            "%{5}" == "3": "Major"
+            "%{5}" == "4": "Critical"
+            default: "Normal"
+      extractor:
+        mapper: '%{resources.mappers.alarms}'
+    properties:
+      readWrite: R
+      read:
+        type: String
+  hmru_pd_alarm:
+    name: HMRU PD Alarm
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression:
+          - '"${resources.globals.oids.trapHmruOid}.16" == "variable_by_oid(snmpTrapOID).value"'
+          - '"variable_by_oid(${resources.globals.oids.trapAlarmDevice}).value" == ""'
+      extractor:
+        mapper: '%{resources.mappers.alarms}'
+        filters:
+          1: xpath '//[oid = ${resources.globals.oids.trapAlarmState}]/value/text()'
+          2: base64decode
+          3: cast String
+          4: use %{0}
+          5: xpath '//[oid = ${resources.globals.oids.trapActiveAlarmLevel}]/value/text()'
+          6: |
+            switch
+            "%{3}" == "0": "Normal"
+            # REVIEW(bg): The MIB defined alarm values, these are assumptions...
+            "%{5}" == "1": "Warning"
+            "%{5}" == "2": "Minor"
+            "%{5}" == "3": "Major"
+            "%{5}" == "4": "Critical"
+            default: "Normal"
+      extractor:
+        mapper: '%{resources.mappers.alarms}'
+    properties:
+      readWrite: R
+      read:
+        type: String
+  hmru_tx_optic_result_alarm:
+    name: HMRU TX Optic Result Alarm
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression:
+          - '"${resources.globals.oids.trapHmruOid}.17" == "variable_by_oid(snmpTrapOID).value"'
+          - '"variable_by_oid(${resources.globals.oids.trapAlarmDevice}).value" == ""'
+      extractor:
+        mapper: '%{resources.mappers.alarms}'
+        filters:
+          1: xpath '//[oid = ${resources.globals.oids.trapAlarmState}]/value/text()'
+          2: base64decode
+          3: cast String
+          4: use %{0}
+          5: xpath '//[oid = ${resources.globals.oids.trapActiveAlarmLevel}]/value/text()'
+          6: |
+            switch
+            "%{3}" == "0": "Normal"
+            # REVIEW(bg): The MIB defined alarm values, these are assumptions...
+            "%{5}" == "1": "Warning"
+            "%{5}" == "2": "Minor"
+            "%{5}" == "3": "Major"
+            "%{5}" == "4": "Critical"
+            default: "Normal"
+      extractor:
+        mapper: '%{resources.mappers.alarms}'
+    properties:
+      readWrite: R
+      read:
+        type: String
+  hmru_door_alarm:
+    name: HMRU Door Alarm
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression:
+          - '"${resources.globals.oids.trapHmruOid}.20" == "variable_by_oid(snmpTrapOID).value"'
+          - '"variable_by_oid(${resources.globals.oids.trapAlarmDevice}).value" == ""'
+      extractor:
+        mapper: '%{resources.mappers.alarms}'
+        filters:
+          1: xpath '//[oid = ${resources.globals.oids.trapAlarmState}]/value/text()'
+          2: base64decode
+          3: cast String
+          4: use %{0}
+          5: xpath '//[oid = ${resources.globals.oids.trapActiveAlarmLevel}]/value/text()'
+          6: |
+            switch
+            "%{3}" == "0": "Normal"
+            # REVIEW(bg): The MIB defined alarm values, these are assumptions...
+            "%{5}" == "1": "Warning"
+            "%{5}" == "2": "Minor"
+            "%{5}" == "3": "Major"
+            "%{5}" == "4": "Critical"
+            default: "Normal"
+      extractor:
+        mapper: '%{resources.mappers.alarms}'
+    properties:
+      readWrite: R
+      read:
+        type: String
+  hmru_battery_low_alarm:
+    name: HMRU Battery Low Alarm
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression:
+          - '"${resources.globals.oids.trapHmruOid}.21" == "variable_by_oid(snmpTrapOID).value"'
+          - '"variable_by_oid(${resources.globals.oids.trapAlarmDevice}).value" == ""'
+      extractor:
+        mapper: '%{resources.mappers.alarms}'
+        filters:
+          1: xpath '//[oid = ${resources.globals.oids.trapAlarmState}]/value/text()'
+          2: base64decode
+          3: cast String
+          4: use %{0}
+          5: xpath '//[oid = ${resources.globals.oids.trapActiveAlarmLevel}]/value/text()'
+          6: |
+            switch
+            "%{3}" == "0": "Normal"
+            # REVIEW(bg): The MIB defined alarm values, these are assumptions...
+            "%{5}" == "1": "Warning"
+            "%{5}" == "2": "Minor"
+            "%{5}" == "3": "Major"
+            "%{5}" == "4": "Critical"
+            default: "Normal"
+      extractor:
+        mapper: '%{resources.mappers.alarms}'
+    properties:
+      readWrite: R
+      read:
+        type: String
+  hmru_direct_current_alarm:
+    name: HMRU Direct Current Alarm
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression:
+          - '"${resources.globals.oids.trapHmruOid}.22" == "variable_by_oid(snmpTrapOID).value"'
+          - '"variable_by_oid(${resources.globals.oids.trapAlarmDevice}).value" == ""'
+      extractor:
+        mapper: '%{resources.mappers.alarms}'
+        filters:
+          1: xpath '//[oid = ${resources.globals.oids.trapAlarmState}]/value/text()'
+          2: base64decode
+          3: cast String
+          4: use %{0}
+          5: xpath '//[oid = ${resources.globals.oids.trapActiveAlarmLevel}]/value/text()'
+          6: |
+            switch
+            "%{3}" == "0": "Normal"
+            # REVIEW(bg): The MIB defined alarm values, these are assumptions...
+            "%{5}" == "1": "Warning"
+            "%{5}" == "2": "Minor"
+            "%{5}" == "3": "Major"
+            "%{5}" == "4": "Critical"
+            default: "Normal"
+      extractor:
+        mapper: '%{resources.mappers.alarms}'
+    properties:
+      readWrite: R
+      read:
+        type: String
+  hmru_alternating_current_alarm:
+    name: HMRU Alternating Current Alarm
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression:
+          - '"${resources.globals.oids.trapHmruOid}.23" == "variable_by_oid(snmpTrapOID).value"'
+          - '"variable_by_oid(${resources.globals.oids.trapAlarmDevice}).value" == ""'
+      extractor:
+        mapper: '%{resources.mappers.alarms}'
+        filters:
+          1: xpath '//[oid = ${resources.globals.oids.trapAlarmState}]/value/text()'
+          2: base64decode
+          3: cast String
+          4: use %{0}
+          5: xpath '//[oid = ${resources.globals.oids.trapActiveAlarmLevel}]/value/text()'
+          6: |
+            switch
+            "%{3}" == "0": "Normal"
+            # REVIEW(bg): The MIB defined alarm values, these are assumptions...
+            "%{5}" == "1": "Warning"
+            "%{5}" == "2": "Minor"
+            "%{5}" == "3": "Major"
+            "%{5}" == "4": "Critical"
+            default: "Normal"
+      extractor:
+        mapper: '%{resources.mappers.alarms}'
+    properties:
+      readWrite: R
+      read:
+        type: String
+  hmru_band_1_tx_out_high_alarm:
+    name: HMRU Band 1 TX Out High Alarm
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression:
+          - '"${resources.globals.oids.trapHmruOid}.51" == "variable_by_oid(snmpTrapOID).value"'
+          - '"variable_by_oid(${resources.globals.oids.trapAlarmDevice}).value" == ""'
+      extractor:
+        mapper: '%{resources.mappers.alarms}'
+        filters:
+          1: xpath '//[oid = ${resources.globals.oids.trapAlarmState}]/value/text()'
+          2: base64decode
+          3: cast String
+          4: use %{0}
+          5: xpath '//[oid = ${resources.globals.oids.trapActiveAlarmLevel}]/value/text()'
+          6: |
+            switch
+            "%{3}" == "0": "Normal"
+            # REVIEW(bg): The MIB defined alarm values, these are assumptions...
+            "%{5}" == "1": "Warning"
+            "%{5}" == "2": "Minor"
+            "%{5}" == "3": "Major"
+            "%{5}" == "4": "Critical"
+            default: "Normal"
+      extractor:
+        mapper: '%{resources.mappers.alarms}'
+    properties:
+      readWrite: R
+      read:
+        type: String
+  hmru_band_1_tx_out_low_alarm:
+    name: HMRU Band 1 TX Out Low Alarm
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression:
+          - '"${resources.globals.oids.trapHmruOid}.52" == "variable_by_oid(snmpTrapOID).value"'
+          - '"variable_by_oid(${resources.globals.oids.trapAlarmDevice}).value" == ""'
+      extractor:
+        mapper: '%{resources.mappers.alarms}'
+        filters:
+          1: xpath '//[oid = ${resources.globals.oids.trapAlarmState}]/value/text()'
+          2: base64decode
+          3: cast String
+          4: use %{0}
+          5: xpath '//[oid = ${resources.globals.oids.trapActiveAlarmLevel}]/value/text()'
+          6: |
+            switch
+            "%{3}" == "0": "Normal"
+            # REVIEW(bg): The MIB defined alarm values, these are assumptions...
+            "%{5}" == "1": "Warning"
+            "%{5}" == "2": "Minor"
+            "%{5}" == "3": "Major"
+            "%{5}" == "4": "Critical"
+            default: "Normal"
+      extractor:
+        mapper: '%{resources.mappers.alarms}'
+    properties:
+      readWrite: R
+      read:
+        type: String
+  hmru_band_1_tx_out_sd_alarm:
+    name: HMRU Band 1 TX Out SD Alarm
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression:
+          - '"${resources.globals.oids.trapHmruOid}.53" == "variable_by_oid(snmpTrapOID).value"'
+          - '"variable_by_oid(${resources.globals.oids.trapAlarmDevice}).value" == ""'
+      extractor:
+        mapper: '%{resources.mappers.alarms}'
+        filters:
+          1: xpath '//[oid = ${resources.globals.oids.trapAlarmState}]/value/text()'
+          2: base64decode
+          3: cast String
+          4: use %{0}
+          5: xpath '//[oid = ${resources.globals.oids.trapActiveAlarmLevel}]/value/text()'
+          6: |
+            switch
+            "%{3}" == "0": "Normal"
+            # REVIEW(bg): The MIB defined alarm values, these are assumptions...
+            "%{5}" == "1": "Warning"
+            "%{5}" == "2": "Minor"
+            "%{5}" == "3": "Major"
+            "%{5}" == "4": "Critical"
+            default: "Normal"
+      extractor:
+        mapper: '%{resources.mappers.alarms}'
+    properties:
+      readWrite: R
+      read:
+        type: String
+  hmru_band_2_tx_out_high_alarm:
+    name: HMRU Band 2 TX Out High Alarm
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression:
+          - '"${resources.globals.oids.trapHmruOid}.61" == "variable_by_oid(snmpTrapOID).value"'
+          - '"variable_by_oid(${resources.globals.oids.trapAlarmDevice}).value" == ""'
+      extractor:
+        mapper: '%{resources.mappers.alarms}'
+        filters:
+          1: xpath '//[oid = ${resources.globals.oids.trapAlarmState}]/value/text()'
+          2: base64decode
+          3: cast String
+          4: use %{0}
+          5: xpath '//[oid = ${resources.globals.oids.trapActiveAlarmLevel}]/value/text()'
+          6: |
+            switch
+            "%{3}" == "0": "Normal"
+            # REVIEW(bg): The MIB defined alarm values, these are assumptions...
+            "%{5}" == "1": "Warning"
+            "%{5}" == "2": "Minor"
+            "%{5}" == "3": "Major"
+            "%{5}" == "4": "Critical"
+            default: "Normal"
+      extractor:
+        mapper: '%{resources.mappers.alarms}'
+    properties:
+      readWrite: R
+      read:
+        type: String
+  hmru_band_2_tx_out_low_alarm:
+    name: HMRU Band 2 TX Out Low Alarm
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression:
+          - '"${resources.globals.oids.trapHmruOid}.62" == "variable_by_oid(snmpTrapOID).value"'
+          - '"variable_by_oid(${resources.globals.oids.trapAlarmDevice}).value" == ""'
+      extractor:
+        mapper: '%{resources.mappers.alarms}'
+        filters:
+          1: xpath '//[oid = ${resources.globals.oids.trapAlarmState}]/value/text()'
+          2: base64decode
+          3: cast String
+          4: use %{0}
+          5: xpath '//[oid = ${resources.globals.oids.trapActiveAlarmLevel}]/value/text()'
+          6: |
+            switch
+            "%{3}" == "0": "Normal"
+            # REVIEW(bg): The MIB defined alarm values, these are assumptions...
+            "%{5}" == "1": "Warning"
+            "%{5}" == "2": "Minor"
+            "%{5}" == "3": "Major"
+            "%{5}" == "4": "Critical"
+            default: "Normal"
+      extractor:
+        mapper: '%{resources.mappers.alarms}'
+    properties:
+      readWrite: R
+      read:
+        type: String
+  hmru_band_2_tx_out_sd_alarm:
+    name: HMRU Band 2 TX Out SD Alarm
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression:
+          - '"${resources.globals.oids.trapHmruOid}.63" == "variable_by_oid(snmpTrapOID).value"'
+          - '"variable_by_oid(${resources.globals.oids.trapAlarmDevice}).value" == ""'
+      extractor:
+        mapper: '%{resources.mappers.alarms}'
+        filters:
+          1: xpath '//[oid = ${resources.globals.oids.trapAlarmState}]/value/text()'
+          2: base64decode
+          3: cast String
+          4: use %{0}
+          5: xpath '//[oid = ${resources.globals.oids.trapActiveAlarmLevel}]/value/text()'
+          6: |
+            switch
+            "%{3}" == "0": "Normal"
+            # REVIEW(bg): The MIB defined alarm values, these are assumptions...
+            "%{5}" == "1": "Warning"
+            "%{5}" == "2": "Minor"
+            "%{5}" == "3": "Major"
+            "%{5}" == "4": "Critical"
+            default: "Normal"
+      extractor:
+        mapper: '%{resources.mappers.alarms}'
+    properties:
+      readWrite: R
+      read:
+        type: String
+  hmru_band_1_amp_vswr_alarm:
+    name: HMRU Band 1 Amp VSWR Alarm
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression:
+          - '"${resources.globals.oids.trapHmruOid}.70" == "variable_by_oid(snmpTrapOID).value"'
+          - '"variable_by_oid(${resources.globals.oids.trapAlarmDevice}).value" == ""'
+      extractor:
+        mapper: '%{resources.mappers.alarms}'
+        filters:
+          1: xpath '//[oid = ${resources.globals.oids.trapAlarmState}]/value/text()'
+          2: base64decode
+          3: cast String
+          4: use %{0}
+          5: xpath '//[oid = ${resources.globals.oids.trapActiveAlarmLevel}]/value/text()'
+          6: |
+            switch
+            "%{3}" == "0": "Normal"
+            # REVIEW(bg): The MIB defined alarm values, these are assumptions...
+            "%{5}" == "1": "Warning"
+            "%{5}" == "2": "Minor"
+            "%{5}" == "3": "Major"
+            "%{5}" == "4": "Critical"
+            default: "Normal"
+      extractor:
+        mapper: '%{resources.mappers.alarms}'
+    properties:
+      readWrite: R
+      read:
+        type: String
+  hmru_band_1_amp_fail_alarm:
+    name: HMRU Band 1 Amp Fail Alarm
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression:
+          - '"${resources.globals.oids.trapHmruOid}.71" == "variable_by_oid(snmpTrapOID).value"'
+          - '"variable_by_oid(${resources.globals.oids.trapAlarmDevice}).value" == ""'
+      extractor:
+        mapper: '%{resources.mappers.alarms}'
+        filters:
+          1: xpath '//[oid = ${resources.globals.oids.trapAlarmState}]/value/text()'
+          2: base64decode
+          3: cast String
+          4: use %{0}
+          5: xpath '//[oid = ${resources.globals.oids.trapActiveAlarmLevel}]/value/text()'
+          6: |
+            switch
+            "%{3}" == "0": "Normal"
+            # REVIEW(bg): The MIB defined alarm values, these are assumptions...
+            "%{5}" == "1": "Warning"
+            "%{5}" == "2": "Minor"
+            "%{5}" == "3": "Major"
+            "%{5}" == "4": "Critical"
+            default: "Normal"
+      extractor:
+        mapper: '%{resources.mappers.alarms}'
+    properties:
+      readWrite: R
+      read:
+        type: String
+  hmru_band_1_amp_over_power_alarm:
+    name: HMRU Band 1 Amp Over Power Alarm
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression:
+          - '"${resources.globals.oids.trapHmruOid}.72" == "variable_by_oid(snmpTrapOID).value"'
+          - '"variable_by_oid(${resources.globals.oids.trapAlarmDevice}).value" == ""'
+      extractor:
+        mapper: '%{resources.mappers.alarms}'
+        filters:
+          1: xpath '//[oid = ${resources.globals.oids.trapAlarmState}]/value/text()'
+          2: base64decode
+          3: cast String
+          4: use %{0}
+          5: xpath '//[oid = ${resources.globals.oids.trapActiveAlarmLevel}]/value/text()'
+          6: |
+            switch
+            "%{3}" == "0": "Normal"
+            # REVIEW(bg): The MIB defined alarm values, these are assumptions...
+            "%{5}" == "1": "Warning"
+            "%{5}" == "2": "Minor"
+            "%{5}" == "3": "Major"
+            "%{5}" == "4": "Critical"
+            default: "Normal"
+      extractor:
+        mapper: '%{resources.mappers.alarms}'
+    properties:
+      readWrite: R
+      read:
+        type: String
+  hmru_band_1_amp_high_temperature_alarm:
+    name: HMRU Band 1 Amp High Temperature Alarm
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression:
+          - '"${resources.globals.oids.trapHmruOid}.73" == "variable_by_oid(snmpTrapOID).value"'
+          - '"variable_by_oid(${resources.globals.oids.trapAlarmDevice}).value" == ""'
+      extractor:
+        mapper: '%{resources.mappers.alarms}'
+        filters:
+          1: xpath '//[oid = ${resources.globals.oids.trapAlarmState}]/value/text()'
+          2: base64decode
+          3: cast String
+          4: use %{0}
+          5: xpath '//[oid = ${resources.globals.oids.trapActiveAlarmLevel}]/value/text()'
+          6: |
+            switch
+            "%{3}" == "0": "Normal"
+            # REVIEW(bg): The MIB defined alarm values, these are assumptions...
+            "%{5}" == "1": "Warning"
+            "%{5}" == "2": "Minor"
+            "%{5}" == "3": "Major"
+            "%{5}" == "4": "Critical"
+            default: "Normal"
+      extractor:
+        mapper: '%{resources.mappers.alarms}'
+    properties:
+      readWrite: R
+      read:
+        type: String
+  hmru_band_1_fan_alarm:
+    name: HMRU Band 1 Fan Alarm
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression:
+          - '"${resources.globals.oids.trapHmruOid}.74" == "variable_by_oid(snmpTrapOID).value"'
+          - '"variable_by_oid(${resources.globals.oids.trapAlarmDevice}).value" == ""'
+      extractor:
+        mapper: '%{resources.mappers.alarms}'
+        filters:
+          1: xpath '//[oid = ${resources.globals.oids.trapAlarmState}]/value/text()'
+          2: base64decode
+          3: cast String
+          4: use %{0}
+          5: xpath '//[oid = ${resources.globals.oids.trapActiveAlarmLevel}]/value/text()'
+          6: |
+            switch
+            "%{3}" == "0": "Normal"
+            # REVIEW(bg): The MIB defined alarm values, these are assumptions...
+            "%{5}" == "1": "Warning"
+            "%{5}" == "2": "Minor"
+            "%{5}" == "3": "Major"
+            "%{5}" == "4": "Critical"
+            default: "Normal"
+      extractor:
+        mapper: '%{resources.mappers.alarms}'
+    properties:
+      readWrite: R
+      read:
+        type: String
+  hmru_band_2_amp_vswr_alarm:
+    name: HMRU Band 2 Amp VSWR Alarm
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression:
+          - '"${resources.globals.oids.trapHmruOid}.75" == "variable_by_oid(snmpTrapOID).value"'
+          - '"variable_by_oid(${resources.globals.oids.trapAlarmDevice}).value" == ""'
+      extractor:
+        mapper: '%{resources.mappers.alarms}'
+        filters:
+          1: xpath '//[oid = ${resources.globals.oids.trapAlarmState}]/value/text()'
+          2: base64decode
+          3: cast String
+          4: use %{0}
+          5: xpath '//[oid = ${resources.globals.oids.trapActiveAlarmLevel}]/value/text()'
+          6: |
+            switch
+            "%{3}" == "0": "Normal"
+            # REVIEW(bg): The MIB defined alarm values, these are assumptions...
+            "%{5}" == "1": "Warning"
+            "%{5}" == "2": "Minor"
+            "%{5}" == "3": "Major"
+            "%{5}" == "4": "Critical"
+            default: "Normal"
+      extractor:
+        mapper: '%{resources.mappers.alarms}'
+    properties:
+      readWrite: R
+      read:
+        type: String
+  hmru_band_2_amp_fail_alarm:
+    name: HMRU Band 2 Amp Fail Alarm
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression:
+          - '"${resources.globals.oids.trapHmruOid}.76" == "variable_by_oid(snmpTrapOID).value"'
+          - '"variable_by_oid(${resources.globals.oids.trapAlarmDevice}).value" == ""'
+      extractor:
+        mapper: '%{resources.mappers.alarms}'
+        filters:
+          1: xpath '//[oid = ${resources.globals.oids.trapAlarmState}]/value/text()'
+          2: base64decode
+          3: cast String
+          4: use %{0}
+          5: xpath '//[oid = ${resources.globals.oids.trapActiveAlarmLevel}]/value/text()'
+          6: |
+            switch
+            "%{3}" == "0": "Normal"
+            # REVIEW(bg): The MIB defined alarm values, these are assumptions...
+            "%{5}" == "1": "Warning"
+            "%{5}" == "2": "Minor"
+            "%{5}" == "3": "Major"
+            "%{5}" == "4": "Critical"
+            default: "Normal"
+      extractor:
+        mapper: '%{resources.mappers.alarms}'
+    properties:
+      readWrite: R
+      read:
+        type: String
+  hmru_band_2_amp_over_power_alarm:
+    name: HMRU Band 2 Amp Over Power Alarm
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression:
+          - '"${resources.globals.oids.trapHmruOid}.77" == "variable_by_oid(snmpTrapOID).value"'
+          - '"variable_by_oid(${resources.globals.oids.trapAlarmDevice}).value" == ""'
+      extractor:
+        mapper: '%{resources.mappers.alarms}'
+        filters:
+          1: xpath '//[oid = ${resources.globals.oids.trapAlarmState}]/value/text()'
+          2: base64decode
+          3: cast String
+          4: use %{0}
+          5: xpath '//[oid = ${resources.globals.oids.trapActiveAlarmLevel}]/value/text()'
+          6: |
+            switch
+            "%{3}" == "0": "Normal"
+            # REVIEW(bg): The MIB defined alarm values, these are assumptions...
+            "%{5}" == "1": "Warning"
+            "%{5}" == "2": "Minor"
+            "%{5}" == "3": "Major"
+            "%{5}" == "4": "Critical"
+            default: "Normal"
+      extractor:
+        mapper: '%{resources.mappers.alarms}'
+    properties:
+      readWrite: R
+      read:
+        type: String
+  hmru_band_2_amp_high_temperature_alarm:
+    name: HMRU Band 2 Amp High Temperature Alarm
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression:
+          - '"${resources.globals.oids.trapHmruOid}.78" == "variable_by_oid(snmpTrapOID).value"'
+          - '"variable_by_oid(${resources.globals.oids.trapAlarmDevice}).value" == ""'
+      extractor:
+        mapper: '%{resources.mappers.alarms}'
+        filters:
+          1: xpath '//[oid = ${resources.globals.oids.trapAlarmState}]/value/text()'
+          2: base64decode
+          3: cast String
+          4: use %{0}
+          5: xpath '//[oid = ${resources.globals.oids.trapActiveAlarmLevel}]/value/text()'
+          6: |
+            switch
+            "%{3}" == "0": "Normal"
+            # REVIEW(bg): The MIB defined alarm values, these are assumptions...
+            "%{5}" == "1": "Warning"
+            "%{5}" == "2": "Minor"
+            "%{5}" == "3": "Major"
+            "%{5}" == "4": "Critical"
+            default: "Normal"
+      extractor:
+        mapper: '%{resources.mappers.alarms}'
+    properties:
+      readWrite: R
+      read:
+        type: String
+  hmru_band_2_fan_alarm:
+    name: HMRU Band 2 Fan Alarm
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression:
+          - '"${resources.globals.oids.trapHmruOid}.79" == "variable_by_oid(snmpTrapOID).value"'
+          - '"variable_by_oid(${resources.globals.oids.trapAlarmDevice}).value" == ""'
+      extractor:
+        mapper: '%{resources.mappers.alarms}'
+        filters:
+          1: xpath '//[oid = ${resources.globals.oids.trapAlarmState}]/value/text()'
+          2: base64decode
+          3: cast String
+          4: use %{0}
+          5: xpath '//[oid = ${resources.globals.oids.trapActiveAlarmLevel}]/value/text()'
+          6: |
+            switch
+            "%{3}" == "0": "Normal"
+            # REVIEW(bg): The MIB defined alarm values, these are assumptions...
+            "%{5}" == "1": "Warning"
+            "%{5}" == "2": "Minor"
+            "%{5}" == "3": "Major"
+            "%{5}" == "4": "Critical"
+            default: "Normal"
+      extractor:
+        mapper: '%{resources.mappers.alarms}'
+    properties:
+      readWrite: R
+      read:
+        type: String
+  haru_link_fail_alarm:
+    name: HARU Link Fail Alarm
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression:
+          - '"${resources.globals.oids.trapHaruOid}.11" == "variable_by_oid(snmpTrapOID).value"'
+          - '"variable_by_oid(${resources.globals.oids.trapAlarmDevice}).value" == ""'
+      extractor:
+        mapper: '%{resources.mappers.alarms}'
+        filters:
+          1: xpath '//[oid = ${resources.globals.oids.trapAlarmState}]/value/text()'
+          2: base64decode
+          3: cast String
+          4: use %{0}
+          5: xpath '//[oid = ${resources.globals.oids.trapActiveAlarmLevel}]/value/text()'
+          6: |
+            switch
+            "%{3}" == "0": "Normal"
+            # REVIEW(bg): The MIB defined alarm values, these are assumptions...
+            "%{5}" == "1": "Warning"
+            "%{5}" == "2": "Minor"
+            "%{5}" == "3": "Major"
+            "%{5}" == "4": "Critical"
+            default: "Normal"
+      extractor:
+        mapper: '%{resources.mappers.alarms}'
+    properties:
+      readWrite: R
+      read:
+        type: String
+  haru_high_temperature_alarm:
+    name: HARU High Temperature Alarm
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression:
+          - '"${resources.globals.oids.trapHaruOid}.13" == "variable_by_oid(snmpTrapOID).value"'
+          - '"variable_by_oid(${resources.globals.oids.trapAlarmDevice}).value" == ""'
+      extractor:
+        mapper: '%{resources.mappers.alarms}'
+        filters:
+          1: xpath '//[oid = ${resources.globals.oids.trapAlarmState}]/value/text()'
+          2: base64decode
+          3: cast String
+          4: use %{0}
+          5: xpath '//[oid = ${resources.globals.oids.trapActiveAlarmLevel}]/value/text()'
+          6: |
+            switch
+            "%{3}" == "0": "Normal"
+            # REVIEW(bg): The MIB defined alarm values, these are assumptions...
+            "%{5}" == "1": "Warning"
+            "%{5}" == "2": "Minor"
+            "%{5}" == "3": "Major"
+            "%{5}" == "4": "Critical"
+            default: "Normal"
+      extractor:
+        mapper: '%{resources.mappers.alarms}'
+    properties:
+      readWrite: R
+      read:
+        type: String
+  haru_low_temperature_alarm:
+    name: HARU Low Temperature Alarm
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression:
+          - '"${resources.globals.oids.trapHaruOid}.14" == "variable_by_oid(snmpTrapOID).value"'
+          - '"variable_by_oid(${resources.globals.oids.trapAlarmDevice}).value" == ""'
+      extractor:
+        mapper: '%{resources.mappers.alarms}'
+        filters:
+          1: xpath '//[oid = ${resources.globals.oids.trapAlarmState}]/value/text()'
+          2: base64decode
+          3: cast String
+          4: use %{0}
+          5: xpath '//[oid = ${resources.globals.oids.trapActiveAlarmLevel}]/value/text()'
+          6: |
+            switch
+            "%{3}" == "0": "Normal"
+            # REVIEW(bg): The MIB defined alarm values, these are assumptions...
+            "%{5}" == "1": "Warning"
+            "%{5}" == "2": "Minor"
+            "%{5}" == "3": "Major"
+            "%{5}" == "4": "Critical"
+            default: "Normal"
+      extractor:
+        mapper: '%{resources.mappers.alarms}'
+    properties:
+      readWrite: R
+      read:
+        type: String
+  haru_door_alarm:
+    name: HARU Door Alarm
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression:
+          - '"${resources.globals.oids.trapHaruOid}.20" == "variable_by_oid(snmpTrapOID).value"'
+          - '"variable_by_oid(${resources.globals.oids.trapAlarmDevice}).value" == ""'
+      extractor:
+        mapper: '%{resources.mappers.alarms}'
+        filters:
+          1: xpath '//[oid = ${resources.globals.oids.trapAlarmState}]/value/text()'
+          2: base64decode
+          3: cast String
+          4: use %{0}
+          5: xpath '//[oid = ${resources.globals.oids.trapActiveAlarmLevel}]/value/text()'
+          6: |
+            switch
+            "%{3}" == "0": "Normal"
+            # REVIEW(bg): The MIB defined alarm values, these are assumptions...
+            "%{5}" == "1": "Warning"
+            "%{5}" == "2": "Minor"
+            "%{5}" == "3": "Major"
+            "%{5}" == "4": "Critical"
+            default: "Normal"
+      extractor:
+        mapper: '%{resources.mappers.alarms}'
+    properties:
+      readWrite: R
+      read:
+        type: String
+  haru_battery_low_alarm:
+    name: HARU Battery Low Alarm
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression:
+          - '"${resources.globals.oids.trapHaruOid}.21" == "variable_by_oid(snmpTrapOID).value"'
+          - '"variable_by_oid(${resources.globals.oids.trapAlarmDevice}).value" == ""'
+      extractor:
+        mapper: '%{resources.mappers.alarms}'
+        filters:
+          1: xpath '//[oid = ${resources.globals.oids.trapAlarmState}]/value/text()'
+          2: base64decode
+          3: cast String
+          4: use %{0}
+          5: xpath '//[oid = ${resources.globals.oids.trapActiveAlarmLevel}]/value/text()'
+          6: |
+            switch
+            "%{3}" == "0": "Normal"
+            # REVIEW(bg): The MIB defined alarm values, these are assumptions...
+            "%{5}" == "1": "Warning"
+            "%{5}" == "2": "Minor"
+            "%{5}" == "3": "Major"
+            "%{5}" == "4": "Critical"
+            default: "Normal"
+      extractor:
+        mapper: '%{resources.mappers.alarms}'
+    properties:
+      readWrite: R
+      read:
+        type: String
+  haru_direct_current_alarm:
+    name: HARU Direct Current Alarm
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression:
+          - '"${resources.globals.oids.trapHaruOid}.22" == "variable_by_oid(snmpTrapOID).value"'
+          - '"variable_by_oid(${resources.globals.oids.trapAlarmDevice}).value" == ""'
+      extractor:
+        mapper: '%{resources.mappers.alarms}'
+        filters:
+          1: xpath '//[oid = ${resources.globals.oids.trapAlarmState}]/value/text()'
+          2: base64decode
+          3: cast String
+          4: use %{0}
+          5: xpath '//[oid = ${resources.globals.oids.trapActiveAlarmLevel}]/value/text()'
+          6: |
+            switch
+            "%{3}" == "0": "Normal"
+            # REVIEW(bg): The MIB defined alarm values, these are assumptions...
+            "%{5}" == "1": "Warning"
+            "%{5}" == "2": "Minor"
+            "%{5}" == "3": "Major"
+            "%{5}" == "4": "Critical"
+            default: "Normal"
+      extractor:
+        mapper: '%{resources.mappers.alarms}'
+    properties:
+      readWrite: R
+      read:
+        type: String
+  haru_alternating_current_alarm:
+    name: HARU Alternating Current Alarm
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression:
+          - '"${resources.globals.oids.trapHaruOid}.23" == "variable_by_oid(snmpTrapOID).value"'
+          - '"variable_by_oid(${resources.globals.oids.trapAlarmDevice}).value" == ""'
+      extractor:
+        mapper: '%{resources.mappers.alarms}'
+        filters:
+          1: xpath '//[oid = ${resources.globals.oids.trapAlarmState}]/value/text()'
+          2: base64decode
+          3: cast String
+          4: use %{0}
+          5: xpath '//[oid = ${resources.globals.oids.trapActiveAlarmLevel}]/value/text()'
+          6: |
+            switch
+            "%{3}" == "0": "Normal"
+            # REVIEW(bg): The MIB defined alarm values, these are assumptions...
+            "%{5}" == "1": "Warning"
+            "%{5}" == "2": "Minor"
+            "%{5}" == "3": "Major"
+            "%{5}" == "4": "Critical"
+            default: "Normal"
+      extractor:
+        mapper: '%{resources.mappers.alarms}'
+    properties:
+      readWrite: R
+      read:
+        type: String
+  haru_band_1_tx_out_high_alarm:
+    name: HARU Band 1 TX Out High Alarm
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression:
+          - '"${resources.globals.oids.trapHaruOid}.51" == "variable_by_oid(snmpTrapOID).value"'
+          - '"variable_by_oid(${resources.globals.oids.trapAlarmDevice}).value" == ""'
+      extractor:
+        mapper: '%{resources.mappers.alarms}'
+        filters:
+          1: xpath '//[oid = ${resources.globals.oids.trapAlarmState}]/value/text()'
+          2: base64decode
+          3: cast String
+          4: use %{0}
+          5: xpath '//[oid = ${resources.globals.oids.trapActiveAlarmLevel}]/value/text()'
+          6: |
+            switch
+            "%{3}" == "0": "Normal"
+            # REVIEW(bg): The MIB defined alarm values, these are assumptions...
+            "%{5}" == "1": "Warning"
+            "%{5}" == "2": "Minor"
+            "%{5}" == "3": "Major"
+            "%{5}" == "4": "Critical"
+            default: "Normal"
+      extractor:
+        mapper: '%{resources.mappers.alarms}'
+    properties:
+      readWrite: R
+      read:
+        type: String
+  haru_band_1_tx_out_low_alarm:
+    name: HARU Band 1 TX Out Low Alarm
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression:
+          - '"${resources.globals.oids.trapHaruOid}.52" == "variable_by_oid(snmpTrapOID).value"'
+          - '"variable_by_oid(${resources.globals.oids.trapAlarmDevice}).value" == ""'
+      extractor:
+        mapper: '%{resources.mappers.alarms}'
+        filters:
+          1: xpath '//[oid = ${resources.globals.oids.trapAlarmState}]/value/text()'
+          2: base64decode
+          3: cast String
+          4: use %{0}
+          5: xpath '//[oid = ${resources.globals.oids.trapActiveAlarmLevel}]/value/text()'
+          6: |
+            switch
+            "%{3}" == "0": "Normal"
+            # REVIEW(bg): The MIB defined alarm values, these are assumptions...
+            "%{5}" == "1": "Warning"
+            "%{5}" == "2": "Minor"
+            "%{5}" == "3": "Major"
+            "%{5}" == "4": "Critical"
+            default: "Normal"
+      extractor:
+        mapper: '%{resources.mappers.alarms}'
+    properties:
+      readWrite: R
+      read:
+        type: String
+  haru_band_1_tx_out_sd_alarm:
+    name: HARU Band 1 TX Out SD Alarm
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression:
+          - '"${resources.globals.oids.trapHaruOid}.53" == "variable_by_oid(snmpTrapOID).value"'
+          - '"variable_by_oid(${resources.globals.oids.trapAlarmDevice}).value" == ""'
+      extractor:
+        mapper: '%{resources.mappers.alarms}'
+        filters:
+          1: xpath '//[oid = ${resources.globals.oids.trapAlarmState}]/value/text()'
+          2: base64decode
+          3: cast String
+          4: use %{0}
+          5: xpath '//[oid = ${resources.globals.oids.trapActiveAlarmLevel}]/value/text()'
+          6: |
+            switch
+            "%{3}" == "0": "Normal"
+            # REVIEW(bg): The MIB defined alarm values, these are assumptions...
+            "%{5}" == "1": "Warning"
+            "%{5}" == "2": "Minor"
+            "%{5}" == "3": "Major"
+            "%{5}" == "4": "Critical"
+            default: "Normal"
+      extractor:
+        mapper: '%{resources.mappers.alarms}'
+    properties:
+      readWrite: R
+      read:
+        type: String
+  haru_band_2_tx_out_high_alarm:
+    name: HARU Band 2 TX Out High Alarm
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression:
+          - '"${resources.globals.oids.trapHaruOid}.61" == "variable_by_oid(snmpTrapOID).value"'
+          - '"variable_by_oid(${resources.globals.oids.trapAlarmDevice}).value" == ""'
+      extractor:
+        mapper: '%{resources.mappers.alarms}'
+        filters:
+          1: xpath '//[oid = ${resources.globals.oids.trapAlarmState}]/value/text()'
+          2: base64decode
+          3: cast String
+          4: use %{0}
+          5: xpath '//[oid = ${resources.globals.oids.trapActiveAlarmLevel}]/value/text()'
+          6: |
+            switch
+            "%{3}" == "0": "Normal"
+            # REVIEW(bg): The MIB defined alarm values, these are assumptions...
+            "%{5}" == "1": "Warning"
+            "%{5}" == "2": "Minor"
+            "%{5}" == "3": "Major"
+            "%{5}" == "4": "Critical"
+            default: "Normal"
+      extractor:
+        mapper: '%{resources.mappers.alarms}'
+    properties:
+      readWrite: R
+      read:
+        type: String
+  haru_band_2_tx_out_low_alarm:
+    name: HARU Band 2 TX Out Low Alarm
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression:
+          - '"${resources.globals.oids.trapHaruOid}.62" == "variable_by_oid(snmpTrapOID).value"'
+          - '"variable_by_oid(${resources.globals.oids.trapAlarmDevice}).value" == ""'
+      extractor:
+        mapper: '%{resources.mappers.alarms}'
+        filters:
+          1: xpath '//[oid = ${resources.globals.oids.trapAlarmState}]/value/text()'
+          2: base64decode
+          3: cast String
+          4: use %{0}
+          5: xpath '//[oid = ${resources.globals.oids.trapActiveAlarmLevel}]/value/text()'
+          6: |
+            switch
+            "%{3}" == "0": "Normal"
+            # REVIEW(bg): The MIB defined alarm values, these are assumptions...
+            "%{5}" == "1": "Warning"
+            "%{5}" == "2": "Minor"
+            "%{5}" == "3": "Major"
+            "%{5}" == "4": "Critical"
+            default: "Normal"
+      extractor:
+        mapper: '%{resources.mappers.alarms}'
+    properties:
+      readWrite: R
+      read:
+        type: String
+  haru_band_2_tx_out_sd_alarm:
+    name: HARU Band 2 TX Out SD Alarm
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression:
+          - '"${resources.globals.oids.trapHaruOid}.63" == "variable_by_oid(snmpTrapOID).value"'
+          - '"variable_by_oid(${resources.globals.oids.trapAlarmDevice}).value" == ""'
+      extractor:
+        mapper: '%{resources.mappers.alarms}'
+        filters:
+          1: xpath '//[oid = ${resources.globals.oids.trapAlarmState}]/value/text()'
+          2: base64decode
+          3: cast String
+          4: use %{0}
+          5: xpath '//[oid = ${resources.globals.oids.trapActiveAlarmLevel}]/value/text()'
+          6: |
+            switch
+            "%{3}" == "0": "Normal"
+            # REVIEW(bg): The MIB defined alarm values, these are assumptions...
+            "%{5}" == "1": "Warning"
+            "%{5}" == "2": "Minor"
+            "%{5}" == "3": "Major"
+            "%{5}" == "4": "Critical"
+            default: "Normal"
+      extractor:
+        mapper: '%{resources.mappers.alarms}'
+    properties:
+      readWrite: R
+      read:
+        type: String
+  haru_band_1_amp_vswr_alarm:
+    name: HARU Band 1 Amp VSWR Alarm
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression:
+          - '"${resources.globals.oids.trapHaruOid}.70" == "variable_by_oid(snmpTrapOID).value"'
+          - '"variable_by_oid(${resources.globals.oids.trapAlarmDevice}).value" == ""'
+      extractor:
+        mapper: '%{resources.mappers.alarms}'
+        filters:
+          1: xpath '//[oid = ${resources.globals.oids.trapAlarmState}]/value/text()'
+          2: base64decode
+          3: cast String
+          4: use %{0}
+          5: xpath '//[oid = ${resources.globals.oids.trapActiveAlarmLevel}]/value/text()'
+          6: |
+            switch
+            "%{3}" == "0": "Normal"
+            # REVIEW(bg): The MIB defined alarm values, these are assumptions...
+            "%{5}" == "1": "Warning"
+            "%{5}" == "2": "Minor"
+            "%{5}" == "3": "Major"
+            "%{5}" == "4": "Critical"
+            default: "Normal"
+      extractor:
+        mapper: '%{resources.mappers.alarms}'
+    properties:
+      readWrite: R
+      read:
+        type: String
+  haru_band_1_amp_fail_alarm:
+    name: HARU Band 1 Amp Fail Alarm
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression:
+          - '"${resources.globals.oids.trapHaruOid}.71" == "variable_by_oid(snmpTrapOID).value"'
+          - '"variable_by_oid(${resources.globals.oids.trapAlarmDevice}).value" == ""'
+      extractor:
+        mapper: '%{resources.mappers.alarms}'
+        filters:
+          1: xpath '//[oid = ${resources.globals.oids.trapAlarmState}]/value/text()'
+          2: base64decode
+          3: cast String
+          4: use %{0}
+          5: xpath '//[oid = ${resources.globals.oids.trapActiveAlarmLevel}]/value/text()'
+          6: |
+            switch
+            "%{3}" == "0": "Normal"
+            # REVIEW(bg): The MIB defined alarm values, these are assumptions...
+            "%{5}" == "1": "Warning"
+            "%{5}" == "2": "Minor"
+            "%{5}" == "3": "Major"
+            "%{5}" == "4": "Critical"
+            default: "Normal"
+      extractor:
+        mapper: '%{resources.mappers.alarms}'
+    properties:
+      readWrite: R
+      read:
+        type: String
+  haru_band_1_amp_over_power_alarm:
+    name: HARU Band 1 Amp Over Power Alarm
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression:
+          - '"${resources.globals.oids.trapHaruOid}.72" == "variable_by_oid(snmpTrapOID).value"'
+          - '"variable_by_oid(${resources.globals.oids.trapAlarmDevice}).value" == ""'
+      extractor:
+        mapper: '%{resources.mappers.alarms}'
+        filters:
+          1: xpath '//[oid = ${resources.globals.oids.trapAlarmState}]/value/text()'
+          2: base64decode
+          3: cast String
+          4: use %{0}
+          5: xpath '//[oid = ${resources.globals.oids.trapActiveAlarmLevel}]/value/text()'
+          6: |
+            switch
+            "%{3}" == "0": "Normal"
+            # REVIEW(bg): The MIB defined alarm values, these are assumptions...
+            "%{5}" == "1": "Warning"
+            "%{5}" == "2": "Minor"
+            "%{5}" == "3": "Major"
+            "%{5}" == "4": "Critical"
+            default: "Normal"
+      extractor:
+        mapper: '%{resources.mappers.alarms}'
+    properties:
+      readWrite: R
+      read:
+        type: String
+  haru_band_1_amp_high_temperature_alarm:
+    name: HARU Band 1 Amp High Temperature Alarm
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression:
+          - '"${resources.globals.oids.trapHaruOid}.73" == "variable_by_oid(snmpTrapOID).value"'
+          - '"variable_by_oid(${resources.globals.oids.trapAlarmDevice}).value" == ""'
+      extractor:
+        mapper: '%{resources.mappers.alarms}'
+        filters:
+          1: xpath '//[oid = ${resources.globals.oids.trapAlarmState}]/value/text()'
+          2: base64decode
+          3: cast String
+          4: use %{0}
+          5: xpath '//[oid = ${resources.globals.oids.trapActiveAlarmLevel}]/value/text()'
+          6: |
+            switch
+            "%{3}" == "0": "Normal"
+            # REVIEW(bg): The MIB defined alarm values, these are assumptions...
+            "%{5}" == "1": "Warning"
+            "%{5}" == "2": "Minor"
+            "%{5}" == "3": "Major"
+            "%{5}" == "4": "Critical"
+            default: "Normal"
+      extractor:
+        mapper: '%{resources.mappers.alarms}'
+    properties:
+      readWrite: R
+      read:
+        type: String
+  haru_band_1_fan_alarm:
+    name: HARU Band 1 Fan Alarm
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression:
+          - '"${resources.globals.oids.trapHaruOid}.74" == "variable_by_oid(snmpTrapOID).value"'
+          - '"variable_by_oid(${resources.globals.oids.trapAlarmDevice}).value" == ""'
+      extractor:
+        mapper: '%{resources.mappers.alarms}'
+        filters:
+          1: xpath '//[oid = ${resources.globals.oids.trapAlarmState}]/value/text()'
+          2: base64decode
+          3: cast String
+          4: use %{0}
+          5: xpath '//[oid = ${resources.globals.oids.trapActiveAlarmLevel}]/value/text()'
+          6: |
+            switch
+            "%{3}" == "0": "Normal"
+            # REVIEW(bg): The MIB defined alarm values, these are assumptions...
+            "%{5}" == "1": "Warning"
+            "%{5}" == "2": "Minor"
+            "%{5}" == "3": "Major"
+            "%{5}" == "4": "Critical"
+            default: "Normal"
+      extractor:
+        mapper: '%{resources.mappers.alarms}'
+    properties:
+      readWrite: R
+      read:
+        type: String
+  haru_band_2_amp_vswr_alarm:
+    name: HARU Band 2 Amp VSWR Alarm
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression:
+          - '"${resources.globals.oids.trapHaruOid}.75" == "variable_by_oid(snmpTrapOID).value"'
+          - '"variable_by_oid(${resources.globals.oids.trapAlarmDevice}).value" == ""'
+      extractor:
+        mapper: '%{resources.mappers.alarms}'
+        filters:
+          1: xpath '//[oid = ${resources.globals.oids.trapAlarmState}]/value/text()'
+          2: base64decode
+          3: cast String
+          4: use %{0}
+          5: xpath '//[oid = ${resources.globals.oids.trapActiveAlarmLevel}]/value/text()'
+          6: |
+            switch
+            "%{3}" == "0": "Normal"
+            # REVIEW(bg): The MIB defined alarm values, these are assumptions...
+            "%{5}" == "1": "Warning"
+            "%{5}" == "2": "Minor"
+            "%{5}" == "3": "Major"
+            "%{5}" == "4": "Critical"
+            default: "Normal"
+      extractor:
+        mapper: '%{resources.mappers.alarms}'
+    properties:
+      readWrite: R
+      read:
+        type: String
+  haru_band_2_amp_fail_alarm:
+    name: HARU Band 2 Amp Fail Alarm
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression:
+          - '"${resources.globals.oids.trapHaruOid}.76" == "variable_by_oid(snmpTrapOID).value"'
+          - '"variable_by_oid(${resources.globals.oids.trapAlarmDevice}).value" == ""'
+      extractor:
+        mapper: '%{resources.mappers.alarms}'
+        filters:
+          1: xpath '//[oid = ${resources.globals.oids.trapAlarmState}]/value/text()'
+          2: base64decode
+          3: cast String
+          4: use %{0}
+          5: xpath '//[oid = ${resources.globals.oids.trapActiveAlarmLevel}]/value/text()'
+          6: |
+            switch
+            "%{3}" == "0": "Normal"
+            # REVIEW(bg): The MIB defined alarm values, these are assumptions...
+            "%{5}" == "1": "Warning"
+            "%{5}" == "2": "Minor"
+            "%{5}" == "3": "Major"
+            "%{5}" == "4": "Critical"
+            default: "Normal"
+      extractor:
+        mapper: '%{resources.mappers.alarms}'
+    properties:
+      readWrite: R
+      read:
+        type: String
+  haru_band_2_amp_over_power_alarm:
+    name: HARU Band 2 Amp Over Power Alarm
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression:
+          - '"${resources.globals.oids.trapHaruOid}.77" == "variable_by_oid(snmpTrapOID).value"'
+          - '"variable_by_oid(${resources.globals.oids.trapAlarmDevice}).value" == ""'
+      extractor:
+        mapper: '%{resources.mappers.alarms}'
+        filters:
+          1: xpath '//[oid = ${resources.globals.oids.trapAlarmState}]/value/text()'
+          2: base64decode
+          3: cast String
+          4: use %{0}
+          5: xpath '//[oid = ${resources.globals.oids.trapActiveAlarmLevel}]/value/text()'
+          6: |
+            switch
+            "%{3}" == "0": "Normal"
+            # REVIEW(bg): The MIB defined alarm values, these are assumptions...
+            "%{5}" == "1": "Warning"
+            "%{5}" == "2": "Minor"
+            "%{5}" == "3": "Major"
+            "%{5}" == "4": "Critical"
+            default: "Normal"
+      extractor:
+        mapper: '%{resources.mappers.alarms}'
+    properties:
+      readWrite: R
+      read:
+        type: String
+  haru_band_2_amp_high_temperature_alarm:
+    name: HARU Band 2 Amp High Temperature Alarm
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression:
+          - '"${resources.globals.oids.trapHaruOid}.78" == "variable_by_oid(snmpTrapOID).value"'
+          - '"variable_by_oid(${resources.globals.oids.trapAlarmDevice}).value" == ""'
+      extractor:
+        mapper: '%{resources.mappers.alarms}'
+        filters:
+          1: xpath '//[oid = ${resources.globals.oids.trapAlarmState}]/value/text()'
+          2: base64decode
+          3: cast String
+          4: use %{0}
+          5: xpath '//[oid = ${resources.globals.oids.trapActiveAlarmLevel}]/value/text()'
+          6: |
+            switch
+            "%{3}" == "0": "Normal"
+            # REVIEW(bg): The MIB defined alarm values, these are assumptions...
+            "%{5}" == "1": "Warning"
+            "%{5}" == "2": "Minor"
+            "%{5}" == "3": "Major"
+            "%{5}" == "4": "Critical"
+            default: "Normal"
+      extractor:
+        mapper: '%{resources.mappers.alarms}'
+    properties:
+      readWrite: R
+      read:
+        type: String
+  haru_band_2_fan_alarm:
+    name: HARU Band 2 Fan Alarm
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression:
+          - '"${resources.globals.oids.trapHaruOid}.79" == "variable_by_oid(snmpTrapOID).value"'
+          - '"variable_by_oid(${resources.globals.oids.trapAlarmDevice}).value" == ""'
+      extractor:
+        mapper: '%{resources.mappers.alarms}'
+        filters:
+          1: xpath '//[oid = ${resources.globals.oids.trapAlarmState}]/value/text()'
+          2: base64decode
+          3: cast String
+          4: use %{0}
+          5: xpath '//[oid = ${resources.globals.oids.trapActiveAlarmLevel}]/value/text()'
+          6: |
+            switch
+            "%{3}" == "0": "Normal"
+            # REVIEW(bg): The MIB defined alarm values, these are assumptions...
+            "%{5}" == "1": "Warning"
+            "%{5}" == "2": "Minor"
+            "%{5}" == "3": "Major"
+            "%{5}" == "4": "Critical"
+            default: "Normal"
+      extractor:
+        mapper: '%{resources.mappers.alarms}'
+    properties:
+      readWrite: R
+      read:
+        type: String
+resources:
+  auths:
+    upgraded-http:
+      http:
+        httpUri: false
+        actions:
+          login:
+            dataEngine: '%{engines.upgraded-http}'
+            dataSource: '%{resources.http.requests.login}'
+            selector:
+              type: cookie
+              expression: PHPSESSID
+            dataSink: ${resources.globals.auth.sessionId}
+          logout:
+            dataEngine: '%{engines.upgraded-http}'
+            dataSource: '%{resources.http.requests.logout}'
+            selector:
+              type: static
+              expression: ""
+            dataSink: ${resources.globals.auth.sessionId}
+  mappers:
+    alarms:
+      keyType: String
+      valueType: String
+      map:
+        ../img/gray_led.gif: Disabled
+        ../img/green_led.gif: Normal
+        ../img/red_led.gif: Severe
+  globals:
+    reg:
+      biuNumber: ${registration.form.properties.biuNumber}
+      ip: ${registration.form.properties.ip}
+      password: ${registration.vault.properties.password}
+      port: ${registration.form.properties.port}
+      url: http://${registration.form.properties.ip}:${registration.form.properties.port}
+      username: ${registration.vault.properties.username}
+    oid:
+      #Type base OID
+      trapAruOid: .1.3.6.1.4.1.35043.1.1.600.400.10.0
+      trapOduOid: .1.3.6.1.4.1.35043.1.1.600.400.8.0
+      trapMdbuOid: .1.3.6.1.4.1.35043.1.1.600.400.5.0
+      trapMruOid: .1.3.6.1.4.1.35043.1.1.600.400.9.0
+      trapBiuOid: .1.3.6.1.4.1.35043.1.1.600.400.4.0
+      trapOeuOid: .1.3.6.1.4.1.35043.1.1.600.400.7.0
+      trapRduOid: .1.3.6.1.4.1.35043.1.1.600.400.11.0
+      trapHmruOid: .1.3.6.1.4.1.35043.1.1.600.400.12.0
+      trapHaruOid: .1.3.6.1.4.1.35043.1.1.600.400.13.0
+
+      trapAlarmState: .1.3.6.1.4.1.35043.1.1.600.400.1.1
+      trapActiveAlarmLevel: .1.3.6.1.4.1.35043.1.1.600.15.1.6
+      trapAlarmDevice: .1.3.6.1.4.1.35043.1.1.600.400.1.2
+  http:
+    requests:
+      get_aru:
+        uri: ${resources.globals.reg.url}/command_control/${topology.discovery.flatten.uri}
+        cookies:
+          PHPSESSID: ${resources.globals.auth.sessionId}
+        responses:
+          success:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: "200"
+          failure:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: ^(?!200)
+      get_biu:
+        uri: ${resources.globals.reg.url}/command_control/${topology.discovery.flatten.uri}
+        cookies:
+          PHPSESSID: ${resources.globals.auth.sessionId}
+        responses:
+          success:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: "200"
+          failure:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: ^(?!200)
+      get_deviceStatus:
+        uri: ${topology.discovery.flatten.uri}
+        header:
+          Accept-Encoding:
+            - gzip, deflate
+        cookies:
+          PHPSESSID: ${resources.globals.auth.sessionId}
+        responses:
+          success:
+            - dataSource: '%{response.http}'
+              expression: statusCode
+              match: ^2\d\d$
+          failure:
+            - dataSource: '%{response.http}'
+              expression: statusCode
+              match: ^[45]\d\d$
+      get_inventory:
+        uri: ${resources.globals.reg.url}/command_control/webgui_das_tree.php
+        query:
+          DAS_BIU_IDX: ${resources.globals.reg.biuNumber}
+        header:
+          Accept-Encoding:
+            - gzip, deflate
+        cookies:
+          PHPSESSID: ${resources.globals.auth.sessionId}
+        responses:
+          success:
+            - dataSource: '%{response.http}'
+              expression: statusCode
+              match: ^2\d\d$
+          failure:
+            - dataSource: '%{response.http}'
+              expression: statusCode
+              match: ^[45]\d\d$
+      get_mdbu:
+        uri: ${resources.globals.reg.url}/command_control/${topology.discovery.flatten.uri}
+        cookies:
+          PHPSESSID: ${resources.globals.auth.sessionId}
+        responses:
+          success:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: "200"
+          failure:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: ^(?!200)
+      get_mru:
+        uri: ${resources.globals.reg.url}/command_control/${topology.discovery.flatten.uri}
+        cookies:
+          PHPSESSID: ${resources.globals.auth.sessionId}
+        responses:
+          success:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: "200"
+          failure:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: ^(?!200)
+      get_odu:
+        uri: ${resources.globals.reg.url}/command_control/${topology.discovery.flatten.uri}
+        cookies:
+          PHPSESSID: ${resources.globals.auth.sessionId}
+        responses:
+          success:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: "200"
+          failure:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: ^(?!200)
+      login:
+        method: POST
+        uri: ${resources.globals.reg.url}/common/login/login_ok.html
+        requestContentType: application/x-www-form-urlencoded
+        header:
+          Accept-Encoding:
+            - gzip, deflate
+        body:
+          USER_ID: ${resources.globals.reg.username}
+          USER_PASSWORD: ${resources.globals.reg.password}
+        responses:
+          success:
+            - dataSource: '%{response.cookie}'
+              expression: PHPSESSID
+              match: ^.+$
+          failure:
+            - dataSource: '%{response.cookie}'
+              expression: PHPSESSID
+              match: ^$
+      logout:
+        uri: ${resources.globals.reg.url}/common/login/logout.html
+        header:
+          Accept-Encoding:
+            - gzip, deflate
+        cookies:
+          PHPSESSID: ${resources.globals.auth.sessionId}
+        responses:
+          success:
+            - dataSource: '%{response.http}'
+              expression: statusCode
+              match: ^2\d\d$
+          failure:
+            - dataSource: '%{response.http}'
+              expression: statusCode
+              match: ^[45]\d\d$
+      siteInfo:
+        uri: ${resources.globals.reg.url}/siteinfo/info.html
+        header:
+          Accept-Encoding:
+            - gzip, deflate
+        cookies:
+          PHPSESSID: ${resources.globals.auth.sessionId}
+        responses:
+          success:
+            - dataSource: '%{response.http}'
+              expression: statusCode
+              match: ^2\d\d$
+          failure:
+            - dataSource: '%{response.http}'
+              expression: statusCode
+              match: ^[45]\d\d$
+      x-request:
+        header:
+          Accept-Encoding:
+            - gzip, deflate
+        cookies:
+          PHPSESSID: ${resources.globals.auth.sessionId}
+        responses:
+          success:
+            - dataSource: '%{response.http}'
+              expression: statusCode
+              match: ^2\d\d$
+          failure:
+            - dataSource: '%{response.http}'
+              expression: statusCode
+              match: ^[45]\d\d$
