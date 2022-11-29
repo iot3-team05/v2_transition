@@ -1,0 +1,1881 @@
+iot3: 2.0.0
+info:
+  name: '[Compact] CommScope Flexwave Prism'
+  oem: CommScope
+  model: Flexwave Prism
+  versions:
+    - "8.1"
+  author: deep.desai@qeleo.com
+  stage: alpha
+  revision: 2
+  labels:
+    - compact
+    - commscope
+    - flexwave
+    - prism
+    - auto upgraded to v2
+  created: "2022-02-28"
+  updated: "2022-11-23"
+  documentation:
+    description: This IoT3 file supports alarms of CommScope Flexwave Prism systems.
+registration:
+  vaultId: vault_id
+  fingerprint:
+    - ip
+    - port
+    - vault_id
+  vault:
+    properties:
+      password:
+        key: password
+        placeholder: Password
+        required: true
+        title: Password
+        type: string
+      username:
+        key: username
+        placeholder: Username
+        required: true
+        title: Username
+        type: string
+    required:
+      - username
+      - password
+  form:
+    properties:
+      ip:
+        key: ip
+        placeholder: IP Address
+        required: true
+        title: IP
+        type: string
+      port:
+        inputType: number
+        key: port
+        maximum: 65535
+        minimum: 1
+        placeholder: Port
+        required: true
+        title: Port
+        type: number
+      vault_id:
+        key: vault_id
+        pattern: ^(cu\w{6})(-av\w{6})$
+        placeholder: Vault ID
+        required: true
+        title: Vault ID
+        type: string
+    required:
+      - ip
+      - port
+      - vault_id
+engines:
+  tunnel:
+    ssh:
+      supported: false
+    http:
+      supported: true
+  upgraded-http:
+    schedule: '@always'
+    auth: '%{resources.auths.upgraded-http}'
+    type: HTTP
+    options:
+      timeout: 1m
+      dialTimeout: 30s
+      tlsHandshakeTimeout: 30s
+      responseHeaderTimeout: 1m
+      maxConnections: "5"
+      tls:
+        minVersion: "1.0"
+topology:
+  rootType: host
+  wrapperType: system
+  nodes: true
+  discovery:
+    dataEngine: '%{engines.upgraded-http}'
+    dataSource: '%{resources.http.requests.get_info}'
+    type: http
+    expression: {}
+    selectors:
+      nodes:
+        dataEngine: '%{engines.upgraded-http}'
+        selector:
+          type: xpath
+          expression: //table[contains(@id,"swInventoryTable")]/tbody/tr
+        extractor:
+          filters:
+            1: wrap <table> </table>
+    flatten:
+      type:
+        transform: ${topology.discovery.selectors.nodes}
+        filters:
+          1: xpath //tr/td[1]/text()
+          2: toLower
+          3: |
+            switch
+            "%{2}" ~= "host" : "host"
+            "%{2}" ~= "pru" : "remote"
+            default: ""
+      topology:
+        transform: ${topology.discovery.selectors.nodes}
+        filters:
+          1: xpath //tr/td[1]/text()
+          2: toLower
+          3: use %{0}
+          4: xpath //tr/td[3]/text()
+          5: |
+            switch
+            "%{2}" ~= "host" : "host"
+            "%{2}" ~= "pru" : "remote"
+            default: ""
+          6: |
+            switch
+            "%{5}" == "host" : "'host'"
+            "%{5}" == "remote" : "'host' -> '%{4}'"
+            default: "'host'"
+      version:
+        transform: ${topology.discovery.selectors.nodes}
+        filters:
+          1: xpath //tr/td[4]
+          2: regexpReplace /^(\d+\.\d+)\.?.*$/ => $1
+      unit_id:
+        transform: ${topology.discovery.selectors.nodes}
+        filters:
+          1: xpath //tr/td[3]/text()
+types:
+  host:
+    name: Host
+    version: '[0.1,)'
+    reference: host
+    attributes:
+      - host_cdiu_cpri_port_1_config_mismatch_alarm
+      - host_cdiu_cpri_port_1_module_missing_fault_alarm
+      - host_cdiu_cpri_port_1_optical_over_drive_alarm
+      - host_cdiu_cpri_port_1_optical_rx_high_ber_alarm
+      - host_cdiu_cpri_port_1_optical_rx_no_light_alarm
+      - host_cdiu_cpri_port_1_optical_under_drive_alarm
+      - host_cdiu_cpri_port_1_rec_communication_fault_alarm
+      - host_cdiu_cpri_port_1_rec_type_config_mismatch_alarm
+      - host_cdiu_cpri_port_1_remote_alarm_indication_alarm
+      - host_cdiu_cpri_port_1_slave_link_ds_indication_alarm
+      - host_cdiu_cpri_port_2_config_mismatch_alarm
+      - host_cdiu_cpri_port_2_module_missing_fault_alarm
+      - host_cdiu_cpri_port_2_optical_over_drive_alarm
+      - host_cdiu_cpri_port_2_optical_rx_high_ber_alarm
+      - host_cdiu_cpri_port_2_optical_rx_no_light_alarm
+      - host_cdiu_cpri_port_2_optical_under_drive_alarm
+      - host_cdiu_cpri_port_2_rec_communication_fault_alarm
+      - host_cdiu_cpri_port_2_rec_type_config_mismatch_alarm
+      - host_cdiu_cpri_port_2_remote_alarm_indication_alarm
+      - host_cdiu_cpri_port_2_slave_link_ds_indication_alarm
+      - host_cdiu_path_a_alc_limiting_alarm
+      - host_cdiu_path_a_over_drive_alarm
+      - host_cdiu_path_a_test_tone_enabled_alarm
+      - host_cdiu_path_a_under_drive_alarm
+      - host_cdiu_path_b_alc_limiting_alarm
+      - host_cdiu_path_b_over_drive_alarm
+      - host_cdiu_path_b_test_tone_enabled_alarm
+      - host_cdiu_path_b_under_drive_alarm
+      - host_dart_alc_limiting_alarm
+      - host_dart_dc_supply_fault_alarm
+      - host_dart_linking_conflict_alarm
+      - host_dart_over_drive_alarm
+      - host_dart_under_drive_alarm
+      - host_flm_downconvert_fault_alarm
+      - host_rlm_upconvert_fault_alarm
+      - host_rlm_upconvert_indeterminate_alarm
+      - host_optical_over_drive_alarm
+      - host_optical_rx_high_ber_alarm
+      - host_optical_rx_no_light_alarm
+      - host_optical_under_drive_alarm
+      - host_temperature_high_alarm
+      - host_temperature_low_alarm
+      - host_user_login_or_logout_alarm
+      - host_host_temperature_alarm
+      - host_acknowledge_alarm
+      - host_contact_alarm_input_1_alarm
+    alarms:
+      host_acknowledge_alarm:
+        attributes:
+          - host_acknowledge_alarm
+        mapper: '%{resources.mappers.alarms}'
+      host_cdiu_cpri_port_1_config_mismatch_alarm:
+        attributes:
+          - host_cdiu_cpri_port_1_config_mismatch_alarm
+        mapper: '%{resources.mappers.alarms}'
+      host_cdiu_cpri_port_1_module_missing_fault_alarm:
+        attributes:
+          - host_cdiu_cpri_port_1_module_missing_fault_alarm
+        mapper: '%{resources.mappers.alarms}'
+      host_cdiu_cpri_port_1_optical_over_drive_alarm:
+        attributes:
+          - host_cdiu_cpri_port_1_optical_over_drive_alarm
+        mapper: '%{resources.mappers.alarms}'
+      host_cdiu_cpri_port_1_optical_rx_high_ber_alarm:
+        attributes:
+          - host_cdiu_cpri_port_1_optical_rx_high_ber_alarm
+        mapper: '%{resources.mappers.alarms}'
+      host_cdiu_cpri_port_1_optical_rx_no_light_alarm:
+        attributes:
+          - host_cdiu_cpri_port_1_optical_rx_no_light_alarm
+        mapper: '%{resources.mappers.alarms}'
+      host_cdiu_cpri_port_1_optical_under_drive_alarm:
+        attributes:
+          - host_cdiu_cpri_port_1_optical_under_drive_alarm
+        mapper: '%{resources.mappers.alarms}'
+      host_cdiu_cpri_port_1_rec_communication_fault_alarm:
+        attributes:
+          - host_cdiu_cpri_port_1_rec_communication_fault_alarm
+      host_cdiu_cpri_port_1_rec_type_config_mismatch_alarm:
+        attributes:
+          - host_cdiu_cpri_port_1_rec_type_config_mismatch_alarm
+        mapper: '%{resources.mappers.alarms}'
+      host_cdiu_cpri_port_1_remote_alarm_indication_alarm:
+        attributes:
+          - host_cdiu_cpri_port_1_remote_alarm_indication_alarm
+        mapper: '%{resources.mappers.alarms}'
+      host_cdiu_cpri_port_1_slave_link_ds_indication_alarm:
+        attributes:
+          - host_cdiu_cpri_port_1_slave_link_ds_indication_alarm
+        mapper: '%{resources.mappers.alarms}'
+      host_cdiu_cpri_port_2_config_mismatch_alarm:
+        attributes:
+          - host_cdiu_cpri_port_2_config_mismatch_alarm
+        mapper: '%{resources.mappers.alarms}'
+      host_cdiu_cpri_port_2_module_missing_fault_alarm:
+        attributes:
+          - host_cdiu_cpri_port_2_module_missing_fault_alarm
+        mapper: '%{resources.mappers.alarms}'
+      host_cdiu_cpri_port_2_optical_over_drive_alarm:
+        attributes:
+          - host_cdiu_cpri_port_2_optical_over_drive_alarm
+        mapper: '%{resources.mappers.alarms}'
+      host_cdiu_cpri_port_2_optical_rx_high_ber_alarm:
+        attributes:
+          - host_cdiu_cpri_port_2_optical_rx_high_ber_alarm
+        mapper: '%{resources.mappers.alarms}'
+      host_cdiu_cpri_port_2_optical_rx_no_light_alarm:
+        attributes:
+          - host_cdiu_cpri_port_2_optical_rx_no_light_alarm
+        mapper: '%{resources.mappers.alarms}'
+      host_cdiu_cpri_port_2_optical_under_drive_alarm:
+        attributes:
+          - host_cdiu_cpri_port_2_optical_under_drive_alarm
+        mapper: '%{resources.mappers.alarms}'
+      host_cdiu_cpri_port_2_rec_communication_fault_alarm:
+        attributes:
+          - host_cdiu_cpri_port_2_rec_communication_fault_alarm
+        mapper: '%{resources.mappers.alarms}'
+      host_cdiu_cpri_port_2_rec_type_config_mismatch_alarm:
+        attributes:
+          - host_cdiu_cpri_port_2_rec_type_config_mismatch_alarm
+        mapper: '%{resources.mappers.alarms}'
+      host_cdiu_cpri_port_2_remote_alarm_indication_alarm:
+        attributes:
+          - host_cdiu_cpri_port_2_remote_alarm_indication_alarm
+        mapper: '%{resources.mappers.alarms}'
+      host_cdiu_cpri_port_2_slave_link_ds_indication_alarm:
+        attributes:
+          - host_cdiu_cpri_port_2_slave_link_ds_indication_alarm
+        mapper: '%{resources.mappers.alarms}'
+      host_cdiu_path_a_alc_limiting_alarm:
+        attributes:
+          - host_cdiu_path_a_alc_limiting_alarm
+        mapper: '%{resources.mappers.alarms}'
+      host_cdiu_path_a_over_drive_alarm:
+        attributes:
+          - host_cdiu_path_a_over_drive_alarm
+        mapper: '%{resources.mappers.alarms}'
+      host_cdiu_path_a_test_tone_enabled_alarm:
+        attributes:
+          - host_cdiu_path_a_test_tone_enabled_alarm
+        mapper: '%{resources.mappers.alarms}'
+      host_cdiu_path_a_under_drive_alarm:
+        attributes:
+          - host_cdiu_path_a_under_drive_alarm
+        mapper: '%{resources.mappers.alarms}'
+      host_cdiu_path_b_alc_limiting_alarm:
+        attributes:
+          - host_cdiu_path_b_alc_limiting_alarm
+        mapper: '%{resources.mappers.alarms}'
+      host_cdiu_path_b_over_drive_alarm:
+        attributes:
+          - host_cdiu_path_b_over_drive_alarm
+        mapper: '%{resources.mappers.alarms}'
+      host_cdiu_path_b_test_tone_enabled_alarm:
+        attributes:
+          - host_cdiu_path_b_test_tone_enabled_alarm
+        mapper: '%{resources.mappers.alarms}'
+      host_cdiu_path_b_under_drive_alarm:
+        attributes:
+          - host_cdiu_path_b_under_drive_alarm
+        mapper: '%{resources.mappers.alarms}'
+      host_contact_alarm_input_1_alarm:
+        attributes:
+          - host_contact_alarm_input_1_alarm
+        mapper: '%{resources.mappers.alarms}'
+      host_dart_alc_limiting_alarm:
+        attributes:
+          - host_dart_alc_limiting_alarm
+        mapper: '%{resources.mappers.alarms}'
+      host_dart_dc_supply_fault_alarm:
+        attributes:
+          - host_dart_dc_supply_fault_alarm
+        mapper: '%{resources.mappers.alarms}'
+      host_dart_linking_conflict_alarm:
+        attributes:
+          - host_dart_linking_conflict_alarm
+        mapper: '%{resources.mappers.alarms}'
+      host_dart_over_drive_alarm:
+        attributes:
+          - host_dart_over_drive_alarm
+        mapper: '%{resources.mappers.alarms}'
+      host_dart_under_drive_alarm:
+        attributes:
+          - host_dart_under_drive_alarm
+        mapper: '%{resources.mappers.alarms}'
+      host_flm_downconvert_fault_alarm:
+        attributes:
+          - host_flm_downconvert_fault_alarm
+        mapper: '%{resources.mappers.alarms}'
+      host_host_temperature_alarm:
+        attributes:
+          - host_host_temperature_alarm
+        mapper: '%{resources.mappers.alarms}'
+      host_optical_over_drive_alarm:
+        attributes:
+          - host_optical_over_drive_alarm
+        mapper: '%{resources.mappers.alarms}'
+      host_optical_rx_high_ber_alarm:
+        attributes:
+          - host_optical_rx_high_ber_alarm
+        mapper: '%{resources.mappers.alarms}'
+      host_optical_rx_no_light_alarm:
+        attributes:
+          - host_optical_rx_no_light_alarm
+        mapper: '%{resources.mappers.alarms}'
+      host_optical_under_drive_alarm:
+        attributes:
+          - host_optical_under_drive_alarm
+        mapper: '%{resources.mappers.alarms}'
+      host_rlm_upconvert_fault_alarm:
+        attributes:
+          - host_rlm_upconvert_fault_alarm
+        mapper: '%{resources.mappers.alarms}'
+      host_rlm_upconvert_indeterminate_alarm:
+        attributes:
+          - host_rlm_upconvert_indeterminate_alarm
+        mapper: '%{resources.mappers.alarms}'
+      host_temperature_high_alarm:
+        attributes:
+          - host_temperature_high_alarm
+        mapper: '%{resources.mappers.alarms}'
+      host_temperature_low_alarm:
+        attributes:
+          - host_temperature_low_alarm
+        mapper: '%{resources.mappers.alarms}'
+      host_user_login_or_logout_alarm:
+        attributes:
+          - host_user_login_or_logout_alarm
+        mapper: '%{resources.mappers.alarms}'
+    price:
+      value: 0
+      unit: USD
+    energy:
+      value: 0
+      unit: W
+  remote:
+    name: Remote
+    version: '[0.1,)'
+    reference: remote
+    attributes:
+      - remote_ac_power_supply_1_fault_alarm
+      - remote_ac_power_supply_2_fault_alarm
+      - remote_ac_power_supply_3_fault_alarm
+      - remote_ac_power_supply_4_fault_alarm
+      - remote_ac_power_supply_fault_alarm
+      - remote_dart_dc_supply_fault_alarm
+      - remote_dart_temperature_high_alarm
+      - remote_dart_temperature_low_alarm
+      - remote_door_open_alarm
+      - remote_downconvert_fault_alarm
+      - remote_excess_connections_alarm
+      - remote_fwd_cal_tone_fault_alarm
+      - remote_invalid_device_connection_alarm
+      - remote_lan_power_fault_alarm
+      - remote_optical_over_drive_alarm
+      - remote_optical_rx_high_ber_alarm
+      - remote_optical_rx_no_light_alarm
+      - remote_optical_under_drive_alarm
+      - remote_rev_test_tone_low_alarm
+      - remote_rf_power_low_alarm
+      - remote_remote_temperature_low_alarm
+      - remote_software_version_mismatch_fault_alarm
+      - remote_system_vswr_fault_alarm
+      - remote_temperature_high_alarm
+      - remote_under_power_alarm
+      - remote_upconvert_fault_alarm
+      - remote_upconvert_indeterminate_alarm
+      - remote_uplink_inactivity_fault_alarm
+      - remote_temperature_low_alarm
+      - remote_alarm_reporting_change_alarm
+      - remote_dart_communication_fault_alarm
+      - remote_lpa_disabled_alarm
+      - remote_dru_dc_supply_fault_alarm
+    alarms:
+      remote_ac_power_supply_1_fault_alarm:
+        attributes:
+          - remote_ac_power_supply_1_fault_alarm
+        mapper: '%{resources.mappers.alarms}'
+      remote_ac_power_supply_2_fault_alarm:
+        attributes:
+          - remote_ac_power_supply_2_fault_alarm
+        mapper: '%{resources.mappers.alarms}'
+      remote_ac_power_supply_3_fault_alarm:
+        attributes:
+          - remote_ac_power_supply_3_fault_alarm
+        mapper: '%{resources.mappers.alarms}'
+      remote_ac_power_supply_4_fault_alarm:
+        attributes:
+          - remote_ac_power_supply_4_fault_alarm
+        mapper: '%{resources.mappers.alarms}'
+      remote_ac_power_supply_fault_alarm:
+        attributes:
+          - remote_ac_power_supply_fault_alarm
+        mapper: '%{resources.mappers.alarms}'
+      remote_alarm_reporting_change_alarm:
+        attributes:
+          - remote_alarm_reporting_change_alarm
+        mapper: '%{resources.mappers.alarms}'
+      remote_dart_communication_fault_alarm:
+        attributes:
+          - remote_dart_communication_fault_alarm
+        mapper: '%{resources.mappers.alarms}'
+      remote_dart_dc_supply_fault_alarm:
+        attributes:
+          - remote_dart_dc_supply_fault_alarm
+        mapper: '%{resources.mappers.alarms}'
+      remote_dart_temperature_high_alarm:
+        attributes:
+          - remote_dart_temperature_high_alarm
+        mapper: '%{resources.mappers.alarms}'
+      remote_dart_temperature_low_alarm:
+        attributes:
+          - remote_dart_temperature_low_alarm
+        mapper: '%{resources.mappers.alarms}'
+      remote_door_open_alarm:
+        attributes:
+          - remote_door_open_alarm
+        mapper: '%{resources.mappers.alarms}'
+      remote_downconvert_fault_alarm:
+        attributes:
+          - remote_downconvert_fault_alarm
+        mapper: '%{resources.mappers.alarms}'
+      remote_dru_dc_supply_fault_alarm:
+        attributes:
+          - remote_dru_dc_supply_fault_alarm
+        mapper: '%{resources.mappers.alarms}'
+      remote_excess_connections_alarm:
+        attributes:
+          - remote_excess_connections_alarm
+        mapper: '%{resources.mappers.alarms}'
+      remote_fwd_cal_tone_fault_alarm:
+        attributes:
+          - remote_fwd_cal_tone_fault_alarm
+        mapper: '%{resources.mappers.alarms}'
+      remote_invalid_device_connection_alarm:
+        attributes:
+          - remote_invalid_device_connection_alarm
+        mapper: '%{resources.mappers.alarms}'
+      remote_lan_power_fault_alarm:
+        attributes:
+          - remote_lan_power_fault_alarm
+        mapper: '%{resources.mappers.alarms}'
+      remote_lpa_disabled_alarm:
+        attributes:
+          - remote_lpa_disabled_alarm
+        mapper: '%{resources.mappers.alarms}'
+      remote_optical_over_drive_alarm:
+        attributes:
+          - remote_optical_over_drive_alarm
+        mapper: '%{resources.mappers.alarms}'
+      remote_optical_rx_high_ber_alarm:
+        attributes:
+          - remote_optical_rx_high_ber_alarm
+        mapper: '%{resources.mappers.alarms}'
+      remote_optical_rx_no_light_alarm:
+        attributes:
+          - remote_optical_rx_no_light_alarm
+        mapper: '%{resources.mappers.alarms}'
+      remote_optical_under_drive_alarm:
+        attributes:
+          - remote_optical_under_drive_alarm
+        mapper: '%{resources.mappers.alarms}'
+      remote_remote_temperature_low_alarm:
+        attributes:
+          - remote_remote_temperature_low_alarm
+        mapper: '%{resources.mappers.alarms}'
+      remote_rev_test_tone_low_alarm:
+        attributes:
+          - remote_rev_test_tone_low_alarm
+        mapper: '%{resources.mappers.alarms}'
+      remote_rf_power_low_alarm:
+        attributes:
+          - remote_rf_power_low_alarm
+        mapper: '%{resources.mappers.alarms}'
+      remote_software_version_mismatch_fault_alarm:
+        attributes:
+          - remote_software_version_mismatch_fault_alarm
+        mapper: '%{resources.mappers.alarms}'
+      remote_system_vswr_fault_alarm:
+        attributes:
+          - remote_system_vswr_fault_alarm
+        mapper: '%{resources.mappers.alarms}'
+      remote_temperature_high_alarm:
+        attributes:
+          - remote_temperature_high_alarm
+        mapper: '%{resources.mappers.alarms}'
+      remote_temperature_low_alarm:
+        attributes:
+          - remote_temperature_low_alarm
+        mapper: '%{resources.mappers.alarms}'
+      remote_under_power_alarm:
+        attributes:
+          - remote_under_power_alarm
+        mapper: '%{resources.mappers.alarms}'
+      remote_upconvert_fault_alarm:
+        attributes:
+          - remote_upconvert_fault_alarm
+        mapper: '%{resources.mappers.alarms}'
+      remote_upconvert_indeterminate_alarm:
+        attributes:
+          - remote_upconvert_indeterminate_alarm
+        mapper: '%{resources.mappers.alarms}'
+      remote_uplink_inactivity_fault_alarm:
+        attributes:
+          - remote_uplink_inactivity_fault_alarm
+        mapper: '%{resources.mappers.alarms}'
+    price:
+      value: 0
+      unit: USD
+    energy:
+      value: 0
+      unit: W
+  system:
+    name: System
+    version: '[0.1,)'
+    reference: system
+    price:
+      value: 0
+      unit: USD
+    energy:
+      value: 0
+      unit: W
+attributes:
+  host_acknowledge_alarm:
+    name: Host Acknowledge Alarm
+    description: Host Acknowledge Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_alarm_status}'
+      selector:
+        type: xpath
+        expression: //tr[td="Acknowledge Alarms" and td="${topology.discovery.flatten.unit_id}" and td="Host"]/td[1]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  host_cdiu_cpri_port_1_config_mismatch_alarm:
+    name: Host Cdiu Cpri Port 1 Config Mismatch Alarm
+    description: Host Cdiu Cpri Port 1 Config Mismatch Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_alarm_status}'
+      selector:
+        type: xpath
+        expression: //tr[td="CDIU CPRI Port 1 Carrier Configuration Mismatch" and td="${topology.discovery.flatten.unit_id}" and td="Host"]/td[1]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  host_cdiu_cpri_port_1_module_missing_fault_alarm:
+    name: Host Cdiu Cpri Port 1 Module Missing Fault Alarm
+    description: Host Cdiu Cpri Port 1 Module Missing Fault Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_alarm_status}'
+      selector:
+        type: xpath
+        expression: //tr[td="CDIU CPRI Port 1 Module Missing Fault" and td="${topology.discovery.flatten.unit_id}" and td="Host"]/td[1]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  host_cdiu_cpri_port_1_optical_over_drive_alarm:
+    name: Host Cdiu Cpri Port 1 Optical Over Drive Alarm
+    description: Host Cdiu Cpri Port 1 Optical Over Drive Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_alarm_status}'
+      selector:
+        type: xpath
+        expression: //tr[td="CDIU CPRI Port 1 Optical Over Drive" and td="${topology.discovery.flatten.unit_id}" and td="Host"]/td[1]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  host_cdiu_cpri_port_1_optical_rx_high_ber_alarm:
+    name: Host Cdiu Cpri Port 1 Optical Rx High Ber Alarm
+    description: Host Cdiu Cpri Port 1 Optical Rx High Ber Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_alarm_status}'
+      selector:
+        type: xpath
+        expression: //tr[td="CDIU CPRI Port 1 Optical Rx High BER" and td="${topology.discovery.flatten.unit_id}" and td="Host"]/td[1]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  host_cdiu_cpri_port_1_optical_rx_no_light_alarm:
+    name: Host Cdiu Cpri Port 1 Optical Rx No Light Alarm
+    description: Host Cdiu Cpri Port 1 Optical Rx No Light Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_alarm_status}'
+      selector:
+        type: xpath
+        expression: //tr[td="CDIU CPRI Port 1 Optical Rx No Light" and td="${topology.discovery.flatten.unit_id}" and td="Host"]/td[1]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  host_cdiu_cpri_port_1_optical_under_drive_alarm:
+    name: Host Cdiu Cpri Port 1 Optical Under Drive Alarm
+    description: Host Cdiu Cpri Port 1 Optical Under Drive Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_alarm_status}'
+      selector:
+        type: xpath
+        expression: //tr[td="CDIU CPRI Port 1 Optical Under Drive" and td="${topology.discovery.flatten.unit_id}" and td="Host"]/td[1]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  host_cdiu_cpri_port_1_rec_communication_fault_alarm:
+    name: Host Cdiu Cpri Port 1 Rec Communication Fault Alarm
+    description: Host Cdiu Cpri Port 1 Rec Communication Fault Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_alarm_status}'
+      selector:
+        type: xpath
+        expression: //tr[td="CDIU CPRI Port 1 REC Communication Fault" and td="${topology.discovery.flatten.unit_id}" and td="Host"]/td[1]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  host_cdiu_cpri_port_1_rec_type_config_mismatch_alarm:
+    name: Host Cdiu Cpri Port 1 Rec Type Config Mismatch Alarm
+    description: Host Cdiu Cpri Port 1 Rec Type Config Mismatch Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_alarm_status}'
+      selector:
+        type: xpath
+        expression: //tr[td="CDIU CPRI Port 1 REC Type Configuration Mismatch" and td="${topology.discovery.flatten.unit_id}" and td="Host"]/td[1]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  host_cdiu_cpri_port_1_remote_alarm_indication_alarm:
+    name: Host Cdiu Cpri Port 1 Remote Alarm Indication Alarm
+    description: Host Cdiu Cpri Port 1 Remote Alarm Indication Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_alarm_status}'
+      selector:
+        type: xpath
+        expression: //tr[td="CDIU CPRI Port 1 Remote Alarm Indication (RAI)" and td="${topology.discovery.flatten.unit_id}" and td="Host"]/td[1]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  host_cdiu_cpri_port_1_slave_link_ds_indication_alarm:
+    name: Host Cdiu Cpri Port 1 Slave Link Ds Indication Alarm
+    description: Host Cdiu Cpri Port 1 Slave Link Ds Indication Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_alarm_status}'
+      selector:
+        type: xpath
+        expression: //tr[td="CDIU CPRI Port 1 Slave Link Downstream Indication (SDI)" and td="${topology.discovery.flatten.unit_id}" and td="Host"]/td[1]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  host_cdiu_cpri_port_2_config_mismatch_alarm:
+    name: Host Cdiu Cpri Port 2 Config Mismatch Alarm
+    description: Host Cdiu Cpri Port 2 Config Mismatch Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_alarm_status}'
+      selector:
+        type: xpath
+        expression: //tr[td="CDIU CPRI Port 2 Carrier Configuration Mismatch" and td="${topology.discovery.flatten.unit_id}" and td="Host"]/td[1]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  host_cdiu_cpri_port_2_module_missing_fault_alarm:
+    name: Host Cdiu Cpri Port 2 Module Missing Fault Alarm
+    description: Host Cdiu Cpri Port 2 Module Missing Fault Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_alarm_status}'
+      selector:
+        type: xpath
+        expression: //tr[td="CDIU CPRI Port 2 Module Missing Fault" and td="${topology.discovery.flatten.unit_id}" and td="Host"]/td[1]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  host_cdiu_cpri_port_2_optical_over_drive_alarm:
+    name: Host Cdiu Cpri Port 2 Optical Over Drive Alarm
+    description: Host Cdiu Cpri Port 2 Optical Over Drive Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_alarm_status}'
+      selector:
+        type: xpath
+        expression: //tr[td="CDIU CPRI Port 2 Optical Over Drive" and td="${topology.discovery.flatten.unit_id}" and td="Host"]/td[1]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  host_cdiu_cpri_port_2_optical_rx_high_ber_alarm:
+    name: Host Cdiu Cpri Port 2 Optical Rx High Ber Alarm
+    description: Host Cdiu Cpri Port 2 Optical Rx High Ber Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_alarm_status}'
+      selector:
+        type: xpath
+        expression: //tr[td="CDIU CPRI Port 2 Optical Rx High BER" and td="${topology.discovery.flatten.unit_id}" and td="Host"]/td[1]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  host_cdiu_cpri_port_2_optical_rx_no_light_alarm:
+    name: Host Cdiu Cpri Port 2 Optical Rx No Light Alarm
+    description: Host Cdiu Cpri Port 2 Optical Rx No Light Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_alarm_status}'
+      selector:
+        type: xpath
+        expression: //tr[td="CDIU CPRI Port 2 Optical Rx No Light" and td="${topology.discovery.flatten.unit_id}" and td="Host"]/td[1]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  host_cdiu_cpri_port_2_optical_under_drive_alarm:
+    name: Host Cdiu Cpri Port 2 Optical Under Drive Alarm
+    description: Host Cdiu Cpri Port 2 Optical Under Drive Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_alarm_status}'
+      selector:
+        type: xpath
+        expression: //tr[td="CDIU CPRI Port 2 Optical Under Drive" and td="${topology.discovery.flatten.unit_id}" and td="Host"]/td[1]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  host_cdiu_cpri_port_2_rec_communication_fault_alarm:
+    name: Host Cdiu Cpri Port 2 Rec Communication Fault Alarm
+    description: Host Cdiu Cpri Port 2 Rec Communication Fault Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_alarm_status}'
+      selector:
+        type: xpath
+        expression: //tr[td="CDIU CPRI Port 2 REC Communication Fault" and td="${topology.discovery.flatten.unit_id}" and td="Host"]/td[1]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  host_cdiu_cpri_port_2_rec_type_config_mismatch_alarm:
+    name: Host Cdiu Cpri Port 2 Rec Type Config Mismatch Alarm
+    description: Host Cdiu Cpri Port 2 Rec Type Config Mismatch Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_alarm_status}'
+      selector:
+        type: xpath
+        expression: //tr[td="CDIU CPRI Port 2 REC Type Configuration Mismatch" and td="${topology.discovery.flatten.unit_id}" and td="Host"]/td[1]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  host_cdiu_cpri_port_2_remote_alarm_indication_alarm:
+    name: Host Cdiu Cpri Port 2 Remote Alarm Indication Alarm
+    description: Host Cdiu Cpri Port 2 Remote Alarm Indication Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_alarm_status}'
+      selector:
+        type: xpath
+        expression: //tr[td="CDIU CPRI Port 2 Remote Alarm Indication (RAI)" and td="${topology.discovery.flatten.unit_id}" and td="Host"]/td[1]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  host_cdiu_cpri_port_2_slave_link_ds_indication_alarm:
+    name: Host Cdiu Cpri Port 2 Slave Link Ds Indication Alarm
+    description: Host Cdiu Cpri Port 2 Slave Link Ds Indication Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_alarm_status}'
+      selector:
+        type: xpath
+        expression: //tr[td="CDIU CPRI Port 2 Slave Link Downstream Indication (SDI)" and td="${topology.discovery.flatten.unit_id}" and td="Host"]/td[1]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  host_cdiu_path_a_alc_limiting_alarm:
+    name: Host Cdiu Path A Alc Limiting Alarm
+    description: Host Cdiu Path A Alc Limiting Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_alarm_status}'
+      selector:
+        type: xpath
+        expression: //tr[td="CDIU Path A ALC Limiting" and td="${topology.discovery.flatten.unit_id}" and td="Host"]/td[1]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  host_cdiu_path_a_over_drive_alarm:
+    name: Host Cdiu Path A Over drive alarm
+    description: Host Cdiu Path A Over drive alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_alarm_status}'
+      selector:
+        type: xpath
+        expression: //tr[td="CDIU Path A Over Drive" and td="${topology.discovery.flatten.unit_id}" and td="Host"]/td[1]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  host_cdiu_path_a_test_tone_enabled_alarm:
+    name: Host Cdiu Path A Test Tone Enabled Alarm
+    description: Host Cdiu Path A Test Tone Enabled Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_alarm_status}'
+      selector:
+        type: xpath
+        expression: //tr[td="CDIU Path A Test Tone Enabled" and td="${topology.discovery.flatten.unit_id}" and td="Host"]/td[1]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  host_cdiu_path_a_under_drive_alarm:
+    name: Host Cdiu Path A Under Drive Alarm
+    description: Host Cdiu Path A Under Drive Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_alarm_status}'
+      selector:
+        type: xpath
+        expression: //tr[td="CDIU Path A Under Drive" and td="${topology.discovery.flatten.unit_id}" and td="Host"]/td[1]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  host_cdiu_path_b_alc_limiting_alarm:
+    name: Host Cdiu Path B Alc Limiting Alarm
+    description: Host Cdiu Path B Alc Limiting Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_alarm_status}'
+      selector:
+        type: xpath
+        expression: //tr[td="CDIU Path B ALC Limiting" and td="${topology.discovery.flatten.unit_id}" and td="Host"]/td[1]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  host_cdiu_path_b_over_drive_alarm:
+    name: Host Cdiu Path B Over Drive Alarm
+    description: Host Cdiu Path B Over Drive Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_alarm_status}'
+      selector:
+        type: xpath
+        expression: //tr[td="CDIU Path B Over Drive" and td="${topology.discovery.flatten.unit_id}" and td="Host"]/td[1]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  host_cdiu_path_b_test_tone_enabled_alarm:
+    name: Host Cdiu Path B  Test Tone Enabled Alarm
+    description: Host Cdiu Path B  Test Tone Enabled Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_alarm_status}'
+      selector:
+        type: xpath
+        expression: //tr[td="CDIU Path B Test Tone Enabled" and td="${topology.discovery.flatten.unit_id}" and td="Host"]/td[1]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  host_cdiu_path_b_under_drive_alarm:
+    name: Host Cdiu Path B Under Drive Alarm
+    description: Host Cdiu Path B Under Drive Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_alarm_status}'
+      selector:
+        type: xpath
+        expression: //tr[td="CDIU Path B Under Drive" and td="${topology.discovery.flatten.unit_id}" and td="Host"]/td[1]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  host_contact_alarm_input_1_alarm:
+    name: Host Contact Alarm Input 1 Active Alarm
+    description: Host Contact Alarm Input 1 Active Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_alarm_status}'
+      selector:
+        type: xpath
+        expression: //tr[td="Contact Alarm Input 1 Active" and td="${topology.discovery.flatten.unit_id}"]/td[1]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  host_dart_alc_limiting_alarm:
+    name: Host Dart Alc Limiting Alarm
+    description: Host Dart Alc Limiting Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_alarm_status}'
+      selector:
+        type: xpath
+        expression: //tr[td="DART ALC Limiting" and td="${topology.discovery.flatten.unit_id}" and td="Host"]/td[1]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  host_dart_dc_supply_fault_alarm:
+    name: Host Dart Dc Supply Fault Alarm
+    description: Host Dart Dc Supply Fault Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_alarm_status}'
+      selector:
+        type: xpath
+        expression: //tr[td="DART DC Supply Fault" and td="${topology.discovery.flatten.unit_id}" and td="Host"]/td[1]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  host_dart_linking_conflict_alarm:
+    name: Host Dart Linking Conflict Alarm
+    description: Host Dart Linking Conflict Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_alarm_status}'
+      selector:
+        type: xpath
+        expression: //tr[td="DART Linking Conflict" and td="${topology.discovery.flatten.unit_id}" and td="Host"]/td[1]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  host_dart_over_drive_alarm:
+    name: Host Dart Over Drive Alarm
+    description: Host Dart Over Drive Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_alarm_status}'
+      selector:
+        type: xpath
+        expression: //tr[td="DART Over Drive" and td="${topology.discovery.flatten.unit_id}" and td="Host"]/td[1]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  host_dart_under_drive_alarm:
+    name: Host Dart Under Drive Alarm
+    description: Host Dart Under Drive Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_alarm_status}'
+      selector:
+        type: xpath
+        expression: //tr[td="DART Under Drive" and td="${topology.discovery.flatten.unit_id}" and td="Host"]/td[1]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  host_flm_downconvert_fault_alarm:
+    name: Host Flm Downconvert Fault Alarm
+    description: Host Flm Downconvert Fault Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_alarm_status}'
+      selector:
+        type: xpath
+        expression: //tr[td="FLM Downconvert Fault" and td="${topology.discovery.flatten.unit_id}" and td="Host"]/td[1]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  host_host_temperature_alarm:
+    name: Host Host Temperature Alarm
+    description: Host Host Temperature Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_alarm_status}'
+      selector:
+        type: xpath
+        expression: //tr[td="Host Temperature Low" and td="${topology.discovery.flatten.unit_id}" and td="Host"]/td[1]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  host_optical_over_drive_alarm:
+    name: Host Optical Over Drive Alarm
+    description: Host Optical Over Drive Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_alarm_status}'
+      selector:
+        type: xpath
+        expression: //tr[td="Optical Over Drive" and td="${topology.discovery.flatten.unit_id}" and td="Host"]/td[1]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  host_optical_rx_high_ber_alarm:
+    name: Host Optical RX High Ber Alarm
+    description: Host Optical RX High Ber Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_alarm_status}'
+      selector:
+        type: xpath
+        expression: //tr[td="Optical RX High BER" and td="${topology.discovery.flatten.unit_id}" and td="Host"]/td[1]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  host_optical_rx_no_light_alarm:
+    name: Host Optical Rx No Light Alarm
+    description: Host Optical Rx No Light Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_alarm_status}'
+      selector:
+        type: xpath
+        expression: //tr[td="Optical RX No Light" and td="${topology.discovery.flatten.unit_id}" and td="Host"]/td[1]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  host_optical_under_drive_alarm:
+    name: Host Optical Under Drive_Alarm
+    description: Host Optical Under Drive_Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_alarm_status}'
+      selector:
+        type: xpath
+        expression: //tr[td="Optical Under Drive" and td="${topology.discovery.flatten.unit_id}" and td="Host"]/td[1]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  host_rlm_upconvert_fault_alarm:
+    name: Host Rlm Upconvert Fault Alarm
+    description: Host Rlm Upconvert Fault Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_alarm_status}'
+      selector:
+        type: xpath
+        expression: //tr[td="RLM Upconvert Fault" and td="${topology.discovery.flatten.unit_id}" and td="Host"]/td[1]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  host_rlm_upconvert_indeterminate_alarm:
+    name: Host Rlm Upconvert Indeterminate Alarm
+    description: Host Rlm Upconvert Indeterminate Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_alarm_status}'
+      selector:
+        type: xpath
+        expression: //tr[td="RLM Upconvert Indeterminate" and td="${topology.discovery.flatten.unit_id}" and td="Host"]/td[1]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  host_temperature_high_alarm:
+    name: Host Temperature High Alarm
+    description: Host Temperature High Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_alarm_status}'
+      selector:
+        type: xpath
+        expression: //tr[td="Temperature High" and td="${topology.discovery.flatten.unit_id}" and td="Host"]/td[1]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  host_temperature_low_alarm:
+    name: Host Temperature Low Alarm
+    description: Host Temperature Low Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_alarm_status}'
+      selector:
+        type: xpath
+        expression: //tr[td="Temperature Low" and td="${topology.discovery.flatten.unit_id}" and td="Host"]/td[1]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  host_user_login_or_logout_alarm:
+    name: Host User Login Or Logout Alarm
+    description: Host User Login Or Logout Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_alarm_status}'
+      selector:
+        type: xpath
+        expression: //tr[td="User Log In/Logout" and td="${topology.discovery.flatten.unit_id}"]/td[1]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  remote_ac_power_supply_1_fault_alarm:
+    name: Remote AC Power Supply 1 Fault Alarm
+    description: Remote AC Power Supply 1 Fault Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_alarm_status}'
+      selector:
+        type: xpath
+        expression: //tr[td="AC Power Supply 1 Fault" and td="${topology.discovery.flatten.unit_id}" and td="PRU"]/td[1]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  remote_ac_power_supply_2_fault_alarm:
+    name: Remote AC Power Supply 2 Fault Alarm
+    description: Remote AC Power Supply 2 Fault Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_alarm_status}'
+      selector:
+        type: xpath
+        expression: //tr[td="AC Power Supply 2 Fault" and td="${topology.discovery.flatten.unit_id}" and td="PRU"]/td[1]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  remote_ac_power_supply_3_fault_alarm:
+    name: Remote AC Power Supply 3 Fault Alarm
+    description: Remote AC Power Supply 3 Fault Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_alarm_status}'
+      selector:
+        type: xpath
+        expression: //tr[td="AC Power Supply 3 Fault" and td="${topology.discovery.flatten.unit_id}" and td="PRU"]/td[1]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  remote_ac_power_supply_4_fault_alarm:
+    name: Remote AC Power Supply 4 Fault Alarm
+    description: Remote AC Power Supply 4 Fault Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_alarm_status}'
+      selector:
+        type: xpath
+        expression: //tr[td="AC Power Supply 4 Fault" and td="${topology.discovery.flatten.unit_id}" and td="PRU"]/td[1]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  remote_ac_power_supply_fault_alarm:
+    name: Remote AC Power Supply Fault Alarm
+    description: Remote AC Power Supply Fault Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_alarm_status}'
+      selector:
+        type: xpath
+        expression: //tr[td="AC Power Supply Fault" and td="${topology.discovery.flatten.unit_id}" and td="PRU"]/td[1]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  remote_alarm_reporting_change_alarm:
+    name: Remote Alarm Reporting Change Alarm
+    description: Remote Alarm Reporting Change Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_alarm_status}'
+      selector:
+        type: xpath
+        expression: //tr[td="Alarm Reporting Change" and td="${topology.discovery.flatten.unit_id}" and td="PRU"]/td[1]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  remote_dart_communication_fault_alarm:
+    name: Remote Dart Communication Fault Alarm
+    description: Remote Dart Communication Fault Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_alarm_status}'
+      selector:
+        type: xpath
+        expression: //tr[td="DART Communications Fault" and td="${topology.discovery.flatten.unit_id}" and td="PRU"]/td[1]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  remote_dart_dc_supply_fault_alarm:
+    name: Remote DART DC Supply Fault
+    description: emote DART DC Supply Fault
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_alarm_status}'
+      selector:
+        type: xpath
+        expression: //tr[td="DART DC Supply Fault" and td="${topology.discovery.flatten.unit_id}" and td="PRU"]/td[1]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  remote_dart_temperature_high_alarm:
+    name: Remote Dart Temperature High Alarm
+    description: Remote Dart Temperature High Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_alarm_status}'
+      selector:
+        type: xpath
+        expression: //tr[td="DART Temperature High" and td="${topology.discovery.flatten.unit_id}" and td="PRU"]/td[1]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  remote_dart_temperature_low_alarm:
+    name: Remote Dart Temperature Low Alarm
+    description: Remote Dart Temperature Low Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_alarm_status}'
+      selector:
+        type: xpath
+        expression: //tr[td="DART Temperature Low" and td="${topology.discovery.flatten.unit_id}" and td="PRU"]/td[1]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  remote_door_open_alarm:
+    name: Remote Door Open Alarm
+    description: Remote Door Open Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_alarm_status}'
+      selector:
+        type: xpath
+        expression: //tr[td="Door Open" and td="${topology.discovery.flatten.unit_id}" and td="PRU"]/td[1]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  remote_downconvert_fault_alarm:
+    name: Remote Downconvert Fault Alarm
+    description: Remote Downconvert Fault Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_alarm_status}'
+      selector:
+        type: xpath
+        expression: //tr[td="Downconvert Fault" and td="${topology.discovery.flatten.unit_id}" and td="PRU"]/td[1]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  remote_dru_dc_supply_fault_alarm:
+    name: Remote DRU DC Supply Fault Alarm
+    description: Remote DRU DC Supply Fault Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_alarm_status}'
+      selector:
+        type: xpath
+        expression: //tr[td="DRU DC Supply Fault" and td="${topology.discovery.flatten.unit_id}" and td="PRU"]/td[1]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  remote_excess_connections_alarm:
+    name: Remote Excess Connections Alarm
+    description: Remote Excess Connections Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_alarm_status}'
+      selector:
+        type: xpath
+        expression: //tr[td="Excess Connections" and td="${topology.discovery.flatten.unit_id}" and td="PRU"]/td[1]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  remote_fwd_cal_tone_fault_alarm:
+    name: Remote Fwd Cal Tone Fault Alarm
+    description: Remote Fwd Cal Tone Fault Alarm
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_alarm_status}'
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_host_darts}'
+      selector:
+        type: xpath
+        expression: //tr[td="FWD Cal Tone Fault" and td="${topology.discovery.flatten.unit_id}" and td="PRU"]/td[1]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  remote_invalid_device_connection_alarm:
+    name: Remote Invalid Device Connection Alarm
+    description: Remote Invalid Device Connection Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_alarm_status}'
+      selector:
+        type: xpath
+        expression: //tr[td="Invalid Device Connection" and td="${topology.discovery.flatten.unit_id}" and td="PRU"]/td[1]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  remote_lan_power_fault_alarm:
+    name: Remote Lan Power Fault Alarm
+    description: Remote Lan Power Fault Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_alarm_status}'
+      selector:
+        type: xpath
+        expression: //tr[td="LNA Power Fault" and td="${topology.discovery.flatten.unit_id}" and td="PRU"]/td[1]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  remote_lpa_disabled_alarm:
+    name: Remote LPA Disabled Alarm
+    description: Remote LPA Disabled Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_alarm_status}'
+      selector:
+        type: xpath
+        expression: //tr[td="LPA Disabled" and td="${topology.discovery.flatten.unit_id}" and td="PRU"]/td[1]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  remote_optical_over_drive_alarm:
+    name: Remote Optical Over Drive Alarm
+    description: Remote Optical Over Drive Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_alarm_status}'
+      selector:
+        type: xpath
+        expression: //tr[td="Optical Over Drive" and td="${topology.discovery.flatten.unit_id}" and td="PRU"]/td[1]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  remote_optical_rx_high_ber_alarm:
+    name: Remote Optical RX High Ber Alarm
+    description: Remote Optical RX High Ber Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_alarm_status}'
+      selector:
+        type: xpath
+        expression: //tr[td="Optical RX High BER" and td="${topology.discovery.flatten.unit_id}" and td="PRU"]/td[1]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  remote_optical_rx_no_light_alarm:
+    name: Remote Optical RX No Light Alarm
+    description: Remote Optical RX No Light Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_alarm_status}'
+      selector:
+        type: xpath
+        expression: //tr[td="Optical RX No Light" and td="${topology.discovery.flatten.unit_id}" and td="PRU"]/td[1]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  remote_optical_under_drive_alarm:
+    name: Remote Optical Under Drive Alarm
+    description: Remote Optical Under Drive Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_alarm_status}'
+      selector:
+        type: xpath
+        expression: //tr[td="Optical Under Drive" and td="${topology.discovery.flatten.unit_id}" and td="PRU"]/td[1]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  remote_remote_temperature_low_alarm:
+    name: Remote Remote Temperature Low Alarm
+    description: Remote Remote Temperature Low Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_alarm_status}'
+      selector:
+        type: xpath
+        expression: //tr[td="Remote Temperature Low" and td="${topology.discovery.flatten.unit_id}" and td="PRU"]/td[1]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  remote_rev_test_tone_low_alarm:
+    name: Remote Rev Test Tone Low Alarm
+    description: Remote Rev Test Tone Low Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_alarm_status}'
+      selector:
+        type: xpath
+        expression: //tr[td="REV Test Tone Low" and td="${topology.discovery.flatten.unit_id}" and td="PRU"]/td[1]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  remote_rf_power_low_alarm:
+    name: Remote Rf Power Low Alarm
+    description: Remote Rf Power Low Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_alarm_status}'
+      selector:
+        type: xpath
+        expression: //tr[td="RF Power Low" and td="${topology.discovery.flatten.unit_id}" and td="PRU"]/td[1]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  remote_software_version_mismatch_fault_alarm:
+    name: Remote Software Version Mismatch Fault Alarm
+    description: Remote Software Version Mismatch Fault Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_alarm_status}'
+      selector:
+        type: xpath
+        expression: //tr[td="Software Version Mismatch Fault" and td="${topology.discovery.flatten.unit_id}" and td="PRU"]/td[1]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  remote_system_vswr_fault_alarm:
+    name: Remote System VSWR Fault Alarm
+    description: Remote System VSWR Fault Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_alarm_status}'
+      selector:
+        type: xpath
+        expression: //tr[td="System VSWR Fault" and td="${topology.discovery.flatten.unit_id}" and td="PRU"]/td[1]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  remote_temperature_high_alarm:
+    name: Remote Temperature High Alarm
+    description: Remote Temperature High Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_alarm_status}'
+      selector:
+        type: xpath
+        expression: //tr[td="Temperature High" and td="${topology.discovery.flatten.unit_id}" and td="PRU"]/td[1]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  remote_temperature_low_alarm:
+    name: Remote Temperature Low Alarm
+    description: Remote Temperature Low Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_alarm_status}'
+      selector:
+        type: xpath
+        expression: //tr[td="Temperature Low" and td="${topology.discovery.flatten.unit_id}" and td="PRU"]/td[1]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  remote_under_power_alarm:
+    name: Remote Under Power Alarm
+    description: Remote Under Power Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_alarm_status}'
+      selector:
+        type: xpath
+        expression: //tr[td="Under Power" and td="${topology.discovery.flatten.unit_id}" and td="PRU"]/td[1]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  remote_upconvert_fault_alarm:
+    name: Remote Upconvert Fault Alarm
+    description: Remote Upconvert Fault Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_alarm_status}'
+      selector:
+        type: xpath
+        expression: //tr[td="Upconvert Fault" and td="${topology.discovery.flatten.unit_id}" and td="PRU"]/td[1]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  remote_upconvert_indeterminate_alarm:
+    name: Remote Upconvert Indeterminate Alarm
+    description: Remote Upconvert Indeterminate Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_alarm_status}'
+      selector:
+        type: xpath
+        expression: //tr[td="Upconvert Indeterminate" and td="${topology.discovery.flatten.unit_id}" and td="PRU"]/td[1]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  remote_uplink_inactivity_fault_alarm:
+    name: Remote Uplink Inactivity Fault Alarm
+    description: Remote Uplink Inactivity Fault Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_alarm_status}'
+      selector:
+        type: xpath
+        expression: //tr[td="Uplink Inactivity Fault" and td="${topology.discovery.flatten.unit_id}" and td="PRU"]/td[1]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+resources:
+  auths:
+    upgraded-http:
+      http:
+        httpUri: false
+        actions:
+          login:
+            dataEngine: '%{engines.upgraded-http}'
+            dataSource: '%{resources.http.requests.login}'
+            selector:
+              type: cookie
+              expression: PHPSESSID
+            dataSink: ${resources.globals.auth.sessionId}
+          logout:
+            dataEngine: '%{engines.upgraded-http}'
+            dataSource: '%{resources.http.requests.logout}'
+            selector:
+              type: cookie
+              expression: PHPSESSID
+            dataSink: ${resources.globals.auth.sessionId}
+  mappers:
+    alarms:
+      keyType: String
+      valueType: String
+      map:
+        Clear: Normal
+        Information: Warning
+        Major: Critical
+        default: Normal
+  globals:
+    auth:
+      sessionId: 0
+    reg:
+      ip: ${registration.form.properties.ip}
+      password: ${registration.vault.properties.password}
+      port: ${registration.form.properties.port}
+      url: http://${registration.form.properties.ip}:${registration.form.properties.port}
+      username: ${registration.vault.properties.username}
+  http:
+    requests:
+      get_alarm_status:
+        uri: ${resources.globals.reg.url}/pages/alarms/viewCurrentAlarms.php
+        responseContentType: text/html
+        responses:
+          success:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: "200"
+          failure:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: ^(?!200)
+      get_host:
+        uri: ${resources.globals.reg.url}/pages/host/hostMain.php
+        responseContentType: text/html
+        responses:
+          success:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: "200"
+          failure:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: ^(?!200)
+      get_info:
+        uri: ${resources.globals.reg.url}/pages/system/softwareInformation.php
+        responseContentType: text/html
+        query:
+          undefined: ""
+        responses:
+          success:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: "200"
+          failure:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: ^(?!200)
+      get_remote:
+        uri: ${resources.globals.reg.url}/pages/remote/remoteMain.php
+        responseContentType: text/html
+        responses:
+          success:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: "200"
+          failure:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: ^(?!200)
+      login:
+        method: POST
+        uri: ${resources.globals.reg.url}/uam/security.php
+        requestContentType: application/x-www-form-urlencoded
+        responseContentType: text/html
+        body:
+          Login: Log In
+          login_username: ${resources.globals.reg.username}
+          pw: ${resources.globals.reg.password}
+        responses:
+          success:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: "200"
+          failure:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: ^(?!200)
+      logout:
+        uri: ${resources.globals.reg.url}/uam/logout.php
+        responseContentType: text/html
+        responses:
+          success:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: "200"
+          failure:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: ^(?!200)

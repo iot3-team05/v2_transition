@@ -1,0 +1,1769 @@
+iot3: 2.0.0
+info:
+  name: '[Compact] Corning 1k 2k'
+  oem: Corning
+  model: 1k 2k
+  versions:
+    - "5.3"
+    - "5.4"
+    - "7.2"
+    - "7.4"
+  author: Kiara L'Herpiniere <support@qeleo.com>
+  stage: alpha
+  revision: 13
+  labels:
+    - cma
+    - 1k/2k
+    - alarms
+    - auto upgraded to v2
+  created: "2021-04-05"
+  updated: "2022-11-23"
+  documentation:
+    description: This IoT3 File supports alarms of CMA 1k/2k systems.
+registration:
+  vaultId: vault_id
+  fingerprint:
+    - ip
+    - vault_id
+    - port
+  vault:
+    properties:
+      group_name:
+        inputType: string
+        key: group_name
+        placeholder: Group Name
+        required: true
+        title: Group Name
+        type: string
+      password:
+        key: password
+        placeholder: Password
+        required: true
+        title: Password
+        type: string
+      username:
+        key: username
+        placeholder: Username
+        required: true
+        title: Username
+        type: string
+    required:
+      - username
+      - password
+      - group_name
+  form:
+    properties:
+      ip:
+        key: ip
+        placeholder: IP Address
+        required: true
+        title: IP
+        type: string
+      port:
+        inputType: number
+        key: port
+        maximum: 65535
+        minimum: 1
+        placeholder: Port
+        required: true
+        title: Port
+        type: number
+      vault_id:
+        key: vault_id
+        pattern: ^(cu\w{6})(-av\w{6})$
+        placeholder: Vault ID
+        required: true
+        title: Vault ID
+        type: string
+    required:
+      - ip
+      - port
+      - vault_id
+engines:
+  tunnel:
+    ssh:
+      supported: false
+    http:
+      supported: true
+  upgraded-http:
+    schedule: '@always'
+    auth: '%{resources.auths.upgraded-http}'
+    type: HTTP
+    options:
+      timeout: 1m
+      dialTimeout: 30s
+      tlsHandshakeTimeout: 30s
+      responseHeaderTimeout: 1m
+      maxConnections: "5"
+      tls:
+        minVersion: "1.0"
+topology:
+  rootType: controller
+  verify:
+    - dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: xpath
+        expression: ""
+      match: ""
+  nodes: true
+  discovery:
+    dataEngine: '%{engines.upgraded-http}'
+    dataSource: '%{resources.http.requests.attribute_get}'
+    type: http
+    selectors:
+      nodes:
+        dataEngine: '%{engines.upgraded-http}'
+        selector:
+          type: xslt
+          expression: '%{resources.documents.inventory}'
+        extractor:
+          filters:
+            1: xpath //row
+    flatten:
+      type:
+        filters:
+          1: xpath //item[1]/text()
+          2: toLower
+          3: regexpReplace /[ -]/ => '_'
+      topology:
+        filters:
+          1: xpath //row/item[1]/text()
+          2: regexpReplace /^.+$/ => '1'
+          3: use %{0}
+          4: xpath //row/item[5]/text()
+          5: use %{0}
+          6: xpath //row/item[6]/text()
+          7: |
+            switch
+            "%{1}" ~= "^(Base Unit|RHU|CMU|BTSC|Add-On|RIM-1400|HX|PAU6|HXn).*" : "%{4}"
+            "%{1}" ~= "^(OCH|ORU|GX).*" : "%{6}"
+            default: "0"
+          8: use %{0}
+          9: xpath //row/item[6]/text()
+          10: use %{0}
+          11: xpath //row/item[7]/text()
+          12: |
+            switch
+            "%{1}" ~= "^(Base Unit|RHU|BTSC|Add-On|RIM-1400|HX|HXn).*" : "%{9}"
+            "%{1}" ~= "^(OCH|ORU|GX).*" : "%{11}"
+            default: "0"
+          13: use %{0}
+          14: xpath //row/item[7]/text()
+          15: |
+            switch
+            "%{1}" ~= "^(RHU|Add-On|HX|HXn).*" : "%{14}"
+            default: "0"
+          16: use %{0}
+          17: xpath //row/item[8]/text()
+          18: |
+            switch
+            "%{1}" ~= "^(Add-On).*" : "%{17}"
+            default: "0"
+          19: use %{1}
+          20: toLower
+          21: |
+            switch
+            "%{20}" == "base unit": "'controller [%{2}]' -> 'port [%{7}]' -> 'base unit [%{12}]'"
+            "%{20}" == "rhu":       "'controller [%{2}]' -> 'port [%{7}]' -> 'base unit [%{12}]' -> 'rhu [%{15}]'"
+            "%{20}" == "add-on":    "'controller [%{2}]' -> 'port [%{7}]' -> 'base unit [%{12}]' -> 'rhu [%{15}]' -> 'add-on [%{18}]'"
+            "%{20}" == "btsc":      "'controller [%{2}]' -> 'port [%{7}]' -> 'btsc [%{12}]'"
+            "%{20}" == "hx":        "'controller [%{2}]' -> 'port [%{7}]' -> 'rhu [%{15}]' -> 'hx [%{12}]'"
+            "%{20}" == "hxn":       "'controller [%{2}]' -> 'port [%{7}]' -> 'rhu [%{15}] '-> 'hxn [%{12}]'"
+            "%{20}" == "cmu":       "'controller [%{2}]' -> 'cmu [%{7}]'"
+            "%{20}" == "och":       "'controller [%{2}]' -> 'port [%{7}]' -> 'och [%{12}]'"
+            "%{20}" == "gx":       "'controller [%{2}]' -> 'port [%{7}]' -> 'och [%{12}] '-> 'gx [%{12}]'"
+            "%{20}" == "oru":       "'controller [%{2}]' -> 'port [%{7}]' -> 'oru [%{12}]'"
+            default:                ""
+      version:
+        filters:
+          1: xpath //row/item[1]/text()
+          2: toLower
+          3: use %{0}
+          4: xpath //row/item[5]/text()
+          5: use %{0}
+          6: xpath //row/item[7]/text()
+          7: use %{0}
+          8: xpath //row/item[8]/text()
+          9: use %{0}
+          10: xpath //row/item[6]/text()
+          11: use %{0}
+          12: xpath //row/item[9]/text()
+          13: |
+            switch
+            "%{2}" ~= "^(controller|ehu).*" : "%{4}"
+            "%{2}" ~= "^(base unit|btsc|rim-1400|pau6).*" : "%{6}"
+            "%{2}" ~= "^(rhu|hx|och|hxn).*" : "%{8}"
+            "%{2}" ~= "^(cmu|au).*" : "%{10}"
+            "%{2}" ~= "^(add-on|oru|gx).*" : "%{12}"
+            default:             ""
+          14: trim ="
+          15: regexpReplace /[a-zA-Z]+.*$/ => ''
+      name:
+        filters:
+          1: xpath //row/item[1]/text()
+          2: toLower
+          3: mapper %{resources.mappers.deviceNumbers}
+          4: use %{0}
+          5: xpath //row/item[3]/text()
+          6: use %{0}
+          7: xpath //row/item[11]/text()
+          8: use %{0}
+          9: xpath //row/item[4]/text()
+          10: use %{2}
+          11: |
+            switch
+            "%{10}" == "add-on":    "%{5} %{7}"
+            default:                "%{5}"
+          20: regexpReplace /(^="|"$)/ => ''
+          21: trimSpace
+          22: regexpReplace /^\s*$/ => '%{1}'
+          23: |
+            switch
+            "%{22}" == "": "%{1}"
+            default:       "%{22}"
+      addonInx:
+        filters:
+          1: xpath //row/item[1]/text()
+          2: use %{0}
+          3: xpath //row/item[8]/text()
+          4: |
+            switch
+            "%{1}" ~= "^(Add-On).*" : "%{3}"
+            default: "0"
+      deviceNumber:
+        filters:
+          1: xpath //row/item[1]/text()
+          2: toLower
+        mapper: '%{resources.mappers.deviceNumbers}'
+      pInx:
+        filters:
+          1: xpath //row/item[1]/text()
+          2: use %{0}
+          3: xpath //row/item[5]/text()
+          4: use %{0}
+          5: xpath //row/item[6]/text()
+          6: |
+            switch
+            "%{1}" ~= "^(Base Unit|RHU|CMU|BTSC|Add-On|RIM-1400|HX|PAU6|HXn).*" : "%{3}"
+            "%{1}" ~= "^(OCH|ORU|GX).*" : "%{5}"
+            default: "0"
+      rInx:
+        filters:
+          1: xpath //row/item[1]/text()
+          2: use %{0}
+          3: xpath //row/item[7]/text()
+          4: |
+            switch
+            "%{1}" ~= "^(RHU|Add-On|HX|HXn).*" : "%{3}"
+            default: "0"
+      sInx:
+        filters:
+          1: xpath //row/item[1]/text()
+          2: use %{0}
+          3: xpath //row/item[6]/text()
+          4: use %{0}
+          5: xpath //row/item[7]/text()
+          6: |
+            switch
+            "%{1}" ~= "^(Base Unit|RHU|BTSC|Add-On|RIM-1400|HX|HXn).*" : "%{3}"
+            "%{1}" ~= "^(OCH|ORU|GX).*" : "%{5}"
+            default: "0"
+types:
+  add_on:
+    name: Add-On
+    version: '[0.1,)'
+    reference: add_on
+    attributes:
+      - add_on_adjustment_alarm
+      - add_on_low_output_power_alarm
+      - add_on_overall_status_alarm
+    alarms:
+      add_on_adjustment_alarm:
+        attributes:
+          - add_on_adjustment_alarm
+        mapper: '%{resources.mappers.alarms}'
+      add_on_low_output_power_alarm:
+        attributes:
+          - add_on_low_output_power_alarm
+        mapper: '%{resources.mappers.alarms}'
+      add_on_overall_status_alarm:
+        attributes:
+          - add_on_overall_status_alarm
+        mapper: '%{resources.mappers.alarms}'
+    price:
+      value: 0
+      unit: USD
+    energy:
+      value: 0
+      unit: W
+  au:
+    name: AU
+    version: '[0.1,)'
+    reference: au
+    price:
+      value: 0
+      unit: USD
+    energy:
+      value: 0
+      unit: W
+  base_unit:
+    name: Base Unit
+    version: '[0.1,)'
+    reference: base_unit
+    attributes:
+      - base_unit_rf_overload_alarm
+      - base_unit_dl_input_power_alarm
+      - base_unit_ul_optical_link_1_alarm
+      - base_unit_ul_optical_link_2_alarm
+      - base_unit_ul_optical_link_3_alarm
+      - base_unit_ul_optical_link_4_alarm
+      - base_unit_overall_status_alarm
+    alarms:
+      base_unit_dl_input_power_alarm:
+        attributes:
+          - base_unit_dl_input_power_alarm
+        mapper: '%{resources.mappers.alarms}'
+      base_unit_overall_status_alarm:
+        attributes:
+          - base_unit_overall_status_alarm
+        mapper: '%{resources.mappers.alarms}'
+      base_unit_rf_overload_alarm:
+        attributes:
+          - base_unit_rf_overload_alarm
+        mapper: '%{resources.mappers.alarms}'
+      base_unit_ul_optical_link_1_alarm:
+        attributes:
+          - base_unit_ul_optical_link_1_alarm
+        mapper: '%{resources.mappers.alarms}'
+      base_unit_ul_optical_link_2_alarm:
+        attributes:
+          - base_unit_ul_optical_link_2_alarm
+        mapper: '%{resources.mappers.alarms}'
+      base_unit_ul_optical_link_3_alarm:
+        attributes:
+          - base_unit_ul_optical_link_3_alarm
+        mapper: '%{resources.mappers.alarms}'
+      base_unit_ul_optical_link_4_alarm:
+        attributes:
+          - base_unit_ul_optical_link_4_alarm
+        mapper: '%{resources.mappers.alarms}'
+    price:
+      value: 0
+      unit: USD
+    energy:
+      value: 0
+      unit: W
+  btsc:
+    name: BTSC
+    version: '[0.1,)'
+    reference: btsc
+    attributes:
+      - btsc_adjustment_alarm
+      - btsc_dl_power_overload_alarm
+      - btsc_dl_input_power_low_alarm
+      - btsc_service_off_alarm
+      - btsc_over_temperature_alarm
+      - btsc_overall_status_alarm
+    alarms:
+      btsc_adjustment_alarm:
+        attributes:
+          - btsc_adjustment_alarm
+        mapper: '%{resources.mappers.alarms}'
+      btsc_dl_input_power_low_alarm:
+        attributes:
+          - btsc_dl_input_power_low_alarm
+        mapper: '%{resources.mappers.alarms}'
+      btsc_dl_power_overload_alarm:
+        attributes:
+          - btsc_dl_power_overload_alarm
+        mapper: '%{resources.mappers.alarms}'
+      btsc_over_temperature_alarm:
+        attributes:
+          - btsc_over_temperature_alarm
+        mapper: '%{resources.mappers.alarms}'
+      btsc_overall_status_alarm:
+        attributes:
+          - btsc_overall_status_alarm
+        mapper: '%{resources.mappers.alarms}'
+      btsc_service_off_alarm:
+        attributes:
+          - btsc_service_off_alarm
+        mapper: '%{resources.mappers.alarms}'
+    price:
+      value: 0
+      unit: USD
+    energy:
+      value: 0
+      unit: W
+  cmu:
+    name: CMU
+    version: '[0.1,)'
+    reference: cmu
+    attributes:
+      - cmu_general_alarm
+      - cmu_fans_faulty_alarm
+      - cmu_over_temperature_alarm
+      - cmu_overall_status_alarm
+    alarms:
+      cmu_fans_faulty_alarm:
+        attributes:
+          - cmu_fans_faulty_alarm
+        mapper: '%{resources.mappers.alarms}'
+      cmu_general_alarm:
+        attributes:
+          - cmu_general_alarm
+        mapper: '%{resources.mappers.alarms}'
+      cmu_over_temperature_alarm:
+        attributes:
+          - cmu_over_temperature_alarm
+        mapper: '%{resources.mappers.alarms}'
+      cmu_overall_status_alarm:
+        attributes:
+          - cmu_overall_status_alarm
+        mapper: '%{resources.mappers.alarms}'
+    price:
+      value: 0
+      unit: USD
+    energy:
+      value: 0
+      unit: W
+  controller:
+    name: Controller
+    version: '[0.1,)'
+    reference: controller
+    price:
+      value: 0
+      unit: USD
+    energy:
+      value: 0
+      unit: W
+  ehu:
+    name: EHU
+    version: '[0.1,)'
+    reference: ehu
+    price:
+      value: 0
+      unit: USD
+    energy:
+      value: 0
+      unit: W
+  gx:
+    name: GX
+    version: '[0.1,)'
+    reference: gx
+    attributes:
+      - gx_door_open_alarm
+      - gx_optical_link_alarm
+      - gx_fans_alarm
+      - gx_over_temperature_alarm
+      - gx_service1_lte_700f_alarm
+      - gx_service2_cell_850f_alarm
+      - gx_service3_pcs_1900f_alarm
+      - gx_service4_aws_2100f_alarm
+    alarms:
+      gx_door_open_alarm:
+        attributes:
+          - gx_door_open_alarm
+        mapper: '%{resources.mappers.alarms}'
+      gx_fans_alarm:
+        attributes:
+          - gx_fans_alarm
+        mapper: '%{resources.mappers.alarms}'
+      gx_optical_link_alarm:
+        attributes:
+          - gx_optical_link_alarm
+        mapper: '%{resources.mappers.alarms}'
+      gx_over_temperature_alarm:
+        attributes:
+          - gx_over_temperature_alarm
+        mapper: '%{resources.mappers.alarms}'
+      gx_service1_lte_700f_alarm:
+        attributes:
+          - gx_service1_lte_700f_alarm
+        mapper: '%{resources.mappers.alarms}'
+      gx_service2_cell_850f_alarm:
+        attributes:
+          - gx_service2_cell_850f_alarm
+        mapper: '%{resources.mappers.alarms}'
+      gx_service3_pcs_1900f_alarm:
+        attributes:
+          - gx_service3_pcs_1900f_alarm
+        mapper: '%{resources.mappers.alarms}'
+      gx_service4_aws_2100f_alarm:
+        attributes:
+          - gx_service4_aws_2100f_alarm
+        mapper: '%{resources.mappers.alarms}'
+    price:
+      value: 0
+      unit: USD
+    energy:
+      value: 0
+      unit: W
+  hx:
+    name: HX
+    version: '[0.1,)'
+    reference: hx
+    attributes:
+      - hx_general_alarm
+      - hx_optical_link_alarm
+      - hx_fans_alarm
+      - hx_service_1_cell_850f_alarm
+      - hx_service_2_lte_700f_alarm
+      - hx_service_3_pcsg_1900f_alarm
+      - hx_service_4_aws_2100f_alarm
+      - hx_overall_status_alarm
+    alarms:
+      hx_fans_alarm:
+        attributes:
+          - hx_fans_alarm
+        mapper: '%{resources.mappers.alarms}'
+      hx_general_alarm:
+        attributes:
+          - hx_general_alarm
+        mapper: '%{resources.mappers.alarms}'
+      hx_optical_link_alarm:
+        attributes:
+          - hx_optical_link_alarm
+        mapper: '%{resources.mappers.alarms}'
+      hx_overall_status_alarm:
+        attributes:
+          - hx_overall_status_alarm
+        mapper: '%{resources.mappers.alarms}'
+      hx_service_1_cell_850f_alarm:
+        attributes:
+          - hx_service_1_cell_850f_alarm
+        mapper: '%{resources.mappers.alarms}'
+      hx_service_2_lte_700f_alarm:
+        attributes:
+          - hx_service_2_lte_700f_alarm
+        mapper: '%{resources.mappers.alarms}'
+      hx_service_3_pcsg_1900f_alarm:
+        attributes:
+          - hx_service_3_pcsg_1900f_alarm
+        mapper: '%{resources.mappers.alarms}'
+      hx_service_4_aws_2100f_alarm:
+        attributes:
+          - hx_service_4_aws_2100f_alarm
+        mapper: '%{resources.mappers.alarms}'
+    price:
+      value: 0
+      unit: USD
+    energy:
+      value: 0
+      unit: W
+  hxn:
+    name: HXN
+    version: '[0.1,)'
+    reference: hxn
+    price:
+      value: 0
+      unit: USD
+    energy:
+      value: 0
+      unit: W
+  och:
+    name: OCH
+    version: '[0.1,)'
+    reference: och
+    price:
+      value: 0
+      unit: USD
+    energy:
+      value: 0
+      unit: W
+  oru:
+    name: ORU
+    version: '[0.1,)'
+    reference: oru
+    price:
+      value: 0
+      unit: USD
+    energy:
+      value: 0
+      unit: W
+  pau_6:
+    name: PAU 6
+    version: '[0.1,)'
+    reference: pau_6
+    price:
+      value: 0
+      unit: USD
+    energy:
+      value: 0
+      unit: W
+  rhu:
+    name: RHU
+    version: '[0.1,)'
+    reference: rhu
+    attributes:
+      - rhu_dl_optical_link_alarm
+      - rhu_adjustment_1st_band_alarm
+      - rhu_adjustment_2nd_band_alarm
+      - rhu_low_output_power_1st_band_alarm
+      - rhu_low_output_power_2nd_band_alarm
+      - rhu_antenna_1_alarm
+      - rhu_antenna_2_alarm
+      - rhu_antenna_3_alarm
+      - rhu_antenna_4_alarm
+      - rhu_qx_fan_alarm
+      - rhu_overall_status_alarm
+    alarms:
+      rhu_adjustment_1st_band_alarm:
+        attributes:
+          - rhu_adjustment_1st_band_alarm
+        mapper: '%{resources.mappers.alarms}'
+      rhu_adjustment_2nd_band_alarm:
+        attributes:
+          - rhu_adjustment_2nd_band_alarm
+        mapper: '%{resources.mappers.alarms}'
+      rhu_antenna_1_alarm:
+        attributes:
+          - rhu_antenna_1_alarm
+        mapper: '%{resources.mappers.alarms}'
+      rhu_antenna_2_alarm:
+        attributes:
+          - rhu_antenna_2_alarm
+        mapper: '%{resources.mappers.alarms}'
+      rhu_antenna_3_alarm:
+        attributes:
+          - rhu_antenna_3_alarm
+        mapper: '%{resources.mappers.alarms}'
+      rhu_antenna_4_alarm:
+        attributes:
+          - rhu_antenna_4_alarm
+        mapper: '%{resources.mappers.alarms}'
+      rhu_dl_optical_link_alarm:
+        attributes:
+          - rhu_dl_optical_link_alarm
+        mapper: '%{resources.mappers.alarms}'
+      rhu_low_output_power_1st_band_alarm:
+        attributes:
+          - rhu_low_output_power_1st_band_alarm
+        mapper: '%{resources.mappers.alarms}'
+      rhu_low_output_power_2nd_band_alarm:
+        attributes:
+          - rhu_low_output_power_2nd_band_alarm
+        mapper: '%{resources.mappers.alarms}'
+      rhu_overall_status_alarm:
+        attributes:
+          - rhu_overall_status_alarm
+        mapper: '%{resources.mappers.alarms}'
+      rhu_qx_fan_alarm:
+        attributes:
+          - rhu_qx_fan_alarm
+        mapper: '%{resources.mappers.alarms}'
+    price:
+      value: 0
+      unit: USD
+    energy:
+      value: 0
+      unit: W
+  rim_1400:
+    name: RIM 1400
+    version: '[0.1,)'
+    reference: rim_1400
+    price:
+      value: 0
+      unit: USD
+    energy:
+      value: 0
+      unit: W
+attributes:
+  add_on_adjustment_alarm:
+    name: Add-On Adjustment Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: ''
+      selector:
+        type: snmpTrap
+        expression: 
+      extractor:
+        filters:
+          1: indexBit 2
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  add_on_low_output_power_alarm:
+    name: Add-On Low Output Power Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: ''
+      selector:
+        type: snmpTrap
+        expression: 
+      extractor:
+        filters:
+          1: indexBit 3
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  add_on_overall_status_alarm:
+    name: Add-On Overall Status Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: ''
+      selector:
+        type: snmpTrap
+        expression: 
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  base_unit_dl_input_power_alarm:
+    name: Base Unit DL Input Power Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: ''
+      selector:
+        type: snmpTrap
+        expression: 
+      extractor:
+        filters:
+          1: indexBit 3
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  base_unit_overall_status_alarm:
+    name: Base Unit Overall Status Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: ''
+      selector:
+        type: snmpTrap
+        expression: 
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  base_unit_rf_overload_alarm:
+    name: Base Unit RF Overload Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: ''
+      selector:
+        type: snmpTrap
+        expression: 
+      extractor:
+        filters:
+          1: indexBit 2
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  base_unit_ul_optical_link_1_alarm:
+    name: Base Unit UL Optical Link 1 Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: ''
+      selector:
+        type: snmpTrap
+        expression: 
+      extractor:
+        filters:
+          1: indexBit 5
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  base_unit_ul_optical_link_2_alarm:
+    name: Base Unit UL Optical Like 2 Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: ''
+      selector:
+        type: snmpTrap
+        expression: 
+      extractor:
+        filters:
+          1: indexBit 6
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  base_unit_ul_optical_link_3_alarm:
+    name: Base Unit UL Optical Link 3 Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: ''
+      selector:
+        type: snmpTrap
+        expression: 
+      extractor:
+        filters:
+          1: indexBit 7
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  base_unit_ul_optical_link_4_alarm:
+    name: Base Unit UL Optical Link 4 Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: ''
+      selector:
+        type: snmpTrap
+        expression: 
+      extractor:
+        filters:
+          1: indexBit 8
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  btsc_adjustment_alarm:
+    name: BTSC Adjustment Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: ''
+      selector:
+        type: snmpTrap
+        expression: 
+      extractor:
+        filters:
+          1: indexBit 1
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  btsc_dl_input_power_low_alarm:
+    name: BTSC DL Input Power Low Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: ''
+      selector:
+        type: snmpTrap
+        expression: 
+      extractor:
+        filters:
+          1: indexBit 3
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  btsc_dl_power_overload_alarm:
+    name: BTSC DL Power Overload Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: ''
+      selector:
+        type: snmpTrap
+        expression: 
+      extractor:
+        filters:
+          1: indexBit 2
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  btsc_over_temperature_alarm:
+    name: BTSC Over Temperature Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: ''
+      selector:
+        type: snmpTrap
+        expression: 
+      extractor:
+        filters:
+          1: indexBit 6
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  btsc_overall_status_alarm:
+    name: BTSC Overall Status Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: ''
+      selector:
+        type: snmpTrap
+        expression: 
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  btsc_service_off_alarm:
+    name: BTSC Service Off Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: ''
+      selector:
+        type: snmpTrap
+        expression: 
+      extractor:
+        filters:
+          1: indexBit 4
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  cmu_fans_faulty_alarm:
+    name: CMU Low Fans Faulty Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: ''
+      selector:
+        type: snmpTrap
+        expression: 
+      extractor:
+        filters:
+          1: indexBit 2
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  cmu_general_alarm:
+    name: CMU General Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: ''
+      selector:
+        type: snmpTrap
+        expression: 
+      extractor:
+        filters:
+          1: indexBit 1
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  cmu_over_temperature_alarm:
+    name: CMU Over Temperature Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: ''
+      selector:
+        type: snmpTrap
+        expression: 
+      extractor:
+        filters:
+          1: indexBit 3
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  cmu_overall_status_alarm:
+    name: CMU Overall Status Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: ''
+      selector:
+        type: snmpTrap
+        expression: 
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  gx_door_open_alarm:
+    name: GX Door Open Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: 
+      extractor:
+        filters:
+          1: indexBit 1
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: ""
+        properties: {}
+  gx_fans_alarm:
+    name: GX Fans Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: 
+      extractor:
+        filters:
+          1: indexBit 3
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: ""
+        properties: {}
+  gx_optical_link_alarm:
+    name: GX Optical Link Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: 
+      extractor:
+        filters:
+          1: indexBit 2
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: ""
+        properties: {}
+  gx_over_temperature_alarm:
+    name: GX Over Temperature Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: 
+      extractor:
+        filters:
+          1: indexBit 4
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: ""
+        properties: {}
+  gx_service1_lte_700f_alarm:
+    name: GX Service 1 LTE 700 F Alarm
+    conditions:
+      read:
+        - '"%{attributes.internal:gx_service1_lte_700f_alarm_mask}" == "true"'
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: 
+      extractor:
+        filters:
+          1: regexpReplace /^[^0]+$/ => 1
+          2: indexBit 1
+    properties:
+      readWrite: R
+      read:
+        type: String
+  gx_service2_cell_850f_alarm:
+    name: GX Service 2 Cell 850 F Alarm
+    conditions:
+      read:
+        - '"%{attributes.internal:gx_service2_cell_850f_alarm_mask}" == "true"'
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: 
+      extractor:
+        filters:
+          1: regexpReplace /^[^0]+$/ => 1
+          2: indexBit 1
+    properties:
+      readWrite: R
+      read:
+        type: String
+  gx_service3_pcs_1900f_alarm:
+    name: GX Service 3 PCS 1900 F Alarm
+    conditions:
+      read:
+        - '"%{attributes.internal:gx_service3_pcs_1900f_alarm_mask}" == "true"'
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: 
+      extractor:
+        filters:
+          1: regexpReplace /^[^0]+$/ => 1
+          2: indexBit 1
+    properties:
+      readWrite: R
+      read:
+        type: String
+  gx_service4_aws_2100f_alarm:
+    name: GX Service 4 AWS 2100 F Alarm
+    conditions:
+      read:
+        - '"%{attributes.internal:gx_service4_aws_2100f_alarm_mask}" == "true"'
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: 
+      extractor:
+        filters:
+          1: regexpReplace /^[^0]+$/ => 1
+          2: indexBit 1
+    properties:
+      readWrite: R
+      read:
+        type: String
+  hx_fans_alarm:
+    name: HX Fans Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: ''
+      selector:
+        type: snmpTrap
+        expression: 
+      extractor:
+        filters:
+          1: indexBit 5
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  hx_general_alarm:
+    name: HX General Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: ''
+      selector:
+        type: snmpTrap
+        expression: 
+      extractor:
+        filters:
+          1: indexBit 7
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  hx_optical_link_alarm:
+    name: HX Optical Link Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.data_get}'
+      selector:
+        type: snmpTrap
+        expression: 
+      extractor:
+        filters:
+          1: indexBit 6
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  hx_overall_status_alarm:
+    name: HX Overall Status Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: ''
+      selector:
+        type: snmpTrap
+        expression: 
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  hx_service_1_cell_850f_alarm:
+    name: HX Service 1 CELL 850f Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: ''
+      selector:
+        type: snmpTrap
+        expression: 
+      extractor:
+        filters:
+          1: indexBit 1
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  hx_service_2_lte_700f_alarm:
+    name: HX Service 2 LTE 700f Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: ''
+      selector:
+        type: snmpTrap
+        expression: 
+      extractor:
+        filters:
+          1: indexBit 2
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  hx_service_3_pcsg_1900f_alarm:
+    name: HX Service 3 PCSG 1900f Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: ''
+      selector:
+        type: snmpTrap
+        expression: 
+      extractor:
+        filters:
+          1: indexBit 3
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  hx_service_4_aws_2100f_alarm:
+    name: HX Service 4 AWS 2100f Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: ''
+      selector:
+        type: snmpTrap
+        expression: 
+      extractor:
+        filters:
+          1: indexBit 4
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  internal:gx_service1_lte_700f_alarm_mask:
+    name: GX Service 1 LTE 700 F Alarm Mask
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: 
+      extractor:
+        filters:
+          1: indexBit 1
+    properties:
+      readWrite: R
+      read:
+        type: String
+  internal:gx_service2_cell_850f_alarm_mask:
+    name: GX Service 2 Cell 850 F Alarm Mask
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: 
+      extractor:
+        filters:
+          1: indexBit 2
+    properties:
+      readWrite: R
+      read:
+        type: String
+  internal:gx_service3_pcs_1900f_alarm_mask:
+    name: GX Service 3 PCS 1900 F Alarm Mask
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: 
+      extractor:
+        filters:
+          1: indexBit 3
+    properties:
+      readWrite: R
+      read:
+        type: String
+  internal:gx_service4_aws_2100f_alarm_mask:
+    name: GX Service 4 AWS 2100 F Alarm Mask
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: 
+      extractor:
+        filters:
+          1: indexBit 4
+    properties:
+      readWrite: R
+      read:
+        type: String
+  rhu_adjustment_1st_band_alarm:
+    name: RHU Adjustmemt 1st Band Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: ''
+      selector:
+        type: snmpTrap
+        expression: 
+      extractor:
+        filters:
+          1: indexBit 3
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  rhu_adjustment_2nd_band_alarm:
+    name: RHU Adjustement 2nd Band Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: ''
+      selector:
+        type: gjson
+        expression: rhuAlarmStatus
+      extractor:
+        filters:
+          1: indexBit 4
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  rhu_antenna_1_alarm:
+    name: RHU Antenna 1 Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: ''
+      selector:
+        type: snmpTrap
+        expression: 
+      extractor:
+        filters:
+          1: indexBit 1
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  rhu_antenna_2_alarm:
+    name: RHU Antenna 2 Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: ''
+      selector:
+        type: snmpTrap
+        expression: 
+      extractor:
+        filters:
+          1: indexBit 2
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  rhu_antenna_3_alarm:
+    name: RHU Antenna 3 Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: ''
+      selector:
+        type: snmpTrap
+        expression: 
+      extractor:
+        filters:
+          1: indexBit 3
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  rhu_antenna_4_alarm:
+    name: RHU Antenna 4 Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: ''
+      selector:
+        type: snmpTrap
+        expression: 
+      extractor:
+        filters:
+          1: indexBit 4
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  rhu_dl_optical_link_alarm:
+    name: RHU DL Optical Link Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: ''
+      selector:
+        type: snmpTrap
+        expression: 
+      extractor:
+        filters:
+          1: indexBit 2
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  rhu_low_output_power_1st_band_alarm:
+    name: RHU Low Output Power 1st Band Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: ''
+      selector:
+        type: snmpTrap
+        expression: 
+      extractor:
+        filters:
+          1: indexBit 5
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  rhu_low_output_power_2nd_band_alarm:
+    name: RHU Low Output Power 2nd Band Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: ''
+      selector:
+        type: snmpTrap
+        expression: 
+      extractor:
+        filters:
+          1: indexBit 6
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  rhu_overall_status_alarm:
+    name: RHU Overall Status Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: ''
+      selector:
+        type: snmpTrap
+        expression: 
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  rhu_qx_fan_alarm:
+    name: RHU QX Fan Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: ''
+      selector:
+        type: snmpTrap
+        expression: rhuAlarmStatus
+      extractor:
+        filters:
+          1: indexBit 7
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+resources:
+  auths:
+    upgraded-http:
+      http:
+        httpUri: false
+        actions:
+          login:
+            dataEngine: '%{engines.upgraded-http}'
+            dataSource: '%{resources.http.requests.login}'
+            requires:
+              - session_id
+              - group_id
+            selector:
+              type: http
+            lookup:
+              group_id:
+                dataEngine: '%{engines.upgraded-http}'
+                dataSource: '%{resources.http.requests.get_session_id}'
+                selector:
+                  type: xpath
+                  expression: //input[@id="group_list"]/@value
+                extractor:
+                  filters:
+                    1: regexpExtract /${resources.globals.reg.groupName}:(\d+)/ => '$1'
+                dataSink: '%{resources.globals.reg.groupID}'
+              session_id:
+                dataEngine: '%{engines.upgraded-http}'
+                dataSource: '%{resources.http.requests.get_session_id}'
+                selector:
+                  type: xpath
+                  expression: //input[@name="nonce"]/@value
+                dataSink: '%{resources.globals.auth.nonce}'
+            dataSink: '%{resources.globals.auth.sessionID}'
+          logout:
+            dataEngine: '%{engines.upgraded-http}'
+            dataSource: '%{resources.http.requests.logout}'
+            selector:
+              type: static
+              expression: ""
+            dataSink: '%{resources.globals.auth.sessionID}'
+  functions:
+    encodedUsernameAndPassword:
+      filters:
+        1: use ${resources.globals.reg.password}
+        2: md5 %x
+        3: concat ':' '${resources.globals.auth.nonce}'
+        4: md5 %x
+        5: use ${resources.globals.reg.username}
+        6: concat '@' '${resources.globals.reg.groupName}' ':' %{4}
+    timestamp:
+      filters:
+        1: timestamp
+  mappers:
+    alarms:
+      keyType: String
+      valueType: String
+      map:
+        alarm_td ma_alarms_clear: Normal
+        alarm_td ma_alarms_major: Severe
+    deviceNumbers:
+      keyType: String
+      valueType: String
+      map:
+        add-on: "5"
+        base unit: "2"
+        btsc: "4"
+        cmu: "19"
+        gx: "21"
+        hx: "13"
+        hxn: "24"
+        och: "14"
+        oru: "15"
+        rhu: "3"
+  globals:
+    reg:
+      groupID: 0
+      groupName: ${registration.vault.properties.group_name}
+      ip: ${registration.form.properties.ip}
+      password: ${registration.vault.properties.password}
+      url: http://${registration.form.properties.ip}:${registration.form.properties.port}
+      username: ${registration.vault.properties.username}
+  http:
+    requests:
+      attribute_get:
+        uri: ${resources.globals.reg.url}/reports/CMA_All_!{template.filters.functions.timestamp}.csv
+        responseContentType: application/csv
+        query:
+          x: '!{template.filters.functions.timestamp}'
+        responses:
+          success:
+            - dataSource: '%{response.header}'
+              expression: status-code
+              match: "200"
+          failure:
+            - dataSource: '%{response.header}'
+              expression: status-code
+              match: ^(?!200)
+      data_get:
+        uri: ${resources.globals.reg.url}/devices/device_data.html
+        query:
+          _: '!{template.filters.functions.timestamp}'
+          addonInx: ${topology.discovery.flatten.addonInx}
+          cInx: "1"
+          d: '!{template.filters.functions.timestamp}'
+          device: ${topology.discovery.flatten.deviceNumber}
+          pInx: ${topology.discovery.flatten.pInx}
+          rInx: ${topology.discovery.flatten.rInx}
+          sInx: ${topology.discovery.flatten.sInx}
+        cookies:
+          COOKIE: ${resources.globals.auth.sessionID}
+        responses:
+          success:
+            - dataSource: '%{response.header}'
+              expression: status-code
+              match: "200"
+          failure:
+            - dataSource: '%{response.header}'
+              expression: status-code
+              match: ^(?!200)
+      get_session_id:
+        uri: ${resources.globals.reg.url}/ma/ma/devices/devices.html
+        responses:
+          success:
+            - dataSource: '%{response.body}'
+              type: xpath
+              expression: //input[@name="nonce"]/@value
+              match: ^.+$
+          failure:
+            - dataSource: '%{response.header}'
+              expression: status-code
+              match: ^(?!200)
+      login:
+        method: POST
+        uri: ${resources.globals.reg.url}/ma/ma/devices/devices.html
+        requestContentType: application/x-www-form-urlencoded
+        body:
+          encoded: '!{template.filters.functions.encodedUsernameAndPassword}'
+          goto: Log In
+          group_select: ${resources.globals.reg.groupID}
+          nonce: ${resources.globals.auth.nonce}
+          password: ""
+          username: ""
+        responses:
+          success:
+            - dataSource: '%{response.header}'
+              expression: status-code
+              match: "200"
+          failure:
+            - dataSource: '%{response.body}'
+              type: xpath
+              expression: //label[@id="logon_message_label"]/text()
+              match: ^.+$
+      logout:
+        method: POST
+        uri: ${resources.globals.reg.url}/post/post.html
+        requestContentType: application/x-www-form-urlencoded
+        cookies:
+          COOKIE: ${resources.globals.auth.sessionID}
+        body:
+          logOut: 1
+        responses:
+          success:
+            - dataSource: '%{response.header}'
+              expression: status-code
+              match: "200"
+          failure:
+            - dataSource: '%{response.header}'
+              expression: status-code
+              match: ^(?!200)
