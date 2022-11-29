@@ -1,0 +1,2279 @@
+iot3: 2.0.0
+info:
+  name: Westell DSP85-201-PS7
+  oem: Westell
+  model: DSP85-201-PS7
+  versions: []
+  description: DSP85-201-PS7
+  author: Kiara L'Herpiniere <support@qeleo.com>
+  stage: alpha
+  revision: 5
+  labels:
+    - auto upgraded to v2
+  created: "2021-03-02"
+  updated: "2022-11-29"
+registration:
+  vaultId: vault_id
+  fingerprint:
+    - ip
+    - port
+    - vault_id
+  vault:
+    properties:
+      password:
+        key: password
+        placeholder: Password
+        required: true
+        title: Password
+        type: string
+      username:
+        key: username
+        placeholder: Username
+        required: true
+        title: Username
+        type: string
+    required:
+      - username
+      - password
+  form:
+    properties:
+      ip:
+        key: ip
+        placeholder: IP Address
+        required: true
+        title: IP
+        type: string
+      port:
+        inputType: number
+        key: port
+        maximum: 65535
+        minimum: 0
+        placeholder: Port
+        required: true
+        title: Port
+        type: number
+      vault_id:
+        key: vault_id
+        pattern: ^(cu\w{6})(-av\w{6})$
+        placeholder: Vault ID
+        required: true
+        title: Vault ID
+        type: string
+    required:
+      - ip
+      - port
+      - vault_id
+engines:
+  tunnel:
+    ssh:
+      supported: false
+    http:
+      supported: true
+  upgraded-http:
+    schedule: '@always'
+    auth: '%{resources.auths.upgraded-http}'
+    type: HTTP
+    options:
+      tls:
+        minVersion: "1.0"
+topology:
+  rootType: system
+  verify:
+    - dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_index}'
+      selector:
+        type: xpath
+        expression: //h1[text()="System Status"]/../table/tbody/tr[3]/td[2]/text()
+      extractor:
+        filters:
+          1: regexpReplace /^(\d+\.\d+)\.?.*$/ => $1
+      match: ^3.0
+  nodes: false
+types:
+  system:
+    name: System
+    version: '[0.1,)'
+    reference: system
+    attributes:
+      - system_status_timestamp
+      - system_status_uptime
+      - system_status_software_version
+      - system_status_serial_number
+      - system_status_model_number
+      - system_status_item_number
+      - system_status_location
+      - system_status_band_1_power_active_filter
+      - system_status_band_1_in_band_input_dl
+      - system_status_band_1_in_band_input_ul
+      - system_status_band_1_measured_output_dl
+      - system_status_band_1_measured_output_ul
+      - system_status_band_1_composite_input_dl
+      - system_status_band_1_composite_input_ul
+      - system_status_band_1_gain_control_agc_mode
+      - system_status_band_1_gain_control_agc_control_dl
+      - system_status_band_1_gain_control_agc_control_ul
+      - system_status_band_1_gain_control_agc_attenuation_dl
+      - system_status_band_1_gain_control_agc_attenuation_ul
+      - system_status_band_1_gain_control_system_gain_dl
+      - system_status_band_1_gain_control_system_gain_ul
+      - system_status_band_1_dl_over_range_rf_alarm_value
+      - system_status_band_1_ul_over_range_rf_alarm_value
+      - system_status_band_1_dl_oscillation_rf_alarm_value
+      - system_status_band_1_ul_oscillation_rf_alarm_value
+      - system_status_band_1_dl_out_of_band_overdrive_rf_alarm_value
+      - system_status_band_1_ul_out_of_band_overdrive_rf_alarm_value
+      - system_status_band_1_dl_low_signal_rf_alarm_value
+      - system_status_band_1_ul_low_signal_rf_alarm_value
+      - system_status_band_1_dl_no_signal_rf_alarm_value
+      - system_status_band_1_ul_no_signal_rf_alarm_value
+      - system_status_band_1_dl_synthesizer_lock_system_alarm_value
+      - system_status_band_1_ul_synthesizer_lock_system_alarm_value
+      - system_status_band_1_voltage_system_alarm_value
+      - system_status_band_1_temperature_system_alarm_value
+      - system_status_band_1_software_system_alarm_value
+      - system_status_band_1_hardware_system_alarm_value
+      - system_status_band_2_power_active_filter
+      - system_status_band_2_in_band_input_dl
+      - system_status_band_2_in_band_input_ul
+      - system_status_band_2_measured_output_dl
+      - system_status_band_2_measured_output_ul
+      - system_status_band_2_composite_input_dl
+      - system_status_band_2_composite_input_ul
+      - system_status_band_2_gain_control_agc_mode
+      - system_status_band_2_gain_control_agc_control_dl
+      - system_status_band_2_gain_control_agc_control_ul
+      - system_status_band_2_gain_control_agc_attenuation_dl
+      - system_status_band_2_gain_control_agc_attenuation_ul
+      - system_status_band_2_gain_control_system_gain_dl
+      - system_status_band_2_gain_control_system_gain_ul
+      - system_status_band_2_dl_over_range_rf_alarm_value
+      - system_status_band_2_ul_over_range_rf_alarm_value
+      - system_status_band_2_dl_oscillation_rf_alarm_value
+      - system_status_band_2_ul_oscillation_rf_alarm_value
+      - system_status_band_2_dl_out_of_band_overdrive_rf_alarm_value
+      - system_status_band_2_ul_out_of_band_overdrive_rf_alarm_value
+      - system_status_band_2_dl_low_signal_rf_alarm_value
+      - system_status_band_2_ul_low_signal_rf_alarm_value
+      - system_status_band_2_dl_no_signal_rf_alarm_value
+      - system_status_band_2_ul_no_signal_rf_alarm_value
+      - system_status_band_2_dl_synthesizer_lock_system_alarm_value
+      - system_status_band_2_ul_synthesizer_lock_system_alarm_value
+      - system_status_band_2_voltage_system_alarm_value
+      - system_status_band_2_temperature_system_alarm_value
+      - system_status_band_2_software_system_alarm_value
+      - system_status_band_2_hardware_system_alarm_value
+      - system_local_network_boot_mode
+      - system_local_network_host_name
+      - system_local_network_ip_address
+      - system_local_network_default_gateway
+      - system_local_network_network_mask
+      - system_local_network_broadcast_address
+      - system_remote_network_ppp0_address
+      - system_remote_network_ppp1_address
+      - system_remote_network_modem_status
+      - system_remote_network_status
+      - system_remote_network_carrier
+      - system_health_cpu_temperature
+      - system_health_band_1_temperature
+      - system_health_band_1_current
+      - system_health_band_1_power_amplifier_status
+      - system_health_band_1_power_amplifier_current
+      - system_health_band_1_dl_dac_pll_lock_alarm_value
+      - system_health_band_1_ul_dac_pll_lock_alarm_value
+      - system_health_band_1_dl_lo_pll_lock_alarm_value
+      - system_health_band_1_ul_lo_pll_lock_alarm_value
+      - system_health_band_1_fpga_alarm_value
+      - system_health_band_2_temperature
+      - system_health_band_2_current
+      - system_health_band_2_power_amplifier_status
+      - system_health_band_2_power_amplifier_current
+      - system_health_band_2_dl_dac_pll_lock_alarm_value
+      - system_health_band_2_ul_dac_pll_lock_alarm_value
+      - system_health_band_2_dl_lo_pll_lock_alarm_value
+      - system_health_band_2_ul_lo_pll_lock_alarm_value
+      - system_health_band_2_fpga_alarm_value
+      - system_rf_config_band_1_ul_agc_att
+      - system_rf_config_band_1_dl_agc_att
+      - system_rf_config_band_1_dl_measured_output
+      - system_rf_config_band_1_band_type
+      - system_rf_config_band_1_ul_gain
+      - system_rf_config_band_1_dl_gain
+      - system_rf_config_band_1_set_gain
+      - system_rf_config_band_1_new_gain_setting
+      - system_rf_config_band_1_power_amplifier
+      - system_rf_config_band_2_ul_agc_att
+      - system_rf_config_band_2_dl_agc_att
+      - system_rf_config_band_2_dl_measured_output
+      - system_rf_config_band_2_band_type
+      - system_rf_config_band_2_ul_gain
+      - system_rf_config_band_2_dl_gain
+      - system_rf_config_band_2_set_gain
+      - system_rf_config_band_2_new_gain_setting
+      - system_rf_config_band_2_power_amplifier
+    alarms:
+      system_health_band_1_dl_dac_pll_lock_alarm:
+        attributes:
+          - system_health_band_1_dl_dac_pll_lock_alarm_value
+        mapper: '%{resources.mappers.alarm_severity}'
+      system_health_band_1_dl_lo_pll_lock_alarm:
+        attributes:
+          - system_health_band_1_dl_lo_pll_lock_alarm_value
+        mapper: '%{resources.mappers.alarm_severity}'
+      system_health_band_1_fpga_alarm:
+        attributes:
+          - system_health_band_1_fpga_alarm_value
+        mapper: '%{resources.mappers.alarm_severity}'
+      system_health_band_1_ul_dac_pll_lock_alarm:
+        attributes:
+          - system_health_band_1_ul_dac_pll_lock_alarm_value
+        mapper: '%{resources.mappers.alarm_severity}'
+      system_health_band_1_ul_lo_pll_lock_alarm:
+        attributes:
+          - system_health_band_1_ul_lo_pll_lock_alarm_value
+        mapper: '%{resources.mappers.alarm_severity}'
+      system_health_band_2_dl_dac_pll_lock_alarm:
+        attributes:
+          - system_health_band_2_dl_dac_pll_lock_alarm_value
+        mapper: '%{resources.mappers.alarm_severity}'
+      system_health_band_2_dl_lo_pll_lock_alarm:
+        attributes:
+          - system_health_band_2_dl_lo_pll_lock_alarm_value
+        mapper: '%{resources.mappers.alarm_severity}'
+      system_health_band_2_fpga_alarm:
+        attributes:
+          - system_health_band_2_fpga_alarm_value
+        mapper: '%{resources.mappers.alarm_severity}'
+      system_health_band_2_ul_dac_pll_lock_alarm:
+        attributes:
+          - system_health_band_2_ul_dac_pll_lock_alarm_value
+        mapper: '%{resources.mappers.alarm_severity}'
+      system_health_band_2_ul_lo_pll_lock_alarm:
+        attributes:
+          - system_health_band_2_ul_lo_pll_lock_alarm_value
+        mapper: '%{resources.mappers.alarm_severity}'
+      system_status_band_1_dl_low_signal_rf_alarm:
+        attributes:
+          - system_status_band_1_dl_low_signal_rf_alarm_value
+        mapper: '%{resources.mappers.alarm_severity}'
+      system_status_band_1_dl_no_signal_rf_alarm:
+        attributes:
+          - system_status_band_1_dl_no_signal_rf_alarm_value
+        mapper: '%{resources.mappers.alarm_severity}'
+      system_status_band_1_dl_oscillation_rf_alarm:
+        attributes:
+          - system_status_band_1_dl_oscillation_rf_alarm_value
+        mapper: '%{resources.mappers.alarm_severity}'
+      system_status_band_1_dl_out_of_band_overdrive_rf_alarm:
+        attributes:
+          - system_status_band_1_dl_out_of_band_overdrive_rf_alarm_value
+        mapper: '%{resources.mappers.alarm_severity}'
+      system_status_band_1_dl_over_range_rf_alarm:
+        attributes:
+          - system_status_band_1_dl_over_range_rf_alarm_value
+        mapper: '%{resources.mappers.alarm_severity}'
+      system_status_band_1_dl_synthesizer_lock_system_alarm:
+        attributes:
+          - system_status_band_1_dl_synthesizer_lock_system_alarm_value
+        mapper: '%{resources.mappers.alarm_severity}'
+      system_status_band_1_hardware_system_alarm:
+        attributes:
+          - system_status_band_1_hardware_system_alarm_value
+        mapper: '%{resources.mappers.alarm_severity}'
+      system_status_band_1_software_system_alarm:
+        attributes:
+          - system_status_band_1_software_system_alarm_value
+        mapper: '%{resources.mappers.alarm_severity}'
+      system_status_band_1_temperature_system_alarm:
+        attributes:
+          - system_status_band_1_temperature_system_alarm_value
+        mapper: '%{resources.mappers.alarm_severity}'
+      system_status_band_1_ul_low_signal_rf_alarm:
+        attributes:
+          - system_status_band_1_ul_low_signal_rf_alarm_value
+        mapper: '%{resources.mappers.alarm_severity}'
+      system_status_band_1_ul_no_signal_rf_alarm:
+        attributes:
+          - system_status_band_1_ul_no_signal_rf_alarm_value
+        mapper: '%{resources.mappers.alarm_severity}'
+      system_status_band_1_ul_oscillation_rf_alarm:
+        attributes:
+          - system_status_band_1_ul_oscillation_rf_alarm_value
+        mapper: '%{resources.mappers.alarm_severity}'
+      system_status_band_1_ul_out_of_band_overdrive_rf_alarm:
+        attributes:
+          - system_status_band_1_ul_out_of_band_overdrive_rf_alarm_value
+        mapper: '%{resources.mappers.alarm_severity}'
+      system_status_band_1_ul_over_range_rf_alarm:
+        attributes:
+          - system_status_band_1_ul_over_range_rf_alarm_value
+        mapper: '%{resources.mappers.alarm_severity}'
+      system_status_band_1_ul_synthesizer_lock_system_alarm:
+        attributes:
+          - system_status_band_1_ul_synthesizer_lock_system_alarm_value
+        mapper: '%{resources.mappers.alarm_severity}'
+      system_status_band_1_voltage_system_alarm:
+        attributes:
+          - system_status_band_1_voltage_system_alarm_value
+        mapper: '%{resources.mappers.alarm_severity}'
+      system_status_band_2_dl_low_signal_rf_alarm:
+        attributes:
+          - system_status_band_2_dl_low_signal_rf_alarm_value
+        mapper: '%{resources.mappers.alarm_severity}'
+      system_status_band_2_dl_no_signal_rf_alarm:
+        attributes:
+          - system_status_band_2_dl_no_signal_rf_alarm_value
+        mapper: '%{resources.mappers.alarm_severity}'
+      system_status_band_2_dl_oscillation_rf_alarm:
+        attributes:
+          - system_status_band_2_dl_oscillation_rf_alarm_value
+        mapper: '%{resources.mappers.alarm_severity}'
+      system_status_band_2_dl_out_of_band_overdrive_rf_alarm:
+        attributes:
+          - system_status_band_2_dl_out_of_band_overdrive_rf_alarm_value
+        mapper: '%{resources.mappers.alarm_severity}'
+      system_status_band_2_dl_over_range_rf_alarm:
+        attributes:
+          - system_status_band_2_dl_over_range_rf_alarm_value
+        mapper: '%{resources.mappers.alarm_severity}'
+      system_status_band_2_dl_synthesizer_lock_system_alarm:
+        attributes:
+          - system_status_band_2_dl_synthesizer_lock_system_alarm_value
+        mapper: '%{resources.mappers.alarm_severity}'
+      system_status_band_2_hardware_system_alarm:
+        attributes:
+          - system_status_band_2_hardware_system_alarm_value
+        mapper: '%{resources.mappers.alarm_severity}'
+      system_status_band_2_software_system_alarm:
+        attributes:
+          - system_status_band_2_software_system_alarm_value
+        mapper: '%{resources.mappers.alarm_severity}'
+      system_status_band_2_temperature_system_alarm:
+        attributes:
+          - system_status_band_2_temperature_system_alarm_value
+        mapper: '%{resources.mappers.alarm_severity}'
+      system_status_band_2_ul_low_signal_rf_alarm:
+        attributes:
+          - system_status_band_2_ul_low_signal_rf_alarm_value
+        mapper: '%{resources.mappers.alarm_severity}'
+      system_status_band_2_ul_no_signal_rf_alarm:
+        attributes:
+          - system_status_band_2_ul_no_signal_rf_alarm_value
+        mapper: '%{resources.mappers.alarm_severity}'
+      system_status_band_2_ul_oscillation_rf_alarm:
+        attributes:
+          - system_status_band_2_ul_oscillation_rf_alarm_value
+        mapper: '%{resources.mappers.alarm_severity}'
+      system_status_band_2_ul_out_of_band_overdrive_rf_alarm:
+        attributes:
+          - system_status_band_2_ul_out_of_band_overdrive_rf_alarm_value
+        mapper: '%{resources.mappers.alarm_severity}'
+      system_status_band_2_ul_over_range_rf_alarm:
+        attributes:
+          - system_status_band_2_ul_over_range_rf_alarm_value
+        mapper: '%{resources.mappers.alarm_severity}'
+      system_status_band_2_ul_synthesizer_lock_system_alarm:
+        attributes:
+          - system_status_band_2_ul_synthesizer_lock_system_alarm_value
+        mapper: '%{resources.mappers.alarm_severity}'
+      system_status_band_2_voltage_system_alarm:
+        attributes:
+          - system_status_band_2_voltage_system_alarm_value
+        mapper: '%{resources.mappers.alarm_severity}'
+    price:
+      value: 0
+      unit: '-'
+    energy:
+      value: 0
+      unit: '-'
+attributes:
+  system_health_band_1_current:
+    name: Band 1 System Health Current
+    description: System Health Current
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_index}'
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //h1[text()="System Health"]/../table/tbody/tr[6]/td[1]/text()
+    properties:
+      readWrite: R
+      read:
+        type: Float
+        unit: A
+  system_health_band_1_dl_dac_pll_lock_alarm_value:
+    name: Band 1 Down Link DAC PLL Lock alarm
+    description: System Health Down Link DAC PLL Lock alarm
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_index}'
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: 
+        expression: ''
+    properties:
+      readWrite: R
+      read:
+        type: String
+  system_health_band_1_dl_lo_pll_lock_alarm_value:
+    name: Band 1 Down Link LO PLL Lock alarm
+    description: System Health Down Link LO PLL Lock alarm
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_index}'
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: 
+        expression: ''
+    properties:
+      readWrite: R
+      read:
+        type: String
+  system_health_band_1_fpga_alarm_value:
+    name: Band 1 FPGA Alarm
+    description: System Health FPGA Alarm
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_index}'
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: 
+        expression: ''
+    properties:
+      readWrite: R
+      read:
+        type: String
+  system_health_band_1_power_amplifier_current:
+    name: Band 1 Power Amplifier Current
+    description: System Health Power Amplifier Current
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_index}'
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //h1[text()="System Health"]/../table/tbody/tr[10]/td[2]/text()
+    properties:
+      readWrite: R
+      read:
+        type: Float
+        unit: A
+  system_health_band_1_power_amplifier_status:
+    name: Band 1 Power Amplifier Status
+    description: System Health Power Amplifier Status
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_index}'
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //h1[text()="System Health"]/../table/tbody/tr[9]/td[2]/text()
+    properties:
+      readWrite: R
+      read:
+        type: String
+  system_health_band_1_temperature:
+    name: Band 1 Temperature
+    description: System Health Temperature
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_index}'
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //h1[text()="System Health"]/../table/tbody/tr[4]/td[1]/text()
+    properties:
+      readWrite: R
+      read:
+        type: Float
+        unit: C
+  system_health_band_1_ul_dac_pll_lock_alarm_value:
+    name: Band 1 Up Link DAC PLL Lock alarm
+    description: System Health Up Link DAC PLL Lock alarm
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_index}'
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: 
+        expression: ''
+    properties:
+      readWrite: R
+      read:
+        type: String
+  system_health_band_1_ul_lo_pll_lock_alarm_value:
+    name: Band 1 Up Link LO PLL Lock alarm
+    description: System Health Up Link LO PLL Lock alarm
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_index}'
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: 
+        expression: ''
+    properties:
+      readWrite: R
+      read:
+        type: String
+  system_health_band_2_current:
+    name: Band 2 System Health Current
+    description: System Health Current
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_index}'
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //h1[text()="System Health"]/../table/tbody/tr[6]/td[2]/text()
+    properties:
+      readWrite: R
+      read:
+        type: Float
+        unit: A
+  system_health_band_2_dl_dac_pll_lock_alarm_value:
+    name: Band 2 Down Link DAC PLL Lock alarm
+    description: System Health Down Link DAC PLL Lock alarm
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_index}'
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: 
+        expression: ''
+    properties:
+      readWrite: R
+      read:
+        type: String
+  system_health_band_2_dl_lo_pll_lock_alarm_value:
+    name: Band 2 Down Link LO PLL Lock alarm
+    description: System Health Down Link LO PLL Lock alarm
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_index}'
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: 
+        expression: ''
+    properties:
+      readWrite: R
+      read:
+        type: String
+  system_health_band_2_fpga_alarm_value:
+    name: Band 2 FPGA Alarm
+    description: System Health FPGA Alarm
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_index}'
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: 
+        expression: ''
+    properties:
+      readWrite: R
+      read:
+        type: String
+  system_health_band_2_power_amplifier_current:
+    name: Band 2 Power Amplifier Current
+    description: System Health Power Amplifier Current
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_index}'
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //h1[text()="System Health"]/../table/tbody/tr[10]/td[3]/text()
+    properties:
+      readWrite: R
+      read:
+        type: Float
+        unit: A
+  system_health_band_2_power_amplifier_status:
+    name: Band 2 Power Amplifier Status
+    description: System Health Power Amplifier Status
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_index}'
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //h1[text()="System Health"]/../table/tbody/tr[9]/td[3]/text()
+    properties:
+      readWrite: R
+      read:
+        type: String
+  system_health_band_2_temperature:
+    name: Band 2 Temperature
+    description: System Health Temperature
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_index}'
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //h1[text()="System Health"]/../table/tbody/tr[4]/td[2]/text()
+    properties:
+      readWrite: R
+      read:
+        type: Float
+        unit: C
+  system_health_band_2_ul_dac_pll_lock_alarm_value:
+    name: Band 2 Up Link DAC PLL Lock alarm
+    description: System Health Up Link DAC PLL Lock alarm
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_index}'
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: 
+        expression: ''
+    properties:
+      readWrite: R
+      read:
+        type: String
+  system_health_band_2_ul_lo_pll_lock_alarm_value:
+    name: Band 2 Up Link LO PLL Lock alarm
+    description: System Health Up Link LO PLL Lock alarm
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_index}'
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: 
+        expression: ''
+    properties:
+      readWrite: R
+      read:
+        type: String
+  system_health_cpu_temperature:
+    name: Band 1 CPU Temperature
+    description: CPU Temperature
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_index}'
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //h1[text()="System Health"]/../table/tbody/tr[1]/td[1]/text()
+    properties:
+      readWrite: R
+      read:
+        type: Float
+        unit: C
+  system_local_network_boot_mode:
+    name: Local Network Boot Mode
+    description: Local Network Boot Mode
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_index}'
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_local}'
+      selector:
+        type: xpath
+        expression: //h1[text()="Local Network"]/../form/div/table/tbody/tr[1]/td[2]/input
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: ""
+        properties: {}
+  system_local_network_broadcast_address:
+    name: Local Network Broadcast Address
+    description: Local Network Broadcast Address
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_index}'
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_local}'
+      selector:
+        type: xpath
+        expression: //h1[text()="Local Network"]/../form/div/table/tbody/tr[6]/td[2]/input/@value
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: ""
+        properties: {}
+  system_local_network_default_gateway:
+    name: Local Network Default Gateway
+    description: Local Network Default Gateway
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_index}'
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_local}'
+      selector:
+        type: xpath
+        expression: //h1[text()="Local Network"]/../form/div/table/tbody/tr[4]/td[2]/input/@value
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: ""
+        properties: {}
+  system_local_network_host_name:
+    name: Local Network Host Name
+    description: Local Network Host Name
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_index}'
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_local}'
+      selector:
+        type: xpath
+        expression: //h1[text()="Local Network"]/../form/div/table/tbody/tr[2]/td[2]/input/@value
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: ""
+        properties: {}
+  system_local_network_ip_address:
+    name: Local Network IP Address
+    description: Local Network IP Address
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_index}'
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_local}'
+      selector:
+        type: xpath
+        expression: //h1[text()="Local Network"]/../form/div/table/tbody/tr[3]/td[2]/input/@value
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: ""
+        properties: {}
+  system_local_network_network_mask:
+    name: Local Network Mask
+    description: Local Network Mask
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_index}'
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_local}'
+      selector:
+        type: xpath
+        expression: //h1[text()="Local Network"]/../form/div/table/tbody/tr[5]/td[2]/input/@value
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: ""
+        properties: {}
+  system_remote_network_carrier:
+    name: Network Carrier
+    description: Remote Network Carrier
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_index}'
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_remote}'
+      selector:
+        type: xpath
+        expression: //h1[text()="Remote Network"]/../form/div/table/tbody/tr[2]/td[2]/select/option
+    properties:
+      readWrite: R
+      read:
+        type: String
+  system_remote_network_modem_status:
+    name: Modem Status
+    description: Remote Network Modem Status
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_index}'
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_remote}'
+      selector:
+        type: xpath
+        expression: //h1[text()="Remote Network"]/../table/tbody/tr[3]/td
+    properties:
+      readWrite: R
+      read:
+        type: String
+  system_remote_network_ppp0_address:
+    name: PPP0 Address
+    description: Remote Network PPP0 Address
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_index}'
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_remote}'
+      selector:
+        type: xpath
+        expression: //h1[text()="Remote Network"]/../table/tbody/tr[1]/td
+    properties:
+      readWrite: R
+      read:
+        type: String
+  system_remote_network_ppp1_address:
+    name: PPP1 Address
+    description: Remote Network PPP1 Address
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_index}'
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_remote}'
+      selector:
+        type: xpath
+        expression: //h1[text()="Remote Network"]/../table/tbody/tr[2]/td
+    properties:
+      readWrite: R
+      read:
+        type: String
+  system_remote_network_status:
+    name: Network Status
+    description: Remote Network Status
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_index}'
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_remote}'
+      selector:
+        type: xpath
+        expression: //h1[text()="Remote Network"]/../form/div/table/tbody/tr[1]/td[2]/input[@checked]/@value
+      extractor:
+        mapper: '%{resources.mappers.on_off}'
+    properties:
+      readWrite: R
+      read:
+        type: String
+  system_rf_config_band_1_band_type:
+    name: Band 1 Band Type
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_index}'
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_rf}'
+      selector:
+        type: xpath
+        expression: //table/tbody/tr[5]/td[2]/tt/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  system_rf_config_band_1_dl_agc_att:
+    name: Band 1 Downlink AGC Attenuation
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_index}'
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_rf}'
+      selector:
+        type: xpath
+        expression: //table/tbody/tr[3]/td[2]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: Float
+      write:
+        type: object
+        properties: {}
+  system_rf_config_band_1_dl_gain:
+    name: Band 1 Downlink Gain
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_index}'
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_rf}'
+      selector:
+        type: xpath
+        expression: //table/tbody/tr[7]/td[2]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: Float
+      write:
+        type: object
+        properties: {}
+  system_rf_config_band_1_dl_measured_output:
+    name: Band 1 Downlink Measured Output
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_index}'
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_rf}'
+      selector:
+        type: xpath
+        expression: //table/tbody/tr[4]/td[2]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: Float
+      write:
+        type: object
+        properties: {}
+  system_rf_config_band_1_new_gain_setting:
+    name: Band 1 New Gain Setting
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_index}'
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_rf}'
+      selector:
+        type: xpath
+        expression: //table/tbody/tr[10]/td[2]/input/@value
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: Float
+        unit: dB
+      write:
+        type: object
+        properties:
+          new_gain_setting:
+            hide: false
+            key: new_gain_setting
+            placeholder: ""
+            required: false
+            title: New Gain Setting
+            type: string
+  system_rf_config_band_1_power_amplifier:
+    name: Band 1 Power Amplifier
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_index}'
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_rf}'
+      selector:
+        type: xpath
+        expression: //table/tbody/tr[11]/td[2]/input[@checked]/@value
+      extractor:
+        mapper: '%{resources.mappers.on_off}'
+    properties:
+      readWrite: R
+      read:
+        type: String
+  system_rf_config_band_1_set_gain:
+    name: Band 1 Set Gain For
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_index}'
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_rf}'
+      selector:
+        type: xpath
+        expression: //table/tbody/tr[9]/td[2]/input[@checked]/@value
+      extractor:
+        mapper: '%{resources.mappers.gain}'
+    properties:
+      readWrite: R
+      read:
+        type: String
+  system_rf_config_band_1_ul_agc_att:
+    name: Band 1 Uplink AGC Attenuation
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_index}'
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_rf}'
+      selector:
+        type: xpath
+        expression: //table/tbody/tr[2]/td[2]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: Float
+      write:
+        type: object
+        properties: {}
+  system_rf_config_band_1_ul_gain:
+    name: Band 1 Uplink Gain
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_index}'
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_rf}'
+      selector:
+        type: xpath
+        expression: //table/tbody/tr[6]/td[2]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: Float
+      write:
+        type: object
+        properties: {}
+  system_rf_config_band_2_band_type:
+    name: Band 2 Band Type
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_index}'
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_rf}'
+      selector:
+        type: xpath
+        expression: //table/tbody/tr[17]/td[2]/tt/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  system_rf_config_band_2_dl_agc_att:
+    name: Band 2 Downlink AGC Attenuation
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_index}'
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_rf}'
+      selector:
+        type: xpath
+        expression: //table/tbody/tr[15]/td[2]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: Float
+      write:
+        type: object
+        properties: {}
+  system_rf_config_band_2_dl_gain:
+    name: Band 2 Downlink Gain
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_index}'
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_rf}'
+      selector:
+        type: xpath
+        expression: //table/tbody/tr[19]/td[2]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: Float
+      write:
+        type: object
+        properties: {}
+  system_rf_config_band_2_dl_measured_output:
+    name: Band 2 Downlink Measured Output
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_index}'
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_rf}'
+      selector:
+        type: xpath
+        expression: //table/tbody/tr[16]/td[2]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: Float
+      write:
+        type: object
+        properties: {}
+  system_rf_config_band_2_new_gain_setting:
+    name: Band 2 New Gain Setting
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_index}'
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_rf}'
+      selector:
+        type: xpath
+        expression: //table/tbody/tr[22]/td[2]/input/@value
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: Float
+        unit: dB
+      write:
+        type: object
+        properties:
+          new_gain_setting:
+            hide: false
+            key: new_gain_setting
+            placeholder: ""
+            required: false
+            title: New Gain Setting
+            type: string
+  system_rf_config_band_2_power_amplifier:
+    name: Band 2 Power Amplifier
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_index}'
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_rf}'
+      selector:
+        type: xpath
+        expression: //table/tbody/tr[23]/td[2]/input[@checked]/@value
+      extractor:
+        mapper: '%{resources.mappers.on_off}'
+    properties:
+      readWrite: R
+      read:
+        type: Button
+  system_rf_config_band_2_set_gain:
+    name: Band 2 Set Gain For
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_index}'
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_rf}'
+      selector:
+        type: xpath
+        expression: //table/tbody/tr[21]/td[2]/input[@checked]/@value
+      extractor:
+        mapper: '%{resources.mappers.gain}'
+    properties:
+      readWrite: R
+      read:
+        type: String
+  system_rf_config_band_2_ul_agc_att:
+    name: Band 2 Uplink AGC Attenuation
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_index}'
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_rf}'
+      selector:
+        type: xpath
+        expression: //table/tbody/tr[14]/td[2]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: Float
+      write:
+        type: object
+        properties: {}
+  system_rf_config_band_2_ul_gain:
+    name: Band 2 Uplink Gain
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.get_index}'
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_rf}'
+      selector:
+        type: xpath
+        expression: //table/tbody/tr[18]/td[2]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: Float
+      write:
+        type: object
+        properties: {}
+  system_status_band_1_composite_input_dl:
+    name: Band 1 Composite Input Down Link
+    description: System Status Composite Input Down Link
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_index}'
+      selector:
+        type: xpath
+        expression: //h1[text()="System Status"]/../table/tbody/tr[15]/td[2]
+    properties:
+      readWrite: R
+      read:
+        type: Int32
+        unit: dBm
+  system_status_band_1_composite_input_ul:
+    name: Band 1 Composite Input Up Link
+    description: System Status Composite Input Up Link
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_index}'
+      selector:
+        type: xpath
+        expression: //h1[text()="System Status"]/../table/tbody/tr[15]/td[3]
+    properties:
+      readWrite: R
+      read:
+        type: Int32
+        unit: dBm
+  system_status_band_1_dl_low_signal_rf_alarm_value:
+    name: Band 1 Down Link Low Signal RF alarm
+    description: System Status Down Link Low Signal RF alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: 
+        expression: ''
+    properties:
+      readWrite: R
+      read:
+        type: String
+  system_status_band_1_dl_no_signal_rf_alarm_value:
+    name: Band 1 Down Link No Signal RF alarm
+    description: System Status Down Link No Signal RF alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: 
+        expression: ''
+    properties:
+      readWrite: R
+      read:
+        type: String
+  system_status_band_1_dl_oscillation_rf_alarm_value:
+    name: Band 1 Down Link Oscillation RF alarm
+    description: System Status Down Link Oscillation RF alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: 
+        expression: ''
+    properties:
+      readWrite: R
+      read:
+        type: String
+  system_status_band_1_dl_out_of_band_overdrive_rf_alarm_value:
+    name: Band 1 Down Link Out of Band Overdrive RF alarm
+    description: System Status Down Link Out of Band Overdrive RF alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: 
+        expression: ''
+    properties:
+      readWrite: R
+      read:
+        type: String
+  system_status_band_1_dl_over_range_rf_alarm_value:
+    name: Band 1 Down Link Over Range RF alarm
+    description: System Status Down Link Over Range RF alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: 
+        expression: ''
+    properties:
+      readWrite: R
+      read:
+        type: String
+  system_status_band_1_dl_synthesizer_lock_system_alarm_value:
+    name: Band 1 Down Link Synthesizer System Alarm
+    description: System Status Down Link Synthesizer System Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: 
+        expression: ''
+    properties:
+      readWrite: R
+      read:
+        type: String
+  system_status_band_1_gain_control_agc_attenuation_dl:
+    name: Band 1 Gain Control AGC Attenuation Down Link
+    description: System Status Gain Control AGC Attenuation Down Link
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_index}'
+      selector:
+        type: xpath
+        expression: //h1[text()="System Status"]/../table/tbody/tr[20]/td[2]/text()
+    properties:
+      readWrite: R
+      read:
+        type: Float
+        unit: dB
+  system_status_band_1_gain_control_agc_attenuation_ul:
+    name: Band 1 Gain Control AGC Attenuation Up Link
+    description: System Status Gain Control AGC Attenuation Up Link
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_index}'
+      selector:
+        type: xpath
+        expression: //h1[text()="System Status"]/../table/tbody/tr[20]/td[3]/text()
+    properties:
+      readWrite: R
+      read:
+        type: Float
+        unit: dB
+  system_status_band_1_gain_control_agc_control_dl:
+    name: Band 1 Gain Control AGC Control Down Link
+    description: System Status Gain Control AGC Control Down Link
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_index}'
+      selector:
+        type: xpath
+        expression: //h1[text()="System Status"]/../table/tbody/tr[19]/td[2]/text()
+    properties:
+      readWrite: R
+      read:
+        type: String
+  system_status_band_1_gain_control_agc_control_ul:
+    name: Band 1 Gain Control AGC Control Up Link
+    description: System Status Gain Control AGC Control Up Link
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_index}'
+      selector:
+        type: xpath
+        expression: //h1[text()="System Status"]/../table/tbody/tr[19]/td[3]/text()
+    properties:
+      readWrite: R
+      read:
+        type: String
+  system_status_band_1_gain_control_agc_mode:
+    name: Band 1 Gain Control AGC Mode
+    description: System Status Gain Control AGC Mode
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_index}'
+      selector:
+        type: xpath
+        expression: //h1[text()="System Status"]/../table/tbody/tr[18]/td[2]/text()
+    properties:
+      readWrite: R
+      read:
+        type: String
+  system_status_band_1_gain_control_system_gain_dl:
+    name: Band 1 Gain Control System Gain Down Link
+    description: System Status Gain Control System Gain Down Link
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_index}'
+      selector:
+        type: xpath
+        expression: //h1[text()="System Status"]/../table/tbody/tr[21]/td[2]/text()
+    properties:
+      readWrite: R
+      read:
+        type: Float
+  system_status_band_1_gain_control_system_gain_ul:
+    name: Band 1 Gain Control System Gain Up Link
+    description: System Status Gain Control System Gain Up Link
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_index}'
+      selector:
+        type: xpath
+        expression: //h1[text()="System Status"]/../table/tbody/tr[21]/td[3]/text()
+    properties:
+      readWrite: R
+      read:
+        type: Float
+  system_status_band_1_hardware_system_alarm_value:
+    name: Band 1 Hardware System alarm
+    description: System Status Hardware System alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: 
+        expression: ''
+    properties:
+      readWrite: R
+      read:
+        type: String
+  system_status_band_1_in_band_input_dl:
+    name: Band 1 In-Band Input Down Link
+    description: System Status In-Band Input Down Link
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_index}'
+      selector:
+        type: xpath
+        expression: //h1[text()="System Status"]/../table/tbody/tr[13]/td[2]
+    properties:
+      readWrite: R
+      read:
+        type: Int32
+        unit: dBm
+  system_status_band_1_in_band_input_ul:
+    name: Band 1 In-Band Input Up Link
+    description: System Status In-Band Input Up Link
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_index}'
+      selector:
+        type: xpath
+        expression: //h1[text()="System Status"]/../table/tbody/tr[13]/td[3]
+    properties:
+      readWrite: R
+      read:
+        type: Int32
+        unit: dBm
+  system_status_band_1_measured_output_dl:
+    name: Band 1 Measured Output Down Link
+    description: System Status Measured Output Down Link
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_index}'
+      selector:
+        type: xpath
+        expression: //h1[text()="System Status"]/../table/tbody/tr[14]/td[2]
+    properties:
+      readWrite: R
+      read:
+        type: Int32
+        unit: dBm
+  system_status_band_1_measured_output_ul:
+    name: Band 1 Measured Output Up Link
+    description: System Status Measured Output Up Link
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_index}'
+      selector:
+        type: xpath
+        expression: //h1[text()="System Status"]/../table/tbody/tr[14]/td[3]
+    properties:
+      readWrite: R
+      read:
+        type: Int32
+        unit: dBm
+  system_status_band_1_power_active_filter:
+    name: Band 1 Power Active Filter
+    description: System Status Power Active Filter
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_index}'
+      selector:
+        type: xpath
+        expression: //h1[text()="System Status"]/../table/tbody/tr[10]/td[1]/tt/text()
+    properties:
+      readWrite: R
+      read:
+        type: String
+  system_status_band_1_software_system_alarm_value:
+    name: Band 1 Software Systems alarm
+    description: System Status Software Systems alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: 
+        expression: ''
+    properties:
+      readWrite: R
+      read:
+        type: String
+  system_status_band_1_temperature_system_alarm_value:
+    name: Band 1 Temperature System alarm
+    description: System Status Voltage System alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: 
+        expression: ''
+    properties:
+      readWrite: R
+      read:
+        type: String
+  system_status_band_1_ul_low_signal_rf_alarm_value:
+    name: Band 1 Up Link Low Signal RF alarm
+    description: System Status Up Link Low Signal RF alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: 
+        expression: ''
+    properties:
+      readWrite: R
+      read:
+        type: String
+  system_status_band_1_ul_no_signal_rf_alarm_value:
+    name: Band 1 Up Link No Signal RF alarm
+    description: System Status Up Link No Signal RF alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: 
+        expression: ''
+    properties:
+      readWrite: R
+      read:
+        type: String
+  system_status_band_1_ul_oscillation_rf_alarm_value:
+    name: Band 1 Up Link Oscillation RF alarm
+    description: System Status Up Link Oscillation RF alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: 
+        expression: ''
+    properties:
+      readWrite: R
+      read:
+        type: String
+  system_status_band_1_ul_out_of_band_overdrive_rf_alarm_value:
+    name: Band 1 Up Link Out of Band Overdrive RF alarm
+    description: System Status Up Link Out of Band Overdrive RF alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: 
+        expression: ''
+    properties:
+      readWrite: R
+      read:
+        type: String
+  system_status_band_1_ul_over_range_rf_alarm_value:
+    name: Band 1 Up Link Over Range RF alarm
+    description: System Status Up Link Over Range RF alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: 
+        expression: ''
+    properties:
+      readWrite: R
+      read:
+        type: String
+  system_status_band_1_ul_synthesizer_lock_system_alarm_value:
+    name: Band 1 Up Link Synthesizer System Alarm
+    description: System Status Up Link Synthesizer System Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: 
+        expression: ''
+    properties:
+      readWrite: R
+      read:
+        type: String
+  system_status_band_1_voltage_system_alarm_value:
+    name: Band 1 Voltage System alarm
+    description: System Status Voltage System alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: 
+        expression: ''
+    properties:
+      readWrite: R
+      read:
+        type: String
+  system_status_band_2_composite_input_dl:
+    name: Band 2 Composite Input Down Link
+    description: System Status Composite Input Down Link
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_index}'
+      selector:
+        type: xpath
+        expression: //h1[text()="System Status"]/../table/tbody/tr[15]/td[4]
+    properties:
+      readWrite: R
+      read:
+        type: Int32
+        unit: dBm
+  system_status_band_2_composite_input_ul:
+    name: Band 2 Composite Input Up Link
+    description: System Status Composite Input Up Link
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_index}'
+      selector:
+        type: xpath
+        expression: //h1[text()="System Status"]/../table/tbody/tr[15]/td[5]
+    properties:
+      readWrite: R
+      read:
+        type: Int32
+        unit: dBm
+  system_status_band_2_dl_low_signal_rf_alarm_value:
+    name: Band 2 Down Link Low Signal RF alarm
+    description: System Status Down Link Low Signal RF alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: 
+        expression: ''
+    properties:
+      readWrite: R
+      read:
+        type: String
+  system_status_band_2_dl_no_signal_rf_alarm_value:
+    name: Band 2 Down Link No Signal RF alarm
+    description: System Status Down Link No Signal RF alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: 
+        expression: ''
+    properties:
+      readWrite: R
+      read:
+        type: String
+  system_status_band_2_dl_oscillation_rf_alarm_value:
+    name: Band 2 Down Link Oscillation RF alarm
+    description: System Status Down Link Oscillation RF alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: 
+        expression: ''
+    properties:
+      readWrite: R
+      read:
+        type: String
+  system_status_band_2_dl_out_of_band_overdrive_rf_alarm_value:
+    name: Band 2 Down Link Out of Band Overdrive RF alarm
+    description: System Status Down Link Out of Band Overdrive RF alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: 
+        expression: ''
+    properties:
+      readWrite: R
+      read:
+        type: String
+  system_status_band_2_dl_over_range_rf_alarm_value:
+    name: Band 2 Down Link Over Range RF alarm
+    description: System Status Down Link Over Range RF alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: 
+        expression: ''
+    properties:
+      readWrite: R
+      read:
+        type: String
+  system_status_band_2_dl_synthesizer_lock_system_alarm_value:
+    name: Band 2 Down Link Synthesizer System Alarm
+    description: System Status Down Link Synthesizer System Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: 
+        expression: ''
+    properties:
+      readWrite: R
+      read:
+        type: String
+  system_status_band_2_gain_control_agc_attenuation_dl:
+    name: Band 2 Gain Control AGC Attenuation Down Link
+    description: System Status Gain Control AGC Attenuation Down Link
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_index}'
+      selector:
+        type: xpath
+        expression: //h1[text()="System Status"]/../table/tbody/tr[20]/td[4]/text()
+    properties:
+      readWrite: R
+      read:
+        type: Float
+        unit: dB
+  system_status_band_2_gain_control_agc_attenuation_ul:
+    name: Band 2 Gain Control AGC Attenuation Up Link
+    description: System Status Gain Control AGC Attenuation Up Link
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_index}'
+      selector:
+        type: xpath
+        expression: //h1[text()="System Status"]/../table/tbody/tr[20]/td[5]/text()
+    properties:
+      readWrite: R
+      read:
+        type: Float
+        unit: dB
+  system_status_band_2_gain_control_agc_control_dl:
+    name: Band 2 Gain Control AGC Control Down Link
+    description: System Status Gain Control AGC Control Down Link
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_index}'
+      selector:
+        type: xpath
+        expression: //h1[text()="System Status"]/../table/tbody/tr[19]/td[4]/text()
+    properties:
+      readWrite: R
+      read:
+        type: String
+  system_status_band_2_gain_control_agc_control_ul:
+    name: Band 2 Gain Control AGC Control Up Link
+    description: System Status Gain Control AGC Control Up Link
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_index}'
+      selector:
+        type: xpath
+        expression: //h1[text()="System Status"]/../table/tbody/tr[19]/td[5]/text()
+    properties:
+      readWrite: R
+      read:
+        type: String
+  system_status_band_2_gain_control_agc_mode:
+    name: Band 2 Gain Control AGC Mode
+    description: System Status Gain Control AGC Mode
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_index}'
+      selector:
+        type: xpath
+        expression: //h1[text()="System Status"]/../table/tbody/tr[18]/td[3]/text()
+    properties:
+      readWrite: R
+      read:
+        type: String
+  system_status_band_2_gain_control_system_gain_dl:
+    name: Band 2 Gain Control System Gain Down Link
+    description: System Status Gain Control System Gain Down Link
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_index}'
+      selector:
+        type: xpath
+        expression: //h1[text()="System Status"]/../table/tbody/tr[21]/td[4]/text()
+    properties:
+      readWrite: R
+      read:
+        type: Float
+  system_status_band_2_gain_control_system_gain_ul:
+    name: Band 2 Gain Control System Gain Up Link
+    description: System Status Gain Control System Gain Up Link
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_index}'
+      selector:
+        type: xpath
+        expression: //h1[text()="System Status"]/../table/tbody/tr[21]/td[5]/text()
+    properties:
+      readWrite: R
+      read:
+        type: Float
+  system_status_band_2_hardware_system_alarm_value:
+    name: Band 2 Hardware System alarm
+    description: System Status Hardware System alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: 
+        expression: ''
+    properties:
+      readWrite: R
+      read:
+        type: String
+  system_status_band_2_in_band_input_dl:
+    name: Band 2 In-Band Input Down Link
+    description: System Status In-Band Input Down Link
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_index}'
+      selector:
+        type: xpath
+        expression: //h1[text()="System Status"]/../table/tbody/tr[13]/td[4]
+    properties:
+      readWrite: R
+      read:
+        type: Int32
+        unit: dBm
+  system_status_band_2_in_band_input_ul:
+    name: Band 2 In-Band Input Up Link
+    description: System Status In-Band Input Up Link
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_index}'
+      selector:
+        type: xpath
+        expression: //h1[text()="System Status"]/../table/tbody/tr[13]/td[5]
+    properties:
+      readWrite: R
+      read:
+        type: Int32
+        unit: dBm
+  system_status_band_2_measured_output_dl:
+    name: Band 2 Measured Output Down Link
+    description: System Status Measured Output Down Link
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_index}'
+      selector:
+        type: xpath
+        expression: //h1[text()="System Status"]/../table/tbody/tr[14]/td[4]
+    properties:
+      readWrite: R
+      read:
+        type: Int32
+        unit: dBm
+  system_status_band_2_measured_output_ul:
+    name: Band 2 Measured Output Up Link
+    description: System Status Measured Output Up Link
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_index}'
+      selector:
+        type: xpath
+        expression: //h1[text()="System Status"]/../table/tbody/tr[14]/td[5]
+    properties:
+      readWrite: R
+      read:
+        type: Int32
+        unit: dBm
+  system_status_band_2_power_active_filter:
+    name: Band 2 Power Active Filter
+    description: System Status Power Active Filter
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_index}'
+      selector:
+        type: xpath
+        expression: //h1[text()="System Status"]/../table/tbody/tr[10]/td[2]/tt/text()
+    properties:
+      readWrite: R
+      read:
+        type: String
+  system_status_band_2_software_system_alarm_value:
+    name: Band 2 Software Systems alarm
+    description: System Status Software Systems alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: 
+        expression: ''
+    properties:
+      readWrite: R
+      read:
+        type: String
+  system_status_band_2_temperature_system_alarm_value:
+    name: Band 2 Temperature System alarm
+    description: System Status Voltage System alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: 
+        expression: ''
+    properties:
+      readWrite: R
+      read:
+        type: String
+  system_status_band_2_ul_low_signal_rf_alarm_value:
+    name: Band 2 Up Link Low Signal RF alarm
+    description: System Status Up Link Low Signal RF alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: 
+        expression: ''
+    properties:
+      readWrite: R
+      read:
+        type: String
+  system_status_band_2_ul_no_signal_rf_alarm_value:
+    name: Band 2 Up Link No Signal RF alarm
+    description: System Status Up Link No Signal RF alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: 
+        expression: ''
+    properties:
+      readWrite: R
+      read:
+        type: String
+  system_status_band_2_ul_oscillation_rf_alarm_value:
+    name: Band 2 Up Link Oscillation RF alarm
+    description: System Status Up Link Oscillation RF alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: 
+        expression: ''
+    properties:
+      readWrite: R
+      read:
+        type: String
+  system_status_band_2_ul_out_of_band_overdrive_rf_alarm_value:
+    name: Band 2 Up Link Out of Band Overdrive RF alarm
+    description: System Status Up Link Out of Band Overdrive RF alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: 
+        expression: ''
+    properties:
+      readWrite: R
+      read:
+        type: String
+  system_status_band_2_ul_over_range_rf_alarm_value:
+    name: Band 2 Up Link Over Range RF alarm
+    description: System Status Up Link Over Range RF alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: 
+        expression: ''
+    properties:
+      readWrite: R
+      read:
+        type: String
+  system_status_band_2_ul_synthesizer_lock_system_alarm_value:
+    name: Band 2 Up Link Synthesizer System Alarm
+    description: System Status Up Link Synthesizer System Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: 
+        expression: ''
+    properties:
+      readWrite: R
+      read:
+        type: String
+  system_status_band_2_voltage_system_alarm_value:
+    name: Band 2 Voltage System alarm
+    description: System Status Voltage System alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: 
+        expression: ''
+    properties:
+      readWrite: R
+      read:
+        type: String
+  system_status_item_number:
+    name: Item Number
+    description: System Status Item Number
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_index}'
+      selector:
+        type: xpath
+        expression: //h1[text()="System Status"]/../table/tbody/tr[6]/td[2]/text()
+    properties:
+      readWrite: R
+      read:
+        type: String
+  system_status_location:
+    name: Location
+    description: System Status Location
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_index}'
+      selector:
+        type: xpath
+        expression: //h1[text()="System Status"]/../table/tbody/tr[7]/td[2]/text()
+    properties:
+      readWrite: R
+      read:
+        type: String
+  system_status_model_number:
+    name: Model Number
+    description: System Status Model Number
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_index}'
+      selector:
+        type: xpath
+        expression: //h1[text()="System Status"]/../table/tbody/tr[5]/td[2]/text()
+    properties:
+      readWrite: R
+      read:
+        type: String
+  system_status_serial_number:
+    name: Serial Number
+    description: System Status Serial Number
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_index}'
+      selector:
+        type: xpath
+        expression: //h1[text()="System Status"]/../table/tbody/tr[4]/td[2]/text()
+    properties:
+      readWrite: R
+      read:
+        type: String
+  system_status_software_version:
+    name: Software Version
+    description: System Status Software Version
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_index}'
+      selector:
+        type: xpath
+        expression: //h1[text()="System Status"]/../table/tbody/tr[3]/td[2]/text()
+      extractor:
+        filters:
+          1: regexpReplace /^(\d+\.\d+)\.?.*$/ => $1
+    properties:
+      readWrite: R
+      read:
+        type: Float
+  system_status_timestamp:
+    name: Time Stamp
+    description: System Status Time Stamp
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_index}'
+      selector:
+        type: xpath
+        expression: //h1[text()="System Status"]/../table/tbody/tr[1]/td[2]/text()
+    properties:
+      readWrite: R
+      read:
+        type: DateTime
+  system_status_uptime:
+    name: Uptime
+    description: System Status Uptime
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_index}'
+      selector:
+        type: xpath
+        expression: //h1[text()="System Status"]/../table/tbody/tr[2]/td[2]/text()
+    properties:
+      readWrite: R
+      read:
+        type: String
+resources:
+  auths:
+    upgraded-http:
+      http:
+        httpUri: false
+        method: Basic
+        properties:
+          password: ${registration.vault.properties.password}
+          username: ${registration.vault.properties.username}
+  mappers:
+    alarm_severity:
+      keyType: String
+      valueType: String
+      map:
+        alarmClear: Normal
+        alarmDisabled: Disabled
+        alarmSet: Critical
+    gain:
+      keyType: Int32
+      valueType: String
+      map:
+        "0": Neither Link; Leave Unchanged
+        "1": Uplink Only
+        "3": Uplink and Downlink
+    on_off:
+      keyType: Int32
+      valueType: String
+      map:
+        "0": "Off"
+        "1": "On"
+  globals:
+    reg:
+      ip: ${registration.form.properties.ip}
+      password: ${registration.vault.properties.password}
+      port: ${registration.form.properties.port}
+      url: http://${registration.form.properties.ip}:${registration.form.properties.port}
+      username: ${registration.vault.properties.username}
+  http:
+    requests:
+      get_index:
+        uri: ${resources.globals.reg.url}/index.cgi
+        requestContentType: gzip
+        responseContentType: text/html
+        body:
+          ga:
+            - ${global.auth.sessionID}
+        responses:
+          success:
+            - dataSource: '%{response.header}'
+              expression: status-code
+              match: "200"
+          failure:
+            - dataSource: '%{response.header}'
+              expression: status-code
+              match: "500"
+      get_local:
+        uri: ${resources.globals.reg.url}/netconf.cgi
+        requestContentType: gzip
+        responseContentType: text/html
+        header:
+          ga:
+            - ${resources.globals.auth.sessionID}
+        responses:
+          success:
+            - dataSource: '%{response.header}'
+              expression: status-code
+              match: "200"
+          failure:
+            - dataSource: '%{response.header}'
+              expression: status-code
+              match: "500"
+      get_remote:
+        uri: ${resources.globals.reg.url}/remotenetconf.cgi
+        requestContentType: gzip
+        responseContentType: text/html
+        header:
+          ga:
+            - ${resources.globals.auth.sessionID}
+        responses:
+          success:
+            - dataSource: '%{response.header}'
+              expression: status-code
+              match: "200"
+          failure:
+            - dataSource: '%{response.header}'
+              expression: status-code
+              match: "500"
+      get_rf:
+        uri: ${resources.globals.reg.url}/rf.cgi
+        requestContentType: gzip
+        responseContentType: text/html
+        header:
+          ga:
+            - ${resources.globals.auth.sessionID}
+        responses:
+          success:
+            - dataSource: '%{response.header}'
+              expression: status-code
+              match: "200"
+          failure:
+            - dataSource: '%{response.header}'
+              expression: status-code
+              match: "500"
+      get_status:
+        uri: ${resources.globals.reg.url}/status.cgi
+        requestContentType: gzip
+        responseContentType: text/html
+        header:
+          ga:
+            - ${resources.globals.auth.sessionID}
+        responses:
+          success:
+            - dataSource: '%{response.header}'
+              expression: status-code
+              match: "200"
+          failure:
+            - dataSource: '%{response.header}'
+              expression: status-code
+              match: "500"
