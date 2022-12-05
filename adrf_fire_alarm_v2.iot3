@@ -1,0 +1,2662 @@
+iot3: 2.0.0
+info:
+  name: Adrf Fire
+  oem: ADRF
+  model: Fire
+  versions:
+    - "3.0"
+  description: Adrf Fire [Alarm]
+  author: bhagyashree.bothra@qeleo.com
+  stage: alpha
+  revision: 2
+  labels:
+    - adrf
+    - fire
+    - alarms
+    - auto upgraded to v2
+  created: "2022-05-23"
+  updated: "2022-12-05"
+registration:
+  vaultId: vault_id
+  fingerprint:
+    - ip
+    - port
+    - vault_id
+  vault:
+    properties:
+      password:
+        key: password
+        placeholder: Password
+        required: true
+        title: Password
+        type: string
+      username:
+        key: username
+        placeholder: Username
+        required: true
+        title: Username
+        type: string
+    required:
+      - username
+      - password
+  form:
+    properties:
+      ip:
+        key: ip
+        placeholder: IP Address
+        required: true
+        title: IP
+        type: string
+      port:
+        inputType: number
+        key: port
+        maximum: 65535
+        minimum: 1
+        placeholder: Port
+        required: true
+        title: Port
+        type: number
+      vault_id:
+        key: vault_id
+        pattern: ^(cu\w{6})(-av\w{6})$
+        placeholder: Vault ID
+        required: true
+        title: Vault ID
+        type: string
+    required:
+      - ip
+      - port
+      - vault_id
+engines:
+  tunnel:
+    ssh:
+      supported: false
+    http:
+      supported: true
+  upgraded-http:
+    schedule: '@always'
+    auth: '%{resources.auths.upgraded-http}'
+    type: HTTP
+    options:
+      tls:
+        minVersion: "1.0"
+topology:
+  rootType: nms
+  wrapperType: system
+  nodes: true
+  discovery:
+    dataEngine: '%{engines.upgraded-http}'
+    dataSource: '%{resources.http.requests.get_tree}'
+    type: http
+    selectors:
+      nodes:
+        dataEngine: '%{engines.upgraded-http}'
+        selector:
+          type: xslt
+          expression: '%{resources.documents.flatten_tree}'
+        extractor:
+          filters:
+            1: xpath //node
+    flatten:
+      type:
+        filters:
+          1: xpath //node/@type
+          2: toLower
+      topology:
+        filters:
+          1: xpath //node/@topology
+          2: regexpReplace /(\[\d+\])([^;]+);/ => '"$2 $1" -> '
+          3: regexpReplace /-> $/ => ''
+      version:
+        transform: "1.0"
+      name:
+        filters:
+          1: xpath //node/@name
+          2: use %{0}
+          3: xpath //node/@comment
+          4: |
+            switch
+            "%{3}" == "": "%{1}"
+            default:      "%{3}"
+      set_device_id:
+        filters:
+          1: xpath //node/@id
+types:
+  nms:
+    name: NMS
+    version: '[1.0,)'
+    reference: nms
+    attributes:
+      - nms_system_over_temperature_alarm
+      - nms_system_door_open_alarm
+      - nms_system_dsp_fail_alarm
+      - nms_system_system_halt_alarm
+      - nms_ps700_dl_signal_not_detected_alarm
+      - nms_ps700_dl_signal_low_alarm
+      - nms_ps700_dl_oscillation_alarm
+      - nms_ps700_dl_rf_power_alarm
+      - nms_ps700_dl_out_of_band_overload_alarm
+      - nms_ps700_ul_out_of_band_overload_alarm
+      - nms_ps700_dl_dsp_input_overload_alarm
+      - nms_ps700_ul_dsp_input_overload_alarm
+      - nms_ps700_dl_input_overload_alarm
+      - nms_ps700_ul_input_overload_alarm
+      - nms_ps700_dl_over_input_alarm
+      - nms_ps700_ul_over_input_alarm
+      - nms_ps700_dl_over_power_alarm
+      - nms_ps700_ul_over_power_alarm
+      - nms_ps700_dl_synthesizer_lock_fail_alarm
+      - nms_ps700_ul_synthesizer_lock_fail_alarm
+      - nms_ps700_dl_vswr_alarm
+      - nms_ps700_ul_vswr_alarm
+      - nms_ps800_dl_signal_not_detected_alarm
+      - nms_ps800_dl_signal_low_alarm
+      - nms_ps800_dl_oscillation_alarm
+      - nms_ps800_dl_rf_power_alarm
+      - nms_ps800_dl_out_of_band_overload_alarm
+      - nms_ps800_ul_out_of_band_overload_alarm
+      - nms_ps800_dl_dsp_input_overload_alarm
+      - nms_ps800_ul_dsp_input_overload_alarm
+      - nms_ps800_dl_input_overload_alarm
+      - nms_ps800_ul_input_overload_alarm
+      - nms_ps800_dl_over_input_alarm
+      - nms_ps800_ul_over_input_alarm
+      - nms_ps800_dl_over_power_alarm
+      - nms_ps800_ul_over_power_alarm
+      - nms_ps800_dl_synthesizer_lock_fail_alarm
+      - nms_ps800_ul_synthesizer_lock_fail_alarm
+      - nms_ps800_dl_vswr_alarm
+      - nms_ps800_ul_vswr_alarm
+      - nms_power_ac_alarm
+      - nms_power_dc_alarm
+      - nms_power_over_current_alarm
+      - nms_power_battery_fail_alarm
+      - nms_power_battery_not_installed_alarm
+      - nms_power_low_battery_alarm
+      - nms_power_battery_not_charge_alarm
+      - nms_aai_fire_donor_antenna_malfunction_alarm
+      - nms_aai_fire_active_rf_emitting_device_malfunction_alarm
+      - nms_aai_fire_low_battery_or_oscillation_alarm
+      - nms_aai_fire_system_component_or_ann_disconenction_alarm
+      - nms_aai_loss_of_normal_ac_power_alarm
+      - nms_aai_battery_charger_failure_alarm
+      - nms_aai_system_low_battery_capacity_alarm
+      - nms_aai_donor_antenna_malfunction_alarm
+      - nms_aai_active_rf_emitting_device_malfunction_alarm
+      - nms_aai_system_component_alarm
+      - nms_system_sum_alarm
+      - nms_aai_1_alarm
+      - nms_aai_2_alarm
+      - nms_aai_3_alarm
+      - nms_aai_4_alarm
+      - nms_rf_ps700_alarm
+      - nms_rf_ps800_alarm
+      - nms_pwr_sum_alarm
+      - nms_rf700_pll_lock_dl_alarm
+      - nms_rf700_pll_lock_ul_alarm
+      - nms_rf800_pll_lock_dl_alarm
+      - nms_rf800_pll_lock_ul_alarm
+      - nms_aai_in_1_alarm
+    alarms:
+      nms_aai_1_alarm:
+        attributes:
+          - nms_aai_1_alarm
+        mapper: '%{resources.mappers.alarm}'
+      nms_aai_2_alarm:
+        attributes:
+          - nms_aai_2_alarm
+        mapper: '%{resources.mappers.alarm}'
+      nms_aai_3_alarm:
+        attributes:
+          - nms_aai_3_alarm
+        mapper: '%{resources.mappers.alarm}'
+      nms_aai_4_alarm:
+        attributes:
+          - nms_aai_4_alarm
+        mapper: '%{resources.mappers.alarm}'
+      nms_aai_active_rf_emitting_device_malfunction_alarm:
+        attributes:
+          - nms_aai_active_rf_emitting_device_malfunction_alarm
+        mapper: '%{resources.mappers.alarm}'
+      nms_aai_battery_charger_failure_alarm:
+        attributes:
+          - nms_aai_battery_charger_failure_alarm
+        mapper: '%{resources.mappers.alarm}'
+      nms_aai_donor_antenna_malfunction_alarm:
+        attributes:
+          - nms_aai_donor_antenna_malfunction_alarm
+        mapper: '%{resources.mappers.alarm}'
+      nms_aai_fire_active_rf_emitting_device_malfunction_alarm:
+        attributes:
+          - nms_aai_fire_active_rf_emitting_device_malfunction_alarm
+        mapper: '%{resources.mappers.alarm}'
+      nms_aai_fire_donor_antenna_malfunction_alarm:
+        attributes:
+          - nms_aai_fire_donor_antenna_malfunction_alarm
+        mapper: '%{resources.mappers.alarm}'
+      nms_aai_fire_low_battery_or_oscillation_alarm:
+        attributes:
+          - nms_aai_fire_low_battery_or_oscillation_alarm
+        mapper: '%{resources.mappers.alarm}'
+      nms_aai_fire_system_component_or_ann_disconenction_alarm:
+        attributes:
+          - nms_aai_fire_system_component_or_ann_disconenction_alarm
+        mapper: '%{resources.mappers.alarm}'
+      nms_aai_in_1_alarm:
+        attributes:
+          - nms_aai_in_1_alarm
+        mapper: '%{resources.mappers.alarm}'
+      nms_aai_loss_of_normal_ac_power_alarm:
+        attributes:
+          - nms_aai_loss_of_normal_ac_power_alarm
+        mapper: '%{resources.mappers.alarm}'
+      nms_aai_system_component_alarm:
+        attributes:
+          - nms_aai_system_component_alarm
+        mapper: '%{resources.mappers.alarm}'
+      nms_aai_system_low_battery_capacity_alarm:
+        attributes:
+          - nms_aai_system_low_battery_capacity_alarm
+        mapper: '%{resources.mappers.alarm}'
+      nms_power_ac_alarm:
+        attributes:
+          - nms_power_ac_alarm
+        mapper: '%{resources.mappers.alarm}'
+      nms_power_battery_fail_alarm:
+        attributes:
+          - nms_power_battery_fail_alarm
+        mapper: '%{resources.mappers.alarm}'
+      nms_power_battery_not_charge_alarm:
+        attributes:
+          - nms_power_battery_not_charge_alarm
+        mapper: '%{resources.mappers.alarm}'
+      nms_power_battery_not_installed_alarm:
+        attributes:
+          - nms_power_battery_not_installed_alarm
+        mapper: '%{resources.mappers.alarm}'
+      nms_power_dc_alarm:
+        attributes:
+          - nms_power_dc_alarm
+        mapper: '%{resources.mappers.alarm}'
+      nms_power_low_battery_alarm:
+        attributes:
+          - nms_power_low_battery_alarm
+        mapper: '%{resources.mappers.alarm}'
+      nms_power_over_current_alarm:
+        attributes:
+          - nms_power_over_current_alarm
+        mapper: '%{resources.mappers.alarm}'
+      nms_ps700_dl_dsp_input_overload_alarm:
+        attributes:
+          - nms_ps700_dl_dsp_input_overload_alarm
+        mapper: '%{resources.mappers.alarm}'
+      nms_ps700_dl_input_overload_alarm:
+        attributes:
+          - nms_ps700_dl_input_overload_alarm
+        mapper: '%{resources.mappers.alarm}'
+      nms_ps700_dl_oscillation_alarm:
+        attributes:
+          - nms_ps700_dl_oscillation_alarm
+        mapper: '%{resources.mappers.alarm}'
+      nms_ps700_dl_out_of_band_overload_alarm:
+        attributes:
+          - nms_ps700_dl_out_of_band_overload_alarm
+        mapper: '%{resources.mappers.alarm}'
+      nms_ps700_dl_over_input_alarm:
+        attributes:
+          - nms_ps700_dl_over_input_alarm
+        mapper: '%{resources.mappers.alarm}'
+      nms_ps700_dl_over_power_alarm:
+        attributes:
+          - nms_ps700_dl_over_power_alarm
+        mapper: '%{resources.mappers.alarm}'
+      nms_ps700_dl_rf_power_alarm:
+        attributes:
+          - nms_ps700_dl_rf_power_alarm
+        mapper: '%{resources.mappers.alarm}'
+      nms_ps700_dl_signal_low_alarm:
+        attributes:
+          - nms_ps700_dl_signal_low_alarm
+        mapper: '%{resources.mappers.alarm}'
+      nms_ps700_dl_signal_not_detected_alarm:
+        attributes:
+          - nms_ps700_dl_signal_not_detected_alarm
+        mapper: '%{resources.mappers.alarm}'
+      nms_ps700_dl_synthesizer_lock_fail_alarm:
+        attributes:
+          - nms_ps700_dl_synthesizer_lock_fail_alarm
+        mapper: '%{resources.mappers.alarm}'
+      nms_ps700_dl_vswr_alarm:
+        attributes:
+          - nms_ps700_dl_vswr_alarm
+        mapper: '%{resources.mappers.alarm}'
+      nms_ps700_ul_dsp_input_overload_alarm:
+        attributes:
+          - nms_ps700_ul_dsp_input_overload_alarm
+        mapper: '%{resources.mappers.alarm}'
+      nms_ps700_ul_input_overload_alarm:
+        attributes:
+          - nms_ps700_ul_input_overload_alarm
+        mapper: '%{resources.mappers.alarm}'
+      nms_ps700_ul_out_of_band_overload_alarm:
+        attributes:
+          - nms_ps700_ul_out_of_band_overload_alarm
+        mapper: '%{resources.mappers.alarm}'
+      nms_ps700_ul_over_input_alarm:
+        attributes:
+          - nms_ps700_ul_over_input_alarm
+        mapper: '%{resources.mappers.alarm}'
+      nms_ps700_ul_over_power_alarm:
+        attributes:
+          - nms_ps700_ul_over_power_alarm
+        mapper: '%{resources.mappers.alarm}'
+      nms_ps700_ul_synthesizer_lock_fail_alarm:
+        attributes:
+          - nms_ps700_ul_synthesizer_lock_fail_alarm
+        mapper: '%{resources.mappers.alarm}'
+      nms_ps700_ul_vswr_alarm:
+        attributes:
+          - nms_ps700_ul_vswr_alarm
+        mapper: '%{resources.mappers.alarm}'
+      nms_ps800_dl_dsp_input_overload_alarm:
+        attributes:
+          - nms_ps800_dl_dsp_input_overload_alarm
+        mapper: '%{resources.mappers.alarm}'
+      nms_ps800_dl_input_overload_alarm:
+        attributes:
+          - nms_ps800_dl_input_overload_alarm
+        mapper: '%{resources.mappers.alarm}'
+      nms_ps800_dl_oscillation_alarm:
+        attributes:
+          - nms_ps800_dl_oscillation_alarm
+        mapper: '%{resources.mappers.alarm}'
+      nms_ps800_dl_out_of_band_overload_alarm:
+        attributes:
+          - nms_ps800_dl_out_of_band_overload_alarm
+        mapper: '%{resources.mappers.alarm}'
+      nms_ps800_dl_over_input_alarm:
+        attributes:
+          - nms_ps800_dl_over_input_alarm
+        mapper: '%{resources.mappers.alarm}'
+      nms_ps800_dl_over_power_alarm:
+        attributes:
+          - nms_ps800_dl_over_power_alarm
+        mapper: '%{resources.mappers.alarm}'
+      nms_ps800_dl_rf_power_alarm:
+        attributes:
+          - nms_ps800_dl_rf_power_alarm
+        mapper: '%{resources.mappers.alarm}'
+      nms_ps800_dl_signal_low_alarm:
+        attributes:
+          - nms_ps800_dl_signal_low_alarm
+        mapper: '%{resources.mappers.alarm}'
+      nms_ps800_dl_signal_not_detected_alarm:
+        attributes:
+          - nms_ps800_dl_signal_not_detected_alarm
+        mapper: '%{resources.mappers.alarm}'
+      nms_ps800_dl_synthesizer_lock_fail_alarm:
+        attributes:
+          - nms_ps800_dl_synthesizer_lock_fail_alarm
+        mapper: '%{resources.mappers.alarm}'
+      nms_ps800_dl_vswr_alarm:
+        attributes:
+          - nms_ps800_dl_vswr_alarm
+        mapper: '%{resources.mappers.alarm}'
+      nms_ps800_ul_dsp_input_overload_alarm:
+        attributes:
+          - nms_ps800_ul_dsp_input_overload_alarm
+        mapper: '%{resources.mappers.alarm}'
+      nms_ps800_ul_input_overload_alarm:
+        attributes:
+          - nms_ps800_ul_input_overload_alarm
+        mapper: '%{resources.mappers.alarm}'
+      nms_ps800_ul_out_of_band_overload_alarm:
+        attributes:
+          - nms_ps800_ul_out_of_band_overload_alarm
+        mapper: '%{resources.mappers.alarm}'
+      nms_ps800_ul_over_input_alarm:
+        attributes:
+          - nms_ps800_ul_over_input_alarm
+        mapper: '%{resources.mappers.alarm}'
+      nms_ps800_ul_over_power_alarm:
+        attributes:
+          - nms_ps800_ul_over_power_alarm
+        mapper: '%{resources.mappers.alarm}'
+      nms_ps800_ul_synthesizer_lock_fail_alarm:
+        attributes:
+          - nms_ps800_ul_synthesizer_lock_fail_alarm
+        mapper: '%{resources.mappers.alarm}'
+      nms_ps800_ul_vswr_alarm:
+        attributes:
+          - nms_ps800_ul_vswr_alarm
+        mapper: '%{resources.mappers.alarm}'
+      nms_pwr_sum_alarm:
+        attributes:
+          - nms_pwr_sum_alarm
+        mapper: '%{resources.mappers.alarm}'
+      nms_rf_ps700_alarm:
+        attributes:
+          - nms_rf_ps700_alarm
+        mapper: '%{resources.mappers.alarm}'
+      nms_rf_ps800_alarm:
+        attributes:
+          - nms_rf_ps800_alarm
+        mapper: '%{resources.mappers.alarm}'
+      nms_rf700_pll_lock_dl_alarm:
+        attributes:
+          - nms_rf700_pll_lock_dl_alarm
+        mapper: '%{resources.mappers.alarm}'
+      nms_rf700_pll_lock_ul_alarm:
+        attributes:
+          - nms_rf700_pll_lock_ul_alarm
+        mapper: '%{resources.mappers.alarm}'
+      nms_rf800_pll_lock_dl_alarm:
+        attributes:
+          - nms_rf800_pll_lock_dl_alarm
+        mapper: '%{resources.mappers.alarm}'
+      nms_rf800_pll_lock_ul_alarm:
+        attributes:
+          - nms_rf800_pll_lock_ul_alarm
+        mapper: '%{resources.mappers.alarm}'
+      nms_system_door_open_alarm:
+        attributes:
+          - nms_system_door_open_alarm
+        mapper: '%{resources.mappers.alarm}'
+      nms_system_dsp_fail_alarm:
+        attributes:
+          - nms_system_dsp_fail_alarm
+        mapper: '%{resources.mappers.alarm}'
+      nms_system_over_temperature_alarm:
+        attributes:
+          - nms_system_over_temperature_alarm
+        mapper: '%{resources.mappers.alarm}'
+      nms_system_sum_alarm:
+        attributes:
+          - nms_system_sum_alarm
+        mapper: '%{resources.mappers.alarm}'
+      nms_system_system_halt_alarm:
+        attributes:
+          - nms_system_system_halt_alarm
+        mapper: '%{resources.mappers.alarm}'
+    price:
+      value: 0
+      unit: USD
+    energy:
+      value: 0
+      unit: W
+  odu:
+    name: ODU
+    version: '[1.0,)'
+    reference: odu
+    attributes:
+      - odu_ld_fail_alarm
+      - odu_pd_fail_1_alarm
+      - odu_pd_fail_2_alarm
+      - odu_pd_fail_3_alarm
+      - odu_pd_fail_4_alarm
+      - odu_link_fail_alarm
+    alarms:
+      odu_ld_fail_alarm:
+        attributes:
+          - odu_ld_fail_alarm
+        mapper: '%{resources.mappers.alarm}'
+      odu_link_fail_alarm:
+        attributes:
+          - odu_link_fail_alarm
+        mapper: '%{resources.mappers.alarm}'
+      odu_pd_fail_1_alarm:
+        attributes:
+          - odu_pd_fail_1_alarm
+        mapper: '%{resources.mappers.alarm}'
+      odu_pd_fail_2_alarm:
+        attributes:
+          - odu_pd_fail_2_alarm
+        mapper: '%{resources.mappers.alarm}'
+      odu_pd_fail_3_alarm:
+        attributes:
+          - odu_pd_fail_3_alarm
+        mapper: '%{resources.mappers.alarm}'
+      odu_pd_fail_4_alarm:
+        attributes:
+          - odu_pd_fail_4_alarm
+        mapper: '%{resources.mappers.alarm}'
+    price:
+      value: 0
+      unit: USD
+    energy:
+      value: 0
+      unit: W
+  oru:
+    name: ORU
+    version: '[1.0,)'
+    reference: oru
+    attributes:
+      - oru_ld_fail_alarm
+      - oru_pd_fail_alarm
+      - oru_link_fail_alarm
+      - oru_ac_fail_alarm
+      - oru_dc_fail_alarm
+      - oru_over_current_alarm
+      - oru_battery_fail_alarm
+      - oru_battery_low_alarm
+      - oru_battery_not_det_alarm
+      - oru_battery_not_installed_alarm
+    alarms:
+      oru_ac_fail_alarm:
+        attributes:
+          - oru_ac_fail_alarm
+        mapper: '%{resources.mappers.alarm}'
+      oru_battery_fail_alarm:
+        attributes:
+          - oru_battery_fail_alarm
+        mapper: '%{resources.mappers.alarm}'
+      oru_battery_low_alarm:
+        attributes:
+          - oru_battery_low_alarm
+        mapper: '%{resources.mappers.alarm}'
+      oru_battery_not_det_alarm:
+        attributes:
+          - oru_battery_not_det_alarm
+        mapper: '%{resources.mappers.alarm}'
+      oru_battery_not_installed_alarm:
+        attributes:
+          - oru_battery_not_installed_alarm
+        mapper: '%{resources.mappers.alarm}'
+      oru_dc_fail_alarm:
+        attributes:
+          - oru_dc_fail_alarm
+        mapper: '%{resources.mappers.alarm}'
+      oru_ld_fail_alarm:
+        attributes:
+          - oru_ld_fail_alarm
+        mapper: '%{resources.mappers.alarm}'
+      oru_link_fail_alarm:
+        attributes:
+          - oru_link_fail_alarm
+        mapper: '%{resources.mappers.alarm}'
+      oru_over_current_alarm:
+        attributes:
+          - oru_over_current_alarm
+        mapper: '%{resources.mappers.alarm}'
+      oru_pd_fail_alarm:
+        attributes:
+          - oru_pd_fail_alarm
+        mapper: '%{resources.mappers.alarm}'
+    price:
+      value: 0
+      unit: USD
+    energy:
+      value: 0
+      unit: "0"
+  rm:
+    name: HPR
+    version: '[1.0,)'
+    reference: rm
+    attributes:
+      - rm_link_fail_alarm
+      - rm_system_halt_alarm
+      - rm_over_temperature_alarm
+      - rm_under_temperature_alarm
+      - rm_system_sum_alarm
+      - rm_ul_input_overload_alarm
+      - rm_sa_pll_lock_fail_alarm
+      - rm_dl_overpower_alarm
+      - rm_dl_low_output_power_alarm
+      - rm_dl_vswr_alarm
+      - rm_aai_slot_loss_ac_alarm
+      - rm_aai_slot_battery_charger_failure_alarm
+      - rm_aai_slot_low_battery_capacity_alarm
+      - rm_aai_slot_donor_antenna_malfunction_alarm
+      - rm_aai_slot_active_rf_device_amlfunction_alarm
+      - rm_aai_slot_system_component_malfunction_alarm
+      - rm_aai_slot_upper_donor_antenna_alarm
+      - rm_aai_slot_upper_active_rf_alarm
+      - rm_aai_slot_upper_low_battery_alarm
+      - rm_aai_slot_upper_system_component_alarm
+      - rm_rf_sum_alarm
+      - rm_aai_2_alarm
+    alarms:
+      rm_aai_2_alarm:
+        attributes:
+          - rm_aai_2_alarm
+        mapper: '%{resources.mappers.alarm}'
+      rm_aai_slot_active_rf_device_amlfunction_alarm:
+        attributes:
+          - rm_aai_slot_active_rf_device_amlfunction_alarm
+        mapper: '%{resources.mappers.alarm}'
+      rm_aai_slot_battery_charger_failure_alarm:
+        attributes:
+          - rm_aai_slot_battery_charger_failure_alarm
+        mapper: '%{resources.mappers.alarm}'
+      rm_aai_slot_donor_antenna_malfunction_alarm:
+        attributes:
+          - rm_aai_slot_donor_antenna_malfunction_alarm
+        mapper: '%{resources.mappers.alarm}'
+      rm_aai_slot_loss_ac_alarm:
+        attributes:
+          - rm_aai_slot_loss_ac_alarm
+        mapper: '%{resources.mappers.alarm}'
+      rm_aai_slot_low_battery_capacity_alarm:
+        attributes:
+          - rm_aai_slot_low_battery_capacity_alarm
+        mapper: '%{resources.mappers.alarm}'
+      rm_aai_slot_system_component_malfunction_alarm:
+        attributes:
+          - rm_aai_slot_system_component_malfunction_alarm
+        mapper: '%{resources.mappers.alarm}'
+      rm_aai_slot_upper_active_rf_alarm:
+        attributes:
+          - rm_aai_slot_upper_active_rf_alarm
+        mapper: '%{resources.mappers.alarm}'
+      rm_aai_slot_upper_donor_antenna_alarm:
+        attributes:
+          - rm_aai_slot_upper_donor_antenna_alarm
+        mapper: '%{resources.mappers.alarm}'
+      rm_aai_slot_upper_low_battery_alarm:
+        attributes:
+          - rm_aai_slot_upper_low_battery_alarm
+        mapper: '%{resources.mappers.alarm}'
+      rm_aai_slot_upper_system_component_alarm:
+        attributes:
+          - rm_aai_slot_upper_system_component_alarm
+        mapper: '%{resources.mappers.alarm}'
+      rm_dl_low_output_power_alarm:
+        attributes:
+          - rm_dl_low_output_power_alarm
+        mapper: '%{resources.mappers.alarm}'
+      rm_dl_overpower_alarm:
+        attributes:
+          - rm_dl_overpower_alarm
+        mapper: '%{resources.mappers.alarm}'
+      rm_dl_vswr_alarm:
+        attributes:
+          - rm_dl_vswr_alarm
+        mapper: '%{resources.mappers.alarm}'
+      rm_link_fail_alarm:
+        attributes:
+          - rm_link_fail_alarm
+        mapper: '%{resources.mappers.alarm}'
+      rm_over_temperature_alarm:
+        attributes:
+          - rm_over_temperature_alarm
+        mapper: '%{resources.mappers.alarm}'
+      rm_rf_sum_alarm:
+        attributes:
+          - rm_rf_sum_alarm
+        mapper: '%{resources.mappers.alarm}'
+      rm_sa_pll_lock_fail_alarm:
+        attributes:
+          - rm_sa_pll_lock_fail_alarm
+        mapper: '%{resources.mappers.alarm}'
+      rm_system_halt_alarm:
+        attributes:
+          - rm_system_halt_alarm
+        mapper: '%{resources.mappers.alarm}'
+      rm_system_sum_alarm:
+        attributes:
+          - rm_system_sum_alarm
+        mapper: '%{resources.mappers.alarm}'
+      rm_ul_input_overload_alarm:
+        attributes:
+          - rm_ul_input_overload_alarm
+        mapper: '%{resources.mappers.alarm}'
+      rm_under_temperature_alarm:
+        attributes:
+          - rm_under_temperature_alarm
+        mapper: '%{resources.mappers.alarm}'
+    price:
+      value: 0
+      unit: USD
+    energy:
+      value: 0
+      unit: W
+  system:
+    name: System
+    version: '[1.0,)'
+    reference: system
+    price:
+      value: 0
+      unit: USD
+    energy:
+      value: 0
+      unit: W
+attributes:
+  nms_aai_1_alarm:
+    name: NMS AAI 1 Alarm
+    description: NMS AAI 1 Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  nms_aai_2_alarm:
+    name: NMS AAI 2 Alarm
+    description: NMS AAI 2 Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  nms_aai_3_alarm:
+    name: NMS AAI 3 Alarm
+    description: NMS AAI 3 Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  nms_aai_4_alarm:
+    name: NMS AAI 4 Alarm
+    description: NMS AAI 4 Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  nms_aai_active_rf_emitting_device_malfunction_alarm:
+    name: NMS AAI Active RF Emitting Device Malfunction Alarm
+    description: NMS AAI Active RF Emitting Device Malfunction Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  nms_aai_battery_charger_failure_alarm:
+    name: NMS AAI Battery Charger Failure Alarm
+    description: NMS AAI Battery Charger Failure Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  nms_aai_donor_antenna_malfunction_alarm:
+    name: NMS AAI Donor Antenna Malfunction Alarm
+    description: NMS AAI Donor Antenna Malfunction Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  nms_aai_fire_active_rf_emitting_device_malfunction_alarm:
+    name: NMS AAI Fire Active RF Emitting Device Malfunction Alarm
+    description: NMS AAI Fire Active RF Emitting Device Malfunction Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  nms_aai_fire_donor_antenna_malfunction_alarm:
+    name: NMS AAI Fire Donor Antenna Malfunction Alarm
+    description: NMS AAI Fire Donor Antenna Malfunction Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  nms_aai_fire_low_battery_or_oscillation_alarm:
+    name: NMS AAI Fire Low Battery Or Oscillation Alarm
+    description: NMS AAI Fire Low Battery Or Oscillation Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  nms_aai_fire_system_component_or_ann_disconenction_alarm:
+    name: NMS AAI Fire System Component Or ANN Disconnection Alarm
+    description: NMS AAI Fire System Component Or ANN Disconnection Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  nms_aai_in_1_alarm:
+    name: NMS AAI In 1 Alarm
+    description: NMS AAI In 1 Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  nms_aai_loss_of_normal_ac_power_alarm:
+    name: NMS AAI Loss Of Normal AC Power Alarm
+    description: NMS AAI Loss Of Normal AC Power Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  nms_aai_system_component_alarm:
+    name: NMS AAI System Component Alarm
+    description: NMS AAI System Component Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  nms_aai_system_low_battery_capacity_alarm:
+    name: NMS AAI System Low Battery Capacity Alarm
+    description: NMS AAI System Low Battery Capacity Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  nms_power_ac_alarm:
+    name: NMS Power AC Alarm
+    description: NMS Power AC Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  nms_power_battery_fail_alarm:
+    name: NMS Power Battery Fail Alarm
+    description: NMS Power Battery Fail Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  nms_power_battery_not_charge_alarm:
+    name: NMS Power Battery Not Charge Alarm
+    description: NMS Power Battery Not Charge Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  nms_power_battery_not_installed_alarm:
+    name: NMS Power Battery Not Installed Alarm
+    description: NMS Power Battery Not Installed Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  nms_power_dc_alarm:
+    name: NMS Power DC Alarm
+    description: NMS Power DC Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  nms_power_low_battery_alarm:
+    name: NMS Power Low Battery Alarm
+    description: NMS Power Low Battery Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  nms_power_over_current_alarm:
+    name: NMS Power Over Current Alarm
+    description: NMS Power Over Current Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  nms_ps700_dl_dsp_input_overload_alarm:
+    name: NMS PS700 DL DSP Input Overload Alarm
+    description: NMS PS700 DL DSP Input Overload Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  nms_ps700_dl_input_overload_alarm:
+    name: NMS PS700 DL Input Overload Alarm
+    description: NMS PS700 DL Input Overload Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  nms_ps700_dl_oscillation_alarm:
+    name: NMS PS700 DL Oscillation Alarm
+    description: NMS PS700 DL Oscillation Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  nms_ps700_dl_out_of_band_overload_alarm:
+    name: NMS PS700 DL Out Of Band Overload Alarm
+    description: NMS PS700 DL Out Of Band Overload Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  nms_ps700_dl_over_input_alarm:
+    name: NMS PS700 DL Over Input Alarm
+    description: NMS PS700 DL Over Input Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  nms_ps700_dl_over_power_alarm:
+    name: NMS PS700 DL Over Power Alarm
+    description: NMS PS700 DL Over Power Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  nms_ps700_dl_rf_power_alarm:
+    name: NMS PS700 DL RF Power Alarm
+    description: NMS PS700 DL RF Power Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  nms_ps700_dl_signal_low_alarm:
+    name: NMS PS700 DL Signal Low Alarm
+    description: NMS PS700 DL Signal Low Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  nms_ps700_dl_signal_not_detected_alarm:
+    name: NMS PS700 DL Signal Not Detected Alarm
+    description: NMS PS700 DL Signal Not Detected Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  nms_ps700_dl_synthesizer_lock_fail_alarm:
+    name: NMS PS700 DL Synthesizer Lock Fail Alarm
+    description: NMS PS700 DL Synthesizer Lock Fail Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  nms_ps700_dl_vswr_alarm:
+    name: NMS PS700 DL VSWR Alarm
+    description: NMS PS700 DL VSWR Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  nms_ps700_ul_dsp_input_overload_alarm:
+    name: NMS PS700 UL DSP Input Overload Alarm
+    description: NMS PS700 UL DSP Input Overload Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  nms_ps700_ul_input_overload_alarm:
+    name: NMS PS700 UL Input Overload Alarm
+    description: NMS PS700 UL Input Overload Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  nms_ps700_ul_out_of_band_overload_alarm:
+    name: NMS PS700 UL Out Of Band Overload Alarm
+    description: NMS PS700 UL Out Of Band Overload Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  nms_ps700_ul_over_input_alarm:
+    name: NMS PS700 UL Over Input Alarm
+    description: NMS PS700 UL Over Input Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  nms_ps700_ul_over_power_alarm:
+    name: NMS PS700 UL Over Power Alarm
+    description: NMS PS700 UL Over Power Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  nms_ps700_ul_synthesizer_lock_fail_alarm:
+    name: NMS PS700 UL Synthesizer Lock Fail Alarm
+    description: NMS PS700 UL Synthesizer Lock Fail Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  nms_ps700_ul_vswr_alarm:
+    name: NMS PS700 UL VSWR Alarm
+    description: NMS PS700 UL VSWR Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  nms_ps800_dl_dsp_input_overload_alarm:
+    name: NMS PS800 DL DSP Input Overload Alarm
+    description: NMS PS800 DL DSP Input Overload Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  nms_ps800_dl_input_overload_alarm:
+    name: NMS PS800 DL Input Overload Alarm
+    description: NMS PS800 DL Input Overload Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  nms_ps800_dl_oscillation_alarm:
+    name: NMS PS800 DL Oscillation Alarm
+    description: NMS PS800 DL Oscillation Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  nms_ps800_dl_out_of_band_overload_alarm:
+    name: NMS PS800 DL Out Of Band Overload Alarm
+    description: NMS PS800 DL Out Of Band Overload Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  nms_ps800_dl_over_input_alarm:
+    name: NMS PS800 DL Over Input Alarm
+    description: NMS PS800 DL Over Input Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  nms_ps800_dl_over_power_alarm:
+    name: NMS PS800 DL Over Power Alarm
+    description: NMS PS800 DL Over Power Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  nms_ps800_dl_rf_power_alarm:
+    name: NMS PS800 DL RF Power Alarm
+    description: NMS PS800 DL RF Power Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  nms_ps800_dl_signal_low_alarm:
+    name: NMS PS800 DL Signal Low Alarm
+    description: NMS PS800 DL Signal Low Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  nms_ps800_dl_signal_not_detected_alarm:
+    name: NMS PS800 DL Signal Not Detected Alarm
+    description: NMS PS800 DL Signal Not Detected Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  nms_ps800_dl_synthesizer_lock_fail_alarm:
+    name: NMS PS800 DL Synthesizer Lock Fail Alarm
+    description: NMS PS800 DL Synthesizer Lock Fail Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  nms_ps800_dl_vswr_alarm:
+    name: NMS PS800 DL VSWR Alarm
+    description: NMS PS800 DL VSWR Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  nms_ps800_ul_dsp_input_overload_alarm:
+    name: NMS PS800 UL DSP Input Overload Alarm
+    description: NMS PS800 UL DSP Input Overload Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  nms_ps800_ul_input_overload_alarm:
+    name: NMS PS800 UL Input Overload Alarm
+    description: NMS PS800 UL Input Overload Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  nms_ps800_ul_out_of_band_overload_alarm:
+    name: NMS PS800 UL Out Of Band Overload Alarm
+    description: NMS PS800 UL Out Of Band Overload Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  nms_ps800_ul_over_input_alarm:
+    name: NMS PS800 UL Over Input Alarm
+    description: NMS PS800 UL Over Input Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  nms_ps800_ul_over_power_alarm:
+    name: NMS PS800 UL Over Power Alarm
+    description: NMS PS800 UL Over Power Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  nms_ps800_ul_synthesizer_lock_fail_alarm:
+    name: NMS PS800 UL Synthesizer Lock Fail Alarm
+    description: NMS PS800 UL Synthesizer Lock Fail Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  nms_ps800_ul_vswr_alarm:
+    name: NMS PS800 UL VSWR Alarm
+    description: NMS PS800 UL VSWR Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  nms_pwr_sum_alarm:
+    name: NMS PWR Sum Alarm
+    description: NMS PWR Sum Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  nms_rf_ps700_alarm:
+    name: NMS RF PS700 Alarm
+    description: NMS RF PS700 Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  nms_rf_ps800_alarm:
+    name: NMS RF PS800 Alarm
+    description: NMS RF PS800 Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  nms_rf700_pll_lock_dl_alarm:
+    name: NMS RF700 PLL Lock DL Alarm
+    description: NMS RF700 PLL Lock DL Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  nms_rf700_pll_lock_ul_alarm:
+    name: NMS RF700 PLL Lock UL Alarm
+    description: NMS RF700 PLL Lock UL Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  nms_rf800_pll_lock_dl_alarm:
+    name: NMS RF800 PLL Lock DL Alarm
+    description: NMS RF800 PLL Lock DL Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  nms_rf800_pll_lock_ul_alarm:
+    name: NMS RF800 PLL Lock UL Alarm
+    description: NMS RF800 PLL Lock UL Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  nms_system_door_open_alarm:
+    name: NMS System Door Open Alarm
+    description: NMS System Door Open Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  nms_system_dsp_fail_alarm:
+    name: NMS System DSP Fail Alarm
+    description: NMS System DSP Fail Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  nms_system_over_temperature_alarm:
+    name: NMS System Over Temperature Alarm
+    description: NMS System Over Temperature Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  nms_system_sum_alarm:
+    name: NMS System Sum Alarm
+    description: NMS System Sum Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  nms_system_system_halt_alarm:
+    name: NMS System System Halt Alarm
+    description: NMS System System Halt Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  odu_ld_fail_alarm:
+    name: ODU LD Fail Alarm
+    description: ODU LD Fail Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  odu_link_fail_alarm:
+    name: ODU Link Fail Alarm
+    description: ODU Link Fail Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  odu_pd_fail_1_alarm:
+    name: ODU PD Fail 1 Alarm
+    description: ODU PD Fail 1 Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  odu_pd_fail_2_alarm:
+    name: ODU PD Fail 2 Alarm
+    description: ODU PD Fail 2 Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  odu_pd_fail_3_alarm:
+    name: ODU PD Fail 3 Alarm
+    description: ODU PD Fail 3 Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  odu_pd_fail_4_alarm:
+    name: ODU PD Fail 4 Alarm
+    description: ODU PD Fail 4 Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  oru_ac_fail_alarm:
+    name: ORU AC Fail Alarm
+    description: ORU AC Fail Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  oru_battery_fail_alarm:
+    name: ORU Battery Fail Alarm
+    description: ORU Battery Fail Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  oru_battery_low_alarm:
+    name: ORU Battery Low Alarm
+    description: ORU Battery Low Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  oru_battery_not_det_alarm:
+    name: ORU Battery Not Det Alarm
+    description: ORU Battery Not Det Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  oru_battery_not_installed_alarm:
+    name: ORU Battery Not Installed Alarm
+    description: ORU Battery Not Installed Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  oru_dc_fail_alarm:
+    name: ORU DC Fail Alarm
+    description: ORU DC Fail Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  oru_ld_fail_alarm:
+    name: ORU LD Fail Alarm
+    description: ORU LD Fail Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  oru_link_fail_alarm:
+    name: ORU Link Fail Alarm
+    description: ORU Link Fail Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  oru_over_current_alarm:
+    name: ORU Over Current Alarm
+    description: ORU Over Current Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  oru_pd_fail_alarm:
+    name: ORU PD Fail Alarm
+    description: ORU PD Fail Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  rm_aai_2_alarm:
+    name: RM AAI 2 Alarm
+    description: RM AAI 2 Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  rm_aai_slot_active_rf_device_amlfunction_alarm:
+    name: RM AAI Slot Active RF Device Amlfunction Alarm
+    description: RM AAI Slot Active RF Device Amlfunction Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  rm_aai_slot_battery_charger_failure_alarm:
+    name: RM AAI Slot Battery Charger Failure Alarm
+    description: RM AAI Slot Battery Charger Failure Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  rm_aai_slot_donor_antenna_malfunction_alarm:
+    name: RM AAI Slot Donor Antenna Malfunction Alarm
+    description: RM AAI Slot Donor Antenna Malfunction Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  rm_aai_slot_loss_ac_alarm:
+    name: RM AAI Slot Loss AC Alarm
+    description: RM AAI Slot Loss AC Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  rm_aai_slot_low_battery_capacity_alarm:
+    name: RM AAI Slot Low Battery Capacity Alarm
+    description: RM AAI Slot Low Battery Capacity Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  rm_aai_slot_system_component_malfunction_alarm:
+    name: RM AAI Slot System Component Malfunction Alarm
+    description: RM AAI Slot System Component Malfunction Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  rm_aai_slot_upper_active_rf_alarm:
+    name: RM AAI Slot Upper Active RF Alarm
+    description: RM AAI Slot Upper Active RF Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  rm_aai_slot_upper_donor_antenna_alarm:
+    name: RM AAI Slot Upper Donor Antenna Alarm
+    description: RM AAI Slot Upper Donor Antenna Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  rm_aai_slot_upper_low_battery_alarm:
+    name: RM AAI Slot Upper Low Battery Alarm
+    description: RM AAI Slot Upper Low Battery Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  rm_aai_slot_upper_system_component_alarm:
+    name: RM AAI Slot Upper System Component Alarm
+    description: RM AAI Slot Upper System Component Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  rm_dl_low_output_power_alarm:
+    name: RM DL Low Output Power Alarm
+    description: RM DL Low Output Power Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  rm_dl_overpower_alarm:
+    name: RM DL Overpower Alarm
+    description: RM DL Overpower Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  rm_dl_vswr_alarm:
+    name: RM DL VSWR Alarm
+    description: RM DL VSWR Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  rm_link_fail_alarm:
+    name: RM Link Fail Alarm
+    description: RM Link Fail Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  rm_over_temperature_alarm:
+    name: RM Over Temperature Alarm
+    description: RM Over Temperature Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  rm_rf_sum_alarm:
+    name: RM RF Sum Alarm
+    description: RM RF Sum Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  rm_sa_pll_lock_fail_alarm:
+    name: RM SA PLL Lock Fail Alarm
+    description: RM SA PLL Lock Fail Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  rm_system_halt_alarm:
+    name: RM System Halt Alarm
+    description: RM System Halt Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  rm_system_sum_alarm:
+    name: RM System Sum Alarm
+    description: RM System Sum Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  rm_ul_input_overload_alarm:
+    name: RM UL Input Overload Alarm
+    description: RM UL Input Overload Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  rm_under_temperature_alarm:
+    name: RM Under Temperature Alarm
+    description: RM Under Temperature Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+resources:
+  auths:
+    upgraded-http:
+      http:
+        httpUri: false
+        actions:
+          login:
+            dataEngine: '%{engines.upgraded-http}'
+            dataSource: '%{resources.http.requests.login}'
+            selector:
+              type: cookie
+              expression: PHPSESSID
+            dataSink: '%{resources.globals.auth.sessionId}'
+          logout:
+            dataEngine: '%{engines.upgraded-http}'
+            dataSource: '%{resources.http.requests.logout}'
+            selector:
+              type: static
+              expression: ""
+            dataSink: '%{resources.globals.auth.sessionId}'
+  mappers:
+    alarm:
+      keyType: String
+      valueType: String
+      map:
+        AAI_FAIL: Critical
+        AAI_NORMAL: Normal
+        HARD: Severe
+        INACTIVE: Normal
+        NORMAL: Normal
+        SOFT: Warning
+  globals:
+    auth:
+      sessionId: 0
+    reg:
+      ip: ${registration.form.properties.ip}
+      password: ${registration.vault.properties.password}
+      port: ${registration.form.properties.port}
+      url: http://${registration.form.properties.ip}:${registration.form.properties.port}
+      username: ${registration.vault.properties.username}
+  http:
+    requests:
+      get_tree:
+        method: POST
+        uri: ${resources.globals.reg.url}/cgi-bin/request.cgi
+        requestContentType: application/x-www-form-urlencoded
+        responseContentType: text/xml
+        query:
+          ?cascadecode: ""
+          ?version: 1.0.61
+          ipaddress: ""
+        body:
+          ?USER_ID: ${resources.globals.reg.username}
+          DEVICE_ID: ${topology.discovery.flatten.set_device_id}
+          MAIN_COMMAND: null
+        responses:
+          success:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: "200"
+          failure:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: ^(?!200)
+      login:
+        method: POST
+        uri: ${resources.globals.reg.url}/functions/setFormData.php
+        requestContentType: application/x-www-form-urlencoded
+        responseContentType: text/html
+        query:
+          ?cascadecode: ""
+          ?version: 1.0.61
+          ipaddress: ""
+        body:
+          password: ${resources.globals.reg.password}
+          submit_login: Login
+          username: ${resources.globals.reg.username}
+        responses:
+          success:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: "200"
+          failure:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: ^(?!200)
+      logout:
+        uri: ${resources.globals.reg.url}/NMS/status.php
+        responseContentType: text/html
+        query:
+          ?cascadecode: ""
+          ?version: 1.0.61
+          ipaddress: ""
+          logout: ""
+        responses:
+          success:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: "200"
+          failure:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: ^(?!200)
