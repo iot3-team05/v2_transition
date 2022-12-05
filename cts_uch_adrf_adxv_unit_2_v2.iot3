@@ -1,0 +1,3029 @@
+iot3: 2.0.0
+info:
+  name: ADRF ADXV-H-NMS-AC
+  oem: ADRF
+  model: ADXV-H-NMS-AC
+  versions:
+    - 3.0.0
+  description: ADRF ADXV-H-NMS-AC
+  author: deep.desai@qeleo.com
+  stage: alpha
+  revision: 3
+  labels:
+    - adrf
+    - adxv-h-nms-ac
+    - alarms
+    - attributes
+    - Unit 2
+    - auto upgraded to v2
+  created: "2022-09-21"
+  updated: "2022-12-05"
+registration:
+  vaultId: vault_id
+  fingerprint:
+    - ip
+    - port
+    - vault_id
+  vault:
+    properties:
+      password:
+        key: password
+        placeholder: Password
+        required: true
+        title: Password
+        type: string
+      username:
+        key: username
+        placeholder: Username
+        required: true
+        title: Username
+        type: string
+    required:
+      - username
+      - password
+  form:
+    properties:
+      ip:
+        key: ip
+        placeholder: IP Address
+        required: true
+        title: IP
+        type: string
+      port:
+        inputType: number
+        key: port
+        maximum: 65535
+        minimum: 1
+        placeholder: Port
+        required: true
+        title: Port
+        type: number
+      vault_id:
+        key: vault_id
+        pattern: ^(cu\w{6})(-av\w{6})$
+        placeholder: Vault ID
+        required: true
+        title: Vault ID
+        type: string
+    required:
+      - ip
+      - port
+      - vault_id
+engines:
+  tunnel:
+    ssh:
+      supported: false
+    http:
+      supported: true
+  upgraded-http:
+    schedule: '@always'
+    auth: '%{resources.auths.upgraded-http}'
+    type: HTTP
+    options:
+      tls:
+        minVersion: "1.0"
+topology:
+  rootType: nms
+  wrapperType: system
+  nodes: true
+  discovery:
+    dataEngine: '%{engines.upgraded-http}'
+    dataSource: '%{resources.http.requests.get_tree}'
+    type: http
+    selectors:
+      nodes:
+        dataEngine: '%{engines.upgraded-http}'
+        selector:
+          type: xslt
+          expression: '%{resources.documents.flatten_tree}'
+        extractor:
+          filters:
+            1: xpath //node
+    flatten:
+      type:
+        filters:
+          1: xpath //node/@type
+          2: toLower
+      topology:
+        filters:
+          1: xpath //node/@topology
+          2: regexpReplace /(\[\d+\])([^;]+);/ => '"$2 $1" -> '
+          3: regexpReplace /-> $/ => ''
+      version:
+        transform: "1.0"
+      name:
+        filters:
+          1: xpath //node/@name
+          2: use %{0}
+          3: regexpReplace /(comment=".*?")/ => 'comment=""'
+          4: xpath //node/@comment
+          5: |
+            switch
+            "%{4}" == "->": "%{1}"
+            default:      "%{4}"
+      set_device_id:
+        filters:
+          1: xpath //node/@id
+types:
+  chc:
+    name: CHC
+    version: '[1.0,)'
+    reference: chc
+    attributes:
+      - chc_info_serial_no
+      - chc_info_latitude
+      - chc_info_longitude
+      - chc_info_firmware
+      - chc_info_web_gui
+      - chc_frequency_path_freq_1
+    price:
+      value: 0
+      unit: USD
+    energy:
+      value: 0
+      unit: "0"
+  nms:
+    name: NMS
+    version: '[1.0,)'
+    reference: nms
+    attributes:
+      - nms_info_serial_no
+      - nms_info_latitude
+      - nms_info_longitude
+      - nms_info_firmware
+      - nms_info_web_gui
+      - nms_system_fan_1_alarm
+      - nms_system_fan_2_alarm
+      - nms_system_fan_3_alarm
+      - nms_system_over_temperature_alarm
+      - nms_system_under_temperature_alarm
+      - nms_system_ac_fail_alarm
+      - nms_system_dc_fail_alarm
+      - nms_system_battery_fail_alarm
+      - nms_system_battery_low_alarm
+      - nms_system_battery_not_installed_alarm
+      - nms_system_battery_not_charge_alarm
+    alarms:
+      nms_system_ac_fail_alarm:
+        attributes:
+          - nms_system_ac_fail_alarm
+        mapper: '%{resources.mappers.alarms}'
+      nms_system_battery_fail_alarm:
+        attributes:
+          - nms_system_battery_fail_alarm
+        mapper: '%{resources.mappers.alarms}'
+      nms_system_battery_low_alarm:
+        attributes:
+          - nms_system_battery_low_alarm
+        mapper: '%{resources.mappers.alarms}'
+      nms_system_battery_not_charge_alarm:
+        attributes:
+          - nms_system_battery_not_charge_alarm
+        mapper: '%{resources.mappers.alarms}'
+      nms_system_battery_not_installed_alarm:
+        attributes:
+          - nms_system_battery_not_installed_alarm
+        mapper: '%{resources.mappers.alarms}'
+      nms_system_dc_fail_alarm:
+        attributes:
+          - nms_system_dc_fail_alarm
+        mapper: '%{resources.mappers.alarms}'
+      nms_system_fan_1_alarm:
+        attributes:
+          - nms_system_fan_1_alarm
+        mapper: '%{resources.mappers.alarms}'
+      nms_system_fan_2_alarm:
+        attributes:
+          - nms_system_fan_2_alarm
+        mapper: '%{resources.mappers.alarms}'
+      nms_system_fan_3_alarm:
+        attributes:
+          - nms_system_fan_3_alarm
+        mapper: '%{resources.mappers.alarms}'
+      nms_system_over_temperature_alarm:
+        attributes:
+          - nms_system_over_temperature_alarm
+        mapper: '%{resources.mappers.alarms}'
+      nms_system_under_temperature_alarm:
+        attributes:
+          - nms_system_under_temperature_alarm
+        mapper: '%{resources.mappers.alarms}'
+    price:
+      value: 0
+      unit: USD
+    energy:
+      value: 0
+      unit: "0"
+  odu:
+    name: ODU
+    version: '[1.0,)'
+    reference: odu
+    attributes:
+      - odu_info_serial_no
+      - odu_info_latitude
+      - odu_info_longitude
+      - odu_info_firmware
+      - odu_info_web_gui
+      - odu_rf_level_dl_1
+      - odu_rf_level_ul_1
+      - odu_optic_status_link_1_pd_power
+      - odu_optic_status_link_2_pd_power
+      - odu_optic_status_link_3_pd_power
+      - odu_optic_status_link_4_pd_power
+      - odu_optic_status_link_ld_power
+      - odu_optic_atten_link_dl
+      - odu_optic_atten_link_ul_common
+      - odu_optic_atten_link_ul_1
+      - odu_optic_atten_link_ul_2
+      - odu_optic_atten_link_ul_3
+      - odu_optic_atten_link_ul_4
+      - odu_optic_loss_link_1_dl
+      - odu_optic_loss_link_2_dl
+      - odu_optic_loss_link_3_dl
+      - odu_optic_loss_link_4_dl
+      - odu_optic_loss_link_1_ul
+      - odu_optic_loss_link_2_ul
+      - odu_optic_loss_link_3_ul
+      - odu_optic_loss_link_4_ul
+      - odu_ld_fail_alarm
+      - odu_pd_fail_1_alarm
+      - odu_pd_fail_2_alarm
+      - odu_pd_fail_3_alarm
+      - odu_pd_fail_4_alarm
+      - odu_link_fail_alarm
+    alarms:
+      odu_ld_fail_alarm:
+        attributes:
+          - odu_ld_fail_alarm
+        mapper: '%{resources.mappers.alarms}'
+      odu_link_fail_alarm:
+        attributes:
+          - odu_link_fail_alarm
+        mapper: '%{resources.mappers.alarms}'
+      odu_pd_fail_1_alarm:
+        attributes:
+          - odu_pd_fail_1_alarm
+        mapper: '%{resources.mappers.alarms}'
+      odu_pd_fail_2_alarm:
+        attributes:
+          - odu_pd_fail_2_alarm
+        mapper: '%{resources.mappers.alarms}'
+      odu_pd_fail_3_alarm:
+        attributes:
+          - odu_pd_fail_3_alarm
+        mapper: '%{resources.mappers.alarms}'
+      odu_pd_fail_4_alarm:
+        attributes:
+          - odu_pd_fail_4_alarm
+        mapper: '%{resources.mappers.alarms}'
+    price:
+      value: 0
+      unit: USD
+    energy:
+      value: 0
+      unit: "0"
+  oru:
+    name: ORU
+    version: '[1.0,)'
+    reference: oru
+    attributes:
+      - oru_info_serial_no
+      - oru_info_latitude
+      - oru_info_longitude
+      - oru_info_firmware
+      - oru_info_web_gui
+      - oru_op_pd_power
+      - oru_op_ld_power
+      - oru_optic_atten_dl
+      - oru_optic_atten_ul
+      - oru_link_fail_alarm
+      - oru_ac_fail_alarm
+      - oru_ld_fail_alarm
+      - oru_dc_fail_alarm
+      - oru_pd_fail_alarm
+      - oru_over_current_alarm
+      - oru_battery_fail_alarm
+      - oru_battery_not_installed_alarm
+      - oru_battery_low_alarm
+      - oru_battery_not_charge_alarm
+    alarms:
+      oru_ac_fail_alarm:
+        attributes:
+          - oru_ac_fail_alarm
+        mapper: '%{resources.mappers.alarms}'
+      oru_battery_fail_alarm:
+        attributes:
+          - oru_battery_fail_alarm
+        mapper: '%{resources.mappers.alarms}'
+      oru_battery_low_alarm:
+        attributes:
+          - oru_battery_low_alarm
+        mapper: '%{resources.mappers.alarms}'
+      oru_battery_not_charge_alarm:
+        attributes:
+          - oru_battery_not_charge_alarm
+        mapper: '%{resources.mappers.alarms}'
+      oru_battery_not_installed_alarm:
+        attributes:
+          - oru_battery_not_installed_alarm
+        mapper: '%{resources.mappers.alarms}'
+      oru_dc_fail_alarm:
+        attributes:
+          - oru_dc_fail_alarm
+        mapper: '%{resources.mappers.alarms}'
+      oru_ld_fail_alarm:
+        attributes:
+          - oru_ld_fail_alarm
+        mapper: '%{resources.mappers.alarms}'
+      oru_link_fail_alarm:
+        attributes:
+          - oru_link_fail_alarm
+        mapper: '%{resources.mappers.alarms}'
+      oru_over_current_alarm:
+        attributes:
+          - oru_over_current_alarm
+        mapper: '%{resources.mappers.alarms}'
+      oru_pd_fail_alarm:
+        attributes:
+          - oru_pd_fail_alarm
+        mapper: '%{resources.mappers.alarms}'
+    price:
+      value: 0
+      unit: USD
+    energy:
+      value: 0
+      unit: "0"
+  poi:
+    name: POI
+    version: '[1.0,)'
+    reference: poi
+    attributes:
+      - poi_info_serial_no
+      - poi_info_latitude
+      - poi_info_longitude
+      - poi_info_firmware
+      - poi_info_web_gui
+      - poi_frequency_dl_1
+      - poi_frequency_ul_1
+      - poi_frequency_dl_2
+      - poi_frequency_ul_2
+      - poi_power_input_dl
+      - poi_power_input_ul
+      - poi_power_gain_db_dl
+      - poi_power_gain_db_ul
+      - poi_power_atten_db_dl
+      - poi_power_atten_db_ul
+      - poi_power_output_dbm_dl
+      - poi_power_output_dbm_ul
+      - poi_system_link_fail_alarm
+      - poi_system_system_halt_alarm
+      - poi_system_over_temperature_alarm
+      - poi_system_under_temperature_alarm
+      - poi_rf_dl_signal_not_detected_alarm
+      - poi_rf_dl_input_overload_alarm
+      - poi_rf_sg_lock_fail_alarm
+      - poi_rf_dl_signal_low_alarm
+      - poi_rf_ul_overpower_alarm
+      - poi_rf_sa_pll_lock_fail_alarm
+      - poi_rf_bw_monitoring_alarm
+      - poi_rf_ul_vswr_alarm
+    alarms:
+      poi_rf_bw_monitoring_alarm:
+        attributes:
+          - poi_rf_bw_monitoring_alarm
+        mapper: '%{resources.mappers.alarms}'
+      poi_rf_dl_input_overload_alarm:
+        attributes:
+          - poi_rf_dl_input_overload_alarm
+        mapper: '%{resources.mappers.alarms}'
+      poi_rf_dl_signal_low_alarm:
+        attributes:
+          - poi_rf_dl_signal_low_alarm
+        mapper: '%{resources.mappers.alarms}'
+      poi_rf_dl_signal_not_detected_alarm:
+        attributes:
+          - poi_rf_dl_signal_not_detected_alarm
+        mapper: '%{resources.mappers.alarms}'
+      poi_rf_sa_pll_lock_fail_alarm:
+        attributes:
+          - poi_rf_sa_pll_lock_fail_alarm
+        mapper: '%{resources.mappers.alarms}'
+      poi_rf_sg_lock_fail_alarm:
+        attributes:
+          - poi_rf_sg_lock_fail_alarm
+        mapper: '%{resources.mappers.alarms}'
+      poi_rf_ul_overpower_alarm:
+        attributes:
+          - poi_rf_ul_overpower_alarm
+        mapper: '%{resources.mappers.alarms}'
+      poi_rf_ul_vswr_alarm:
+        attributes:
+          - poi_rf_ul_vswr_alarm
+        mapper: '%{resources.mappers.alarms}'
+      poi_system_link_fail_alarm:
+        attributes:
+          - poi_system_link_fail_alarm
+        mapper: '%{resources.mappers.alarms}'
+      poi_system_over_temperature_alarm:
+        attributes:
+          - poi_system_over_temperature_alarm
+        mapper: '%{resources.mappers.alarms}'
+      poi_system_system_halt_alarm:
+        attributes:
+          - poi_system_system_halt_alarm
+        mapper: '%{resources.mappers.alarms}'
+      poi_system_under_temperature_alarm:
+        attributes:
+          - poi_system_under_temperature_alarm
+        mapper: '%{resources.mappers.alarms}'
+    price:
+      value: 0
+      unit: USD
+    energy:
+      value: 0
+      unit: "0"
+  rm:
+    name: HPR
+    version: '[1.0,)'
+    reference: rm
+    attributes:
+      - hpr_info_serial_no
+      - hpr_info_latitude
+      - hpr_info_longitude
+      - hpr_info_firmware
+      - hpr_info_web_gui
+      - hpr_frequency_dl_1
+      - hpr_frequency_ul_1
+      - hpr_frequency_dl_2
+      - hpr_frequency_ul_2
+      - hpr_power_input_dl
+      - hpr_power_input_ul
+      - hpr_power_gain_dl
+      - hpr_power_gain_ul
+      - hpr_power_atten_dl
+      - hpr_power_atten_ul
+      - hpr_power_output_dl
+      - hpr_power_output_ul
+      - hpr_system_link_fail_alarm
+      - hpr_system_halt_alarm
+      - hpr_system_over_temperature_alarm
+      - hpr_system_under_temperature_alarm
+      - hpr_rf_dl_overpower_alarm
+      - hpr_rf_dl_low_output_alarm
+      - hpr_rf_ul_input_overload_alarm
+      - hpr_rf_sa_pll_lock_fail_alarm
+      - hpr_rf_dl_vswr_alarm
+    alarms:
+      hpr_rf_dl_low_output_alarm:
+        attributes:
+          - hpr_rf_dl_low_output_alarm
+        mapper: '%{resources.mappers.alarms}'
+      hpr_rf_dl_overpower_alarm:
+        attributes:
+          - hpr_rf_dl_overpower_alarm
+        mapper: '%{resources.mappers.alarms}'
+      hpr_rf_dl_vswr_alarm:
+        attributes:
+          - hpr_rf_dl_vswr_alarm
+        mapper: '%{resources.mappers.alarms}'
+      hpr_rf_sa_pll_lock_fail_alarm:
+        attributes:
+          - hpr_rf_sa_pll_lock_fail_alarm
+        mapper: '%{resources.mappers.alarms}'
+      hpr_rf_ul_input_overload_alarm:
+        attributes:
+          - hpr_rf_ul_input_overload_alarm
+        mapper: '%{resources.mappers.alarms}'
+      hpr_system_halt_alarm:
+        attributes:
+          - hpr_system_halt_alarm
+        mapper: '%{resources.mappers.alarms}'
+      hpr_system_link_fail_alarm:
+        attributes:
+          - hpr_system_link_fail_alarm
+        mapper: '%{resources.mappers.alarms}'
+      hpr_system_over_temperature_alarm:
+        attributes:
+          - hpr_system_over_temperature_alarm
+        mapper: '%{resources.mappers.alarms}'
+      hpr_system_under_temperature_alarm:
+        attributes:
+          - hpr_system_under_temperature_alarm
+        mapper: '%{resources.mappers.alarms}'
+    price:
+      value: 0
+      unit: USD
+    energy:
+      value: 0
+      unit: "0"
+  system:
+    name: System
+    version: '[1.0,)'
+    reference: system
+    price:
+      value: 0
+      unit: USD
+    energy:
+      value: 0
+      unit: ""
+attributes:
+  chc_frequency_path_freq_1:
+    name: CHC Frequency DL Frequency
+    description: CHC Frequency DL Frequency
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_data}'
+      selector:
+        type: xpath
+        expression: //*[@name="BAND_FREQ"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  chc_info_firmware:
+    name: CHC Information Firmware
+    description: CHC Information Firmware
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_data}'
+      selector:
+        type: xpath
+        expression: //*[@name="FW_VERSION"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  chc_info_latitude:
+    name: CHC Information Latitude
+    description: CHC Information Latitude
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_data}'
+      selector:
+        type: xpath
+        expression: //*[@name="LATITUDE"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  chc_info_longitude:
+    name: CHC Information Longitude
+    description: CHC Information Longitude
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_data}'
+      selector:
+        type: xpath
+        expression: //*[@name="LONGITUDE"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  chc_info_serial_no:
+    name: CHC Information Serial No
+    description: CHC Information Serial No
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_data}'
+      selector:
+        type: xpath
+        expression: //*[@name="SERIAL_NUMBER"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  chc_info_web_gui:
+    name: CHC Information Web Gui
+    description: CHC Information Web Gui
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_chc_web_gui}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(),"Web GUI")]/following-sibling::td/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  hpr_frequency_dl_1:
+    name: HPR Frequency DL 1
+    description: HPR Frequency DL 1
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_data}'
+      selector:
+        type: xpath
+        expression: //*[@name="FREQ_DL_1"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  hpr_frequency_dl_2:
+    name: HPR Frequency DL 2
+    description: HPR Frequency DL 2
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_data}'
+      selector:
+        type: xpath
+        expression: //*[@name="FREQ_DL_2"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  hpr_frequency_ul_1:
+    name: HPR Frequency UL 1
+    description: HPR Frequency UL 1
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_data}'
+      selector:
+        type: xpath
+        expression: //*[@name="FREQ_UL_1"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  hpr_frequency_ul_2:
+    name: HPR Frequency UL 2
+    description: HPR Frequency UL 2
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_data}'
+      selector:
+        type: xpath
+        expression: //*[@name="FREQ_UL_2"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  hpr_info_firmware:
+    name: HPR Information Firmware
+    description: HPR Information Firmware
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_data}'
+      selector:
+        type: xpath
+        expression: //*[@name="FW_VERSION"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  hpr_info_latitude:
+    name: HPR Information Latitude
+    description: HPR Information Latitude
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_data}'
+      selector:
+        type: xpath
+        expression: //*[@name="LATITUDE"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  hpr_info_longitude:
+    name: HPR Information Longitude
+    description: HPR Information Longitude
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_data}'
+      selector:
+        type: xpath
+        expression: //*[@name="LONGITUDE"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  hpr_info_serial_no:
+    name: HPR Information Serial No
+    description: HPR Information Serial No
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_data}'
+      selector:
+        type: xpath
+        expression: //*[@name="SERIAL_NUMBER"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  hpr_info_web_gui:
+    name: HPR Information Web Gui
+    description: HPR Information Web Gui
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_hpr_web_gui}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(),"Web GUI")]/following-sibling::td/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  hpr_power_atten_dl:
+    name: HPR Power and Atten Atten DL
+    description: HPR Power and Atten Atten DL
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_data}'
+      selector:
+        type: xpath
+        expression: //*[@name="DL_CURRENT_ATTEN"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  hpr_power_atten_ul:
+    name: HPR Power and Atten Atten UL
+    description: HPR Power and Atten Atten UL
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_data}'
+      selector:
+        type: xpath
+        expression: //*[@name="UL_CURRENT_ATTEN"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  hpr_power_gain_dl:
+    name: HPR Power and Atten Gain DL
+    description: HPR Power and Atten Gain DL
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_data}'
+      selector:
+        type: xpath
+        expression: //*[@name="DL_SYSTEM_GAIN"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  hpr_power_gain_ul:
+    name: HPR Power and Atten Gain UL
+    description: HPR Power and Atten Gain UL
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_data}'
+      selector:
+        type: xpath
+        expression: //*[@name="UL_SYSTEM_GAIN"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  hpr_power_input_dl:
+    name: HPR Power and Atten Input DL
+    description: HPR Power and Atten Input DL
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_data}'
+      selector:
+        type: xpath
+        expression: //*[@name="DL_INPUT"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  hpr_power_input_ul:
+    name: HPR Power and Atten Input UL
+    description: HPR Power and Atten Input UL
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_data}'
+      selector:
+        type: xpath
+        expression: //*[@name="UL_INPUT"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  hpr_power_output_dl:
+    name: HPR Power and Atten Output DL
+    description: HPR Power and Atten Output DL
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_data}'
+      selector:
+        type: xpath
+        expression: //*[@name="DL_OUTPUT"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  hpr_power_output_ul:
+    name: HPR Power and Atten Output UL
+    description: HPR Power and Atten Output UL
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_data}'
+      selector:
+        type: xpath
+        expression: //*[@name="UL_OUTPUT"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  hpr_rf_dl_low_output_alarm:
+    name: HPR RF DL Low Output Alarm
+    description: HPR RF DL Low Output Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  hpr_rf_dl_overpower_alarm:
+    name: HPR RF DL Overpower Alarm
+    description: HPR RF DL Overpower Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  hpr_rf_dl_vswr_alarm:
+    name: HPR RF DL VSWR Alarm
+    description: HPR RF DL VSWR Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  hpr_rf_sa_pll_lock_fail_alarm:
+    name: HPR RF SA PLL Lock Fail Alarm
+    description: HPR RF SA PLL Lock Fail Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  hpr_rf_ul_input_overload_alarm:
+    name: HPR RF UL Input Overload Alarm
+    description: HPR RF UL Input Overload Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  hpr_system_halt_alarm:
+    name: HPR System System Halt Alarm
+    description: HPR System System Halt Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  hpr_system_link_fail_alarm:
+    name: HPR System Link Fail Alarm
+    description: HPR System Link Fail Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  hpr_system_over_temperature_alarm:
+    name: HPR System Over Temperature Alarm
+    description: HPR System Over Temperature Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  hpr_system_under_temperature_alarm:
+    name: HPR System Under Temperature Alarm
+    description: HPR System Under Temperature Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  nms_info_firmware:
+    name: NMS Information Firmware
+    description: NMS Information Firmware
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_data}'
+      selector:
+        type: xpath
+        expression: //*[@name="FW_VERSION"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  nms_info_latitude:
+    name: NMS Information Latitude
+    description: NMS Information Latitude
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_data}'
+      selector:
+        type: xpath
+        expression: //*[@name="LATITUDE"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  nms_info_longitude:
+    name: NMS Information Longitude
+    description: NMS Information Longitude
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_data}'
+      selector:
+        type: xpath
+        expression: //*[@name="LONGITUDE"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  nms_info_serial_no:
+    name: NMS Information Serial No
+    description: NMS Information Serial No
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_data}'
+      selector:
+        type: xpath
+        expression: //*[@name="SERIAL_NUMBER"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  nms_info_web_gui:
+    name: NMS Information Web Gui
+    description: NMS Information Web Gui
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_nms_web_gui}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(),"Web GUI")]/following-sibling::td/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  nms_system_ac_fail_alarm:
+    name: NMS System AC Fail Alarm
+    description: NMS System AC Fail Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  nms_system_battery_fail_alarm:
+    name: NMS System Battery Fail Alarm
+    description: NMS System Battery Fail Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  nms_system_battery_low_alarm:
+    name: NMS System Battery Low Alarm
+    description: NMS System Battery Low Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  nms_system_battery_not_charge_alarm:
+    name: NMS System Battery Not Charge Alarm
+    description: NMS System Battery Not Charge Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  nms_system_battery_not_installed_alarm:
+    name: NMS System Battery Not Installed Alarm
+    description: NMS System Battery Not Installed Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  nms_system_dc_fail_alarm:
+    name: NMS System DC Fail Alarm
+    description: NMS System DC Fail Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  nms_system_fan_1_alarm:
+    name: 'NMS System Fan #1 Alarm'
+    description: 'NMS System Fan #1 Alarm'
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  nms_system_fan_2_alarm:
+    name: 'NMS System Fan #2 Alarm'
+    description: 'NMS System Fan #2 Alarm'
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  nms_system_fan_3_alarm:
+    name: 'NMS System Fan #3 Alarm'
+    description: 'NMS System Fan #3 Alarm'
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_data}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  nms_system_over_temperature_alarm:
+    name: NMS System Over Temperature Alarm
+    description: NMS System Over Temperature Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  nms_system_under_temperature_alarm:
+    name: NMS System Under Temperature Alarm
+    description: NMS System Under Temperature Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  odu_info_firmware:
+    name: ODU Information Firmware
+    description: ODU Information Firmware
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_data}'
+      selector:
+        type: xpath
+        expression: //*[@name="FW_VERSION"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  odu_info_latitude:
+    name: ODU Information Latitude
+    description: ODU Information Latitude
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_data}'
+      selector:
+        type: xpath
+        expression: //*[@name="LATITUDE"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  odu_info_longitude:
+    name: ODU Information Longitude
+    description: ODU Information Longitude
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_data}'
+      selector:
+        type: xpath
+        expression: //*[@name="LONGITUDE"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  odu_info_serial_no:
+    name: ODU Information Serial No
+    description: ODU Information Serial No
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_data}'
+      selector:
+        type: xpath
+        expression: //*[@name="SERIAL_NUMBER"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  odu_info_web_gui:
+    name: ODU Information Web Gui
+    description: ODU Information Web Gui
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_odu_web_gui}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(),"Web GUI")]/following-sibling::td/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  odu_ld_fail_alarm:
+    name: ODU LD Fail Alarm
+    description: ODU LD Fail Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  odu_link_fail_alarm:
+    name: ODU Link Fail Alarm
+    description: ODU Link Fail Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  odu_optic_atten_link_dl:
+    name: ODU Optic Atten Link DL
+    description: ODU Optic Atten Link DL
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_data}'
+      selector:
+        type: xpath
+        expression: //*[@name="OPTIC_STATUS_COMMON_ATTEN_DL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  odu_optic_atten_link_ul_1:
+    name: ODU Optic Atten Link UL 1
+    description: ODU Optic Atten Link UL 1
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_data}'
+      selector:
+        type: xpath
+        expression: //*[@name="OPTIC_STATUS_ATTEN_UL_1"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  odu_optic_atten_link_ul_2:
+    name: ODU Optic Atten Link UL 2
+    description: ODU Optic Atten Link UL 2
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_data}'
+      selector:
+        type: xpath
+        expression: //*[@name="OPTIC_STATUS_ATTEN_UL_2"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  odu_optic_atten_link_ul_3:
+    name: ODU Optic Atten Link UL 3
+    description: ODU Optic Atten Link UL 3
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_data}'
+      selector:
+        type: xpath
+        expression: //*[@name="OPTIC_STATUS_ATTEN_UL_3"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  odu_optic_atten_link_ul_4:
+    name: ODU Optic Atten Link UL 4
+    description: ODU Optic Atten Link UL 4
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_data}'
+      selector:
+        type: xpath
+        expression: //*[@name="OPTIC_STATUS_ATTEN_UL_4"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  odu_optic_atten_link_ul_common:
+    name: ODU Optic Atten Link UL Common
+    description: ODU Optic Atten Link UL Common
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_data}'
+      selector:
+        type: xpath
+        expression: //*[@name="OPTIC_STATUS_COMMON_ATTEN_UL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  odu_optic_loss_link_1_dl:
+    name: ODU Optic Loss Link 1 DL
+    description: ODU Optic Loss Link 1 DL
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_data}'
+      selector:
+        type: xpath
+        expression: //*[@name="OPTIC_LOSS_DL_1"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  odu_optic_loss_link_1_ul:
+    name: ODU Optic Loss Link 1 UL
+    description: ODU Optic Loss Link 1 UL
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_data}'
+      selector:
+        type: xpath
+        expression: //*[@name="OPTIC_LOSS_UL_1"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  odu_optic_loss_link_2_dl:
+    name: ODU Optic Loss Link 2 DL
+    description: ODU Optic Loss Link 2 DL
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_data}'
+      selector:
+        type: xpath
+        expression: //*[@name="OPTIC_LOSS_DL_2"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  odu_optic_loss_link_2_ul:
+    name: ODU Optic Loss Link 2 UL
+    description: ODU Optic Loss Link 2 UL
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_data}'
+      selector:
+        type: xpath
+        expression: //*[@name="OPTIC_LOSS_UL_2"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  odu_optic_loss_link_3_dl:
+    name: ODU Optic Loss Link 3 DL
+    description: ODU Optic Loss Link 3 DL
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_data}'
+      selector:
+        type: xpath
+        expression: //*[@name="OPTIC_LOSS_DL_3"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  odu_optic_loss_link_3_ul:
+    name: ODU Optic Loss Link 3 UL
+    description: ODU Optic Loss Link 3 UL
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_data}'
+      selector:
+        type: xpath
+        expression: //*[@name="OPTIC_LOSS_UL_3"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  odu_optic_loss_link_4_dl:
+    name: ODU Optic Loss Link 4 DL
+    description: ODU Optic Loss Link 4 DL
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_data}'
+      selector:
+        type: xpath
+        expression: //*[@name="OPTIC_LOSS_DL_4"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  odu_optic_loss_link_4_ul:
+    name: ODU Optic Loss Link 4 UL
+    description: ODU Optic Loss Link 4 UL
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_data}'
+      selector:
+        type: xpath
+        expression: //*[@name="OPTIC_LOSS_UL_4"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  odu_optic_status_link_1_pd_power:
+    name: ODU Optic Status Link 1 PD Power
+    description: ODU Optic Status Link 1 PD Power
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_data}'
+      selector:
+        type: xpath
+        expression: //*[@name="PD_POWER_1"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  odu_optic_status_link_2_pd_power:
+    name: ODU Optic Status Link 2 PD Power
+    description: ODU Optic Status Link 2 PD Power
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_data}'
+      selector:
+        type: xpath
+        expression: //*[@name="PD_POWER_2"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  odu_optic_status_link_3_pd_power:
+    name: ODU Optic Status Link 3 PD Power
+    description: ODU Optic Status Link 3 PD Power
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_data}'
+      selector:
+        type: xpath
+        expression: //*[@name="PD_POWER_3"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  odu_optic_status_link_4_pd_power:
+    name: ODU Optic Status Link 4 PD Power
+    description: ODU Optic Status Link 4 PD Power
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_data}'
+      selector:
+        type: xpath
+        expression: //*[@name="PD_POWER_4"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  odu_optic_status_link_ld_power:
+    name: ODU Optic Status Link LD Power
+    description: ODU Optic Status Link LD Power
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_data}'
+      selector:
+        type: xpath
+        expression: //*[@name="LD_POWER"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  odu_pd_fail_1_alarm:
+    name: ODU PD Fail 1 Alarm
+    description: ODU PD Fail 1 Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  odu_pd_fail_2_alarm:
+    name: ODU PD Fail 2 Alarm
+    description: ODU PD Fail 2 Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  odu_pd_fail_3_alarm:
+    name: ODU PD Fail 3 Alarm
+    description: ODU PD Fail 3 Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  odu_pd_fail_4_alarm:
+    name: ODU PD Fail 4 Alarm
+    description: ODU PD Fail 4 Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  odu_rf_level_dl_1:
+    name: ODU RF Level DL
+    description: ODU RF Level DL
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_data}'
+      selector:
+        type: xpath
+        expression: //*[@name="RF_DL_INPUT"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  odu_rf_level_ul_1:
+    name: ODU RF Level UL
+    description: ODU RF Level UL
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_data}'
+      selector:
+        type: xpath
+        expression: //*[@name="RF_UL_INPUT"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  oru_ac_fail_alarm:
+    name: ORU AC Fail Alarm
+    description: ORU AC Fail Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  oru_battery_fail_alarm:
+    name: ORU Battery Fail Alarm
+    description: ORU Battery Fail Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  oru_battery_low_alarm:
+    name: ORU Battery Low Alarm
+    description: ORU Battery Low Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  oru_battery_not_charge_alarm:
+    name: ORU Battery Not Charge Alarm
+    description: ORU Battery Not Charge Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  oru_battery_not_installed_alarm:
+    name: ORU Battery Not Installed Alarm
+    description: ORU Battery Not Installed Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  oru_dc_fail_alarm:
+    name: ORU DC Fail Alarm
+    description: ORU DC Fail Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  oru_info_firmware:
+    name: ORU Information Firmware
+    description: ORU Information Firmware
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_data}'
+      selector:
+        type: xpath
+        expression: //*[@name="FW_VERSION"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  oru_info_latitude:
+    name: ORU Information Latitude
+    description: ORU Information Latitude
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_data}'
+      selector:
+        type: xpath
+        expression: //*[@name="LATITUDE"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  oru_info_longitude:
+    name: ORU Information Longitude
+    description: ORU Information Longitude
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_data}'
+      selector:
+        type: xpath
+        expression: //*[@name="LONGITUDE"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  oru_info_serial_no:
+    name: ORU Information Serial No
+    description: ORU Information Serial No
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_data}'
+      selector:
+        type: xpath
+        expression: //*[@name="SERIAL_NUMBER"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  oru_info_web_gui:
+    name: ORU Information Web Gui
+    description: ORU Information Web Gui
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_oru_web_gui}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(),"Web GUI")]/following-sibling::td/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  oru_ld_fail_alarm:
+    name: ORU LD Fail Alarm
+    description: ORU LD Fail Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  oru_link_fail_alarm:
+    name: ORU Link Fail Alarm
+    description: ORU Link Fail Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  oru_op_ld_power:
+    name: ORU Optic Power LD Power
+    description: ORU Optic Power LD Power
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_data}'
+      selector:
+        type: xpath
+        expression: //*[@name="LD_POWER"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  oru_op_pd_power:
+    name: ORU Optic Power PD Power
+    description: ORU Optic Power PD Power
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_data}'
+      selector:
+        type: xpath
+        expression: //*[@name="PD_POWER"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  oru_optic_atten_dl:
+    name: ORU Optic Atten DL
+    description: ORU Optic Atten DL
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_data}'
+      selector:
+        type: xpath
+        expression: //*[@name="OPTIC_STATUS_ATTEN_DL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  oru_optic_atten_ul:
+    name: ORU Optic Atten UL
+    description: ORU Optic Atten UL
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_data}'
+      selector:
+        type: xpath
+        expression: //*[@name="OPTIC_STATUS_ATTEN_UL"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  oru_over_current_alarm:
+    name: ORU Over Current Alarm
+    description: ORU Over Current Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  oru_pd_fail_alarm:
+    name: ORU PD Fail Alarm
+    description: ORU PD Fail Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  poi_frequency_dl_1:
+    name: POI Frequency DL 1
+    description: POI Frequency DL 1
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_data}'
+      selector:
+        type: xpath
+        expression: //*[@name="FREQ_DL_1"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  poi_frequency_dl_2:
+    name: POI Frequency DL 2
+    description: POI Frequency DL 2
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_data}'
+      selector:
+        type: xpath
+        expression: //*[@name="FREQ_DL_2"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  poi_frequency_ul_1:
+    name: POI Frequency UL 1
+    description: POI Frequency UL 1
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_data}'
+      selector:
+        type: xpath
+        expression: //*[@name="FREQ_UL_1"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  poi_frequency_ul_2:
+    name: POI Frequency UL 2
+    description: POI Frequency UL 2
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_data}'
+      selector:
+        type: xpath
+        expression: //*[@name="FREQ_UL_2"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  poi_info_firmware:
+    name: POI Information Firmware
+    description: POI Information Firmware
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_data}'
+      selector:
+        type: xpath
+        expression: //*[@name="FW_VERSION"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  poi_info_latitude:
+    name: POI Information Latitude
+    description: POI Information Latitude
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_data}'
+      selector:
+        type: xpath
+        expression: //*[@name="LATITUDE"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  poi_info_longitude:
+    name: POI Information Longitude
+    description: POI Information Longitude
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_data}'
+      selector:
+        type: xpath
+        expression: //*[@name="LONGITUDE"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  poi_info_serial_no:
+    name: POI Information Serial No
+    description: POI Information Serial No
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_data}'
+      selector:
+        type: xpath
+        expression: //*[@name="SERIAL_NUMBER"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  poi_info_web_gui:
+    name: POI Information Web Gui
+    description: POI Information Web Gui
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_poi_web_gui}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(),"Web GUI")]/following-sibling::td/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  poi_power_atten_db_dl:
+    name: POI Power and Atten Atten(dB) DL
+    description: POI Power and Atten Atten(dB) DL
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_data}'
+      selector:
+        type: xpath
+        expression: //*[@name="DL_CURRENT_ATTEN"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  poi_power_atten_db_ul:
+    name: POI Power and Atten Atten(dB) UL
+    description: POI Power and Atten Atten(dB) UL
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_data}'
+      selector:
+        type: xpath
+        expression: //*[@name="UL_CURRENT_ATTEN"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  poi_power_gain_db_dl:
+    name: POI Power and Atten Gain(dB) DL
+    description: POI Power and Atten Gain(dB) DL
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_data}'
+      selector:
+        type: xpath
+        expression: //*[@name="DL_SYSTEM_GAIN"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  poi_power_gain_db_ul:
+    name: POI Power and Atten Gain(dB) UL
+    description: POI Power and Atten Gain(dB) UL
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_data}'
+      selector:
+        type: xpath
+        expression: //*[@name="UL_SYSTEM_GAIN"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  poi_power_input_dl:
+    name: POI Power and Atten Input DL
+    description: POI Power and Atten Input DL
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_data}'
+      selector:
+        type: xpath
+        expression: //*[@name="DL_INPUT"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  poi_power_input_ul:
+    name: POI Power and Atten Input UL
+    description: POI Power and Atten Input UL
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_data}'
+      selector:
+        type: xpath
+        expression: //*[@name="UL_INPUT"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  poi_power_output_dbm_dl:
+    name: POI Power and Atten Output(dBm) DL
+    description: POI Power and Atten Output(dBm) DL
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_data}'
+      selector:
+        type: xpath
+        expression: //*[@name="DL_OUTPUT"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  poi_power_output_dbm_ul:
+    name: POI Power and Atten Output(dBm) UL
+    description: POI Power and Atten Output(dBm) UL
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_data}'
+      selector:
+        type: xpath
+        expression: //*[@name="UL_OUTPUT"]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  poi_rf_bw_monitoring_alarm:
+    name: POI RF BW Monitoring Alarm
+    description: POI RF BW Monitoring Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  poi_rf_dl_input_overload_alarm:
+    name: POI RF DL Input Overload Alarm
+    description: POI RF DL Input Overload Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  poi_rf_dl_signal_low_alarm:
+    name: POI RF DL Signal Low Alarm
+    description: POI RF DL Signal Low Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  poi_rf_dl_signal_not_detected_alarm:
+    name: POI RF DL Signal Not Detected Alarm
+    description: POI RF DL Signal Not Detected Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  poi_rf_sa_pll_lock_fail_alarm:
+    name: POI RF SA PLL Lock Fail Alarm
+    description: POI RF SA PLL Lock Fail Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  poi_rf_sg_lock_fail_alarm:
+    name: POI RF SG Lock Fail Alarm
+    description: POI RF SG Lock Fail Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  poi_rf_ul_overpower_alarm:
+    name: POI RF UL Overpower Alarm
+    description: POI RF UL Overpower Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  poi_rf_ul_vswr_alarm:
+    name: POI RF UL VSWR Alarm
+    description: POI RF UL VSWR Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  poi_system_link_fail_alarm:
+    name: POI System Link Fail Alarm
+    description: POI System Link Fail Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  poi_system_over_temperature_alarm:
+    name: POI System Over Temperature Alarm
+    description: POI System Over Temperature Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  poi_system_system_halt_alarm:
+    name: POI System System Halt Alarm
+    description: POI System System Halt Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  poi_system_under_temperature_alarm:
+    name: POI System Under Temperature Alarm
+    description: POI System Under Temperature Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+resources:
+  auths:
+    upgraded-http:
+      http:
+        httpUri: false
+        actions:
+          login:
+            dataEngine: '%{engines.upgraded-http}'
+            dataSource: '%{resources.http.requests.login}'
+            selector:
+              type: cookie
+              expression: PHPSESSID
+            dataSink: '%{resources.globals.auth.sessionId}'
+          logout:
+            dataEngine: '%{engines.upgraded-http}'
+            dataSource: '%{resources.http.requests.logout}'
+            selector:
+              type: static
+              expression: ""
+            dataSink: '%{resources.globals.auth.sessionId}'
+  mappers:
+    alarms:
+      keyType: String
+      valueType: String
+      map:
+        HARD: Severe
+        INACTIVE: Normal
+        NORMAL: Normal
+        SOFT: Warning
+  globals:
+    auth:
+      sessionId: 0
+    reg:
+      ip: ${registration.form.properties.ip}
+      password: ${registration.vault.properties.password}
+      port: ${registration.form.properties.port}
+      url: http://${registration.form.properties.ip}:${registration.form.properties.port}
+      username: ${registration.vault.properties.username}
+  http:
+    requests:
+      get_chc_web_gui:
+        method: POST
+        uri: ${resources.globals.reg.url}/CHC/status.php
+        requestContentType: application/x-www-form-urlencoded
+        responseContentType: text/html
+        query:
+          ?cascadecode: ""
+          ?version: 1.0.82
+          ipaddress: ""
+        body:
+          SET_DEVICE_ID: ${topology.discovery.flatten.set_device_id}
+        responses:
+          success:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: "200"
+          failure:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: ^(?!200)
+      get_data:
+        method: POST
+        uri: ${resources.globals.reg.url}/cgi-bin/request.cgi
+        requestContentType: application/x-www-form-urlencoded
+        responseContentType: text/xml
+        query:
+          ?cascadecode: ""
+          ?version: 1.0.82
+          ipaddress: ""
+        body:
+          ?USER_ID: ${resources.globals.reg.username}
+          DEVICE_ID: ${topology.discovery.flatten.set_device_id}
+          MAIN_COMMAND: null
+        responses:
+          success:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: "200"
+          failure:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: ^(?!200)
+      get_hpr_web_gui:
+        method: POST
+        uri: ${resources.globals.reg.url}/RM/status.php
+        requestContentType: application/x-www-form-urlencoded
+        responseContentType: text/html
+        query:
+          ?cascadecode: ""
+          ?version: 1.0.82
+          ipaddress: ""
+        body:
+          SET_DEVICE_ID: ${topology.discovery.flatten.set_device_id}
+        responses:
+          success:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: "200"
+          failure:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: ^(?!200)
+      get_nms_web_gui:
+        method: POST
+        uri: ${resources.globals.reg.url}/NMS/status.php
+        requestContentType: application/x-www-form-urlencoded
+        responseContentType: text/html; charset=UTF-8
+        query:
+          ?cascadecode: ""
+          ?version: 1.0.82
+          ipaddress: ""
+        body:
+          SET_DEVICE_ID: ${topology.discovery.flatten.set_device_id}
+        responses:
+          success:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: "200"
+          failure:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: ^(?!200)
+      get_odu_web_gui:
+        method: POST
+        uri: ${resources.globals.reg.url}/ODU/status.php
+        requestContentType: application/x-www-form-urlencoded
+        responseContentType: text/html
+        query:
+          ?cascadecode: ""
+          ?version: 1.0.82
+          ipaddress: ""
+        body:
+          SET_DEVICE_ID: ${topology.discovery.flatten.set_device_id}
+        responses:
+          success:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: "200"
+          failure:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: ^(?!200)
+      get_oru_web_gui:
+        method: POST
+        uri: ${resources.globals.reg.url}/ORU/status.php
+        requestContentType: application/x-www-form-urlencoded
+        responseContentType: text/html
+        query:
+          ?cascadecode: ""
+          ?version: 1.0.82
+          ipaddress: ""
+        body:
+          SET_DEVICE_ID: ${topology.discovery.flatten.set_device_id}
+        responses:
+          success:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: "200"
+          failure:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: ^(?!200)
+      get_poi_web_gui:
+        method: POST
+        uri: ${resources.globals.reg.url}/POI/status.php
+        requestContentType: application/x-www-form-urlencoded
+        responseContentType: text/html
+        query:
+          ?cascadecode: ""
+          ?version: 1.0.82
+          ipaddress: ""
+        body:
+          SET_DEVICE_ID: ${topology.discovery.flatten.set_device_id}
+        responses:
+          success:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: "200"
+          failure:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: ^(?!200)
+      get_tree:
+        method: POST
+        uri: ${resources.globals.reg.url}/cgi-bin/request.cgi
+        requestContentType: application/x-www-form-urlencoded
+        responseContentType: text/xml
+        query:
+          ?cascadecode: ""
+          ?version: 1.0.82
+          ipaddress: ""
+        body:
+          ?USER_ID: admin
+          DEVICE_ID: "000000000000000000000000"
+          MAIN_COMMAND: null
+        responses:
+          success:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: "200"
+          failure:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: ^(?!200)
+      login:
+        method: POST
+        uri: ${resources.globals.reg.url}/functions/setFormData.php
+        requestContentType: application/x-www-form-urlencoded
+        responseContentType: text/html
+        query:
+          ?cascadecode: ""
+          ?version: 1.0.82
+          ipaddress: ""
+        body:
+          password: ${resources.globals.reg.password}
+          submit_login: Login
+          username: ${resources.globals.reg.username}
+        responses:
+          success:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: "200"
+          failure:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: ^(?!200)
+      logout:
+        uri: ${resources.globals.reg.url}/NMS/status.php
+        responseContentType: text/html
+        query:
+          ?cascadecode: ""
+          ?version: 1.0.82
+          ipaddress: ""
+          logout: ""
+        responses:
+          success:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: "200"
+          failure:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: ^(?!200)
