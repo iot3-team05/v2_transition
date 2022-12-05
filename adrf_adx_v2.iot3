@@ -1,0 +1,2824 @@
+iot3: 2.0.0
+info:
+  name: Adrf Adx
+  oem: ADRF
+  model: ADX
+  versions:
+    - "3.0"
+  description: This IoT3 file supports the ADRF ADX system.
+  author: namira.mansuri@qeleo.com
+  stage: beta
+  revision: 4
+  labels:
+    - adrf
+    - adx
+    - attributes and alarms
+    - auto upgraded to v2
+  created: "2022-05-23"
+  updated: "2022-12-05"
+registration:
+  vaultId: vault_id
+  fingerprint:
+    - ip
+    - port
+    - vault_id
+  vault:
+    properties:
+      password:
+        key: password
+        placeholder: Password
+        required: true
+        title: Password
+        type: string
+      username:
+        key: username
+        placeholder: Username
+        required: true
+        title: Username
+        type: string
+    required:
+      - username
+      - password
+  form:
+    properties:
+      ip:
+        key: ip
+        placeholder: IP Address
+        required: true
+        title: IP
+        type: string
+      port:
+        inputType: number
+        key: port
+        maximum: 65535
+        minimum: 1
+        placeholder: Port
+        required: true
+        title: Port
+        type: number
+      vault_id:
+        key: vault_id
+        pattern: ^(cu\w{6})(-av\w{6})$
+        placeholder: Vault ID
+        required: true
+        title: Vault ID
+        type: string
+    required:
+      - ip
+      - port
+      - vault_id
+engines:
+  tunnel:
+    ssh:
+      supported: false
+    http:
+      supported: true
+  upgraded-http:
+    schedule: '@always'
+    auth: '%{resources.auths.upgraded-http}'
+    type: HTTP
+    options:
+      tls:
+        minVersion: "1.0"
+topology:
+  rootType: nms
+  wrapperType: system
+  nodes: true
+  discovery:
+    dataEngine: '%{engines.upgraded-http}'
+    dataSource: '%{resources.http.requests.get_tree}'
+    type: http
+    selectors:
+      nodes:
+        dataEngine: '%{engines.upgraded-http}'
+        selector:
+          type: xpath
+          expression: //*[@name="targetTree"]//*[contains(@class,"btnViewTarget")]/..
+        extractor:
+          filters:
+            1: wrap <table> </table>
+    flatten:
+      type:
+        transform: ${topology.discovery.selectors.nodes}
+        filters:
+          1: "switch\n\"%{0}\" ~= \"NMS\" : \"nms\"\n\"%{0}\" ~= \"RFU\" : \"rfu\"\n\"%{0}\" ~= \"ODU\" : \"odu\"\n\"%{0}\" ~= \"RU-Hub\" : \"ru_hub\"\n\"%{0}\" ~= \"M-RU\" : \"m_ru\"\ndefault: \"\"    \n"
+      topology:
+        transform: ${topology.discovery.selectors.nodes}
+        filters:
+          1: regexpExtract /((?<=01[_]01[_])[A-Z0-9_]+(?=[&]))/ => $1
+          2: regexpExtract /(^\d+)/ => $1
+          3: use %{1}
+          4: regexpExtract /((?<=0F_)\d+(?=[_]))/ => $1
+          5: use %{1}
+          6: regexpExtract /((?=\d+)\d+(?=[_]\d+$))/ => $1
+          7: use %{1}
+          8: regexpExtract /(\d+$)/ => $1
+          9: use %{0}
+          10: xpath //td/text()
+          11: |
+            switch
+            "%{10}" ~= "NMS" : "nms"
+            "%{10}" ~= "RFU" : "rfu"
+            "%{10}" ~= "ODU" : "odu"
+            "%{10}" ~= "RU-Hub" : "ru_hub"
+            "%{10}" ~= "M-RU" : "m_ru"
+            default: ""
+          12: |
+            switch
+            "%{11}" == "nms" : "'nms'"
+            "%{11}" == "rfu" : "'nms' -> 'rfu [%{2}]'"
+            "%{11}" == "odu" : "'nms' -> 'odu [%{4}]'"
+            "%{11}" == "ru_hub" : "'nms' -> 'odu [%{4}]' -> 'ru_hub [%{6}]'"
+            "%{11}" == "m_ru" : "'nms' -> 'odu [%{4}]' -> 'ru_hub [%{6}]' -> 'm_ru[33] [%{8}]'"
+            default: ""
+      version:
+        transform: "1.0"
+      device_name:
+        transform: ${topology.discovery.selectors.nodes}
+        filters:
+          1: regexpExtract /((?<=&#39;)[A-Z0-9_]+(?=&#39))/ => $1
+types:
+  m_ru:
+    name: M_Hub
+    version: '[1.0,)'
+    reference: m_ru
+    attributes:
+      - m_ru_system_link_fail_alarm
+      - m_ru_system_under_temperature_alarm
+      - m_ru_system_fan_fault_alarm
+      - m_ru_system_oru_pd_fail_alarm
+      - m_ru_system_over_temperature_alarm
+      - m_ru_system_halt_alarm
+      - m_ru_system_oru_ld_fail_alarm
+      - m_ru_rf_ul_input_overload_alarm
+      - m_ru_rf_dl_overpower_alarm
+      - m_ru_rf_vswr_alarm
+      - m_ru_rf_sync_fail_alarm
+      - m_ru_bt_serial_number
+      - m_ru_bt_latitude
+      - m_ru_bt_longitude
+      - m_ru_bt_firmware
+      - m_ru_bt_web_gui
+      - m_ru_bt_brs_td_lte_band_dl
+      - m_ru_bt_brs_td_lte_band_ul
+      - m_ru_bt_power_input_dl
+      - m_ru_bt_power_input_ul
+      - m_ru_bt_power_alc_atten_dl
+      - m_ru_bt_power_alc_atten_ul
+      - m_ru_bt_power_atten_dl
+      - m_ru_bt_power_atten_ul
+      - m_ru_bt_power_m_output_dl
+      - m_ru_bt_power_m_output_ul
+      - m_ru_bt_power_h_output_dl
+      - m_ru_bt_power_h_output_ul
+      - m_ru_bt_optic_pd_power
+      - m_ru_bt_optic_ld_power
+      - m_ru_bt_optic_atten_dl
+      - m_ru_bt_optic_atten_ul
+    alarms:
+      m_ru_rf_dl_overpower_alarm:
+        attributes:
+          - m_ru_rf_dl_overpower_alarm
+        mapper: '%{resources.mappers.alarms}'
+      m_ru_rf_sync_fail_alarm:
+        attributes:
+          - m_ru_rf_sync_fail_alarm
+        mapper: '%{resources.mappers.alarms}'
+      m_ru_rf_ul_input_overload_alarm:
+        attributes:
+          - m_ru_rf_ul_input_overload_alarm
+        mapper: '%{resources.mappers.alarms}'
+      m_ru_rf_vswr_alarm:
+        attributes:
+          - m_ru_rf_vswr_alarm
+        mapper: '%{resources.mappers.alarms}'
+      m_ru_system_fan_fault_alarm:
+        attributes:
+          - m_ru_system_fan_fault_alarm
+        mapper: '%{resources.mappers.alarms}'
+      m_ru_system_halt_alarm:
+        attributes:
+          - m_ru_system_halt_alarm
+        mapper: '%{resources.mappers.alarms}'
+      m_ru_system_link_fail_alarm:
+        attributes:
+          - m_ru_system_link_fail_alarm
+        mapper: '%{resources.mappers.alarms}'
+      m_ru_system_oru_ld_fail_alarm:
+        attributes:
+          - m_ru_system_oru_ld_fail_alarm
+        mapper: '%{resources.mappers.alarms}'
+      m_ru_system_oru_pd_fail_alarm:
+        attributes:
+          - m_ru_system_oru_pd_fail_alarm
+        mapper: '%{resources.mappers.alarms}'
+      m_ru_system_over_temperature_alarm:
+        attributes:
+          - m_ru_system_over_temperature_alarm
+        mapper: '%{resources.mappers.alarms}'
+      m_ru_system_under_temperature_alarm:
+        attributes:
+          - m_ru_system_under_temperature_alarm
+        mapper: '%{resources.mappers.alarms}'
+    price:
+      value: 0
+      unit: USD
+    energy:
+      value: 0
+      unit: W
+  nms:
+    name: NMS
+    version: '[1.0,)'
+    reference: nms
+    attributes:
+      - nms_system_over_temperature_alarm
+      - nms_system_under_temperature_alarm
+      - nms_system_halt_alarm
+      - nms_power_ac_fail_alarm
+      - nms_power_dc_fail_alarm
+      - nms_power_over_current_alarm
+      - nms_serial_number
+      - nms_latitude
+      - nms_longitude
+      - nms_firmware
+      - nms_web_gui
+    alarms:
+      nms_power_ac_fail_alarm:
+        attributes:
+          - nms_power_ac_fail_alarm
+        mapper: '%{resources.mappers.alarms}'
+      nms_power_dc_fail_alarm:
+        attributes:
+          - nms_power_dc_fail_alarm
+        mapper: '%{resources.mappers.alarms}'
+      nms_power_over_current_alarm:
+        attributes:
+          - nms_power_over_current_alarm
+        mapper: '%{resources.mappers.alarms}'
+      nms_system_halt_alarm:
+        attributes:
+          - nms_system_halt_alarm
+        mapper: '%{resources.mappers.alarms}'
+      nms_system_over_temperature_alarm:
+        attributes:
+          - nms_system_over_temperature_alarm
+        mapper: '%{resources.mappers.alarms}'
+      nms_system_under_temperature_alarm:
+        attributes:
+          - nms_system_under_temperature_alarm
+        mapper: '%{resources.mappers.alarms}'
+    price:
+      value: 0
+      unit: USD
+    energy:
+      value: 0
+      unit: W
+  odu:
+    name: ODU
+    version: '[1.0,)'
+    reference: odu
+    attributes:
+      - odu_serial_number
+      - odu_latitude
+      - odu_longitude
+      - odu_firmware
+      - odu_web_gui
+      - odu_rf_status_link_1_to_4_dl
+      - odu_rf_status_link_1_to_4_ul
+      - odu_rf_status_link_5_to_8_dl
+      - odu_rf_status_link_5_to_8_ul
+      - odu_odu_connection_status_1
+      - odu_odu_connection_status_2
+      - odu_optic_status_link_1_to_4_ld_power
+      - odu_optic_status_link_1_pd_power
+      - odu_optic_status_link_2_pd_power
+      - odu_optic_status_link_3_pd_power
+      - odu_optic_status_link_4_pd_power
+      - odu_optic_status_link_5_to_8_ld_power
+      - odu_optic_status_link_5_pd_power
+      - odu_optic_status_link_6_pd_power
+      - odu_optic_status_link_7_pd_power
+      - odu_optic_status_link_8_pd_power
+      - odu_optic_atten_link_1_to_4_dl
+      - odu_optic_atten_link_1_to_4_ul_common
+      - odu_optic_atten_link_1_ul_link
+      - odu_optic_atten_link_2_ul_link
+      - odu_optic_atten_link_3_ul_link
+      - odu_optic_atten_link_4_ul_link
+      - odu_optic_atten_link_5_to_8_dl
+      - odu_optic_atten_link_5_to_8_ul_common
+      - odu_optic_atten_link_5_ul_link
+      - odu_optic_atten_link_6_ul_link
+      - odu_optic_atten_link_7_ul_link
+      - odu_optic_atten_link_8_ul_link
+    price:
+      value: 0
+      unit: USD
+    energy:
+      value: 0
+      unit: W
+  rfu:
+    name: RFU
+    version: '[1.0,)'
+    reference: rfu
+    attributes:
+      - rfu_system_link_fail_alarm
+      - rfu_system_over_temperature_alarm
+      - rfu_system_under_temperature_alarm
+      - rfu_system_halt_alarm
+      - rfu_rf_dl_signal_not_detected_alarm
+      - rfu_rf_dl_signal_low_alarm
+      - rfu_rf_dl_input_overload_alarm
+      - rfu_rf_ul_overpower_alarm
+      - rfu_rf_sync_fail_alarm
+      - rfu_power_ac_fail_alarm
+      - rfu_power_dc_fail_alarm
+      - rfu_power_over_current_alarm
+      - rfu_serial_number
+      - rfu_latitude
+      - rfu_longitude
+      - rfu_firmware
+      - rfu_web_gui
+      - rfu_brs_td_lte_band_dl
+      - rfu_brs_td_lte_band_ul
+      - rfu_power_input_dl
+      - rfu_power_input_ul
+      - rfu_power_alc_atten_dl
+      - rfu_power_alc_atten_ul
+      - rfu_power_atten_dl
+      - rfu_power_atten_ul
+      - rfu_power_output_dl
+      - rfu_power_output_ul
+    alarms:
+      rfu_power_ac_fail_alarm:
+        attributes:
+          - rfu_power_ac_fail_alarm
+        mapper: '%{resources.mappers.alarms}'
+      rfu_power_dc_fail_alarm:
+        attributes:
+          - rfu_power_dc_fail_alarm
+        mapper: '%{resources.mappers.alarms}'
+      rfu_power_over_current_alarm:
+        attributes:
+          - rfu_power_over_current_alarm
+        mapper: '%{resources.mappers.alarms}'
+      rfu_rf_dl_input_overload_alarm:
+        attributes:
+          - rfu_rf_dl_input_overload_alarm
+        mapper: '%{resources.mappers.alarms}'
+      rfu_rf_dl_signal_low_alarm:
+        attributes:
+          - rfu_rf_dl_signal_low_alarm
+        mapper: '%{resources.mappers.alarms}'
+      rfu_rf_dl_signal_not_detected_alarm:
+        attributes:
+          - rfu_rf_dl_signal_not_detected_alarm
+        mapper: '%{resources.mappers.alarms}'
+      rfu_rf_sync_fail_alarm:
+        attributes:
+          - rfu_rf_sync_fail_alarm
+        mapper: '%{resources.mappers.alarms}'
+      rfu_rf_ul_overpower_alarm:
+        attributes:
+          - rfu_rf_ul_overpower_alarm
+        mapper: '%{resources.mappers.alarms}'
+      rfu_system_halt_alarm:
+        attributes:
+          - rfu_system_halt_alarm
+        mapper: '%{resources.mappers.alarms}'
+      rfu_system_link_fail_alarm:
+        attributes:
+          - rfu_system_link_fail_alarm
+        mapper: '%{resources.mappers.alarms}'
+      rfu_system_over_temperature_alarm:
+        attributes:
+          - rfu_system_over_temperature_alarm
+        mapper: '%{resources.mappers.alarms}'
+      rfu_system_under_temperature_alarm:
+        attributes:
+          - rfu_system_under_temperature_alarm
+        mapper: '%{resources.mappers.alarms}'
+    price:
+      value: 0
+      unit: USD
+    energy:
+      value: 0
+      unit: W
+  ru_hub:
+    name: RU_Hub
+    version: '[1.0,)'
+    reference: ru_hub
+    attributes:
+      - ru_hub_system_link_fail_alarm
+      - ru_hub_system_halt_alarm
+      - ru_hub_serial_number
+      - ru_hub_latitude
+      - ru_hub_longitude
+      - ru_hub_firmware
+      - ru_hub_web_gui
+      - ru_hub_optic_pd_power
+      - ru_hub_optic_ld_power
+      - ru_hub_optic_atten_dl
+      - ru_hub_optic_atten_ul
+    alarms:
+      ru_hub_system_halt_alarm:
+        attributes:
+          - ru_hub_system_halt_alarm
+        mapper: '%{resources.mappers.alarms}'
+      ru_hub_system_link_fail_alarm:
+        attributes:
+          - ru_hub_system_link_fail_alarm
+        mapper: '%{resources.mappers.alarms}'
+    price:
+      value: 0
+      unit: USD
+    energy:
+      value: 0
+      unit: W
+  system:
+    name: System
+    version: '[1.0,)'
+    reference: system
+    price:
+      value: 0
+      unit: USD
+    energy:
+      value: 0
+      unit: W
+attributes:
+  m_ru_bt_brs_td_lte_band_dl:
+    name: M RU BT BRS TD-LTE Band DL
+    description: M RU BT BRS TD-LTE Band DL
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.set_form_data}'
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(),"BRS(TD-LTE)  Band  ")]/following-sibling::table[1]//tr[2]/td[2]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  m_ru_bt_brs_td_lte_band_ul:
+    name: M RU BT BRS TD-LTE Band UL
+    description: M RU BT BRS TD-LTE Band UL
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.set_form_data}'
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(),"BRS(TD-LTE)  Band  ")]/following-sibling::table[1]//tr[2]/td[2]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  m_ru_bt_firmware:
+    name: M RU BT Firmware
+    description: M RU BT Firmware
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.set_form_data}'
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(),"Firmware")]/following-sibling::td/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  m_ru_bt_latitude:
+    name: M RU BT Latitude
+    description: M RU BT Latitude
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.set_form_data}'
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(),"Latitude")]/following-sibling::td/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  m_ru_bt_longitude:
+    name: M RU BT Longitude
+    description: M RU BT Longitude
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.set_form_data}'
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(),"Longitude")]/following-sibling::td/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  m_ru_bt_optic_atten_dl:
+    name: M RU BT Optic Atten DL
+    description: M RU BT Optic Atten DL
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.set_form_data}'
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(),"Optic Atten")]/following-sibling::table[1]//tr[2]/td[2]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  m_ru_bt_optic_atten_ul:
+    name: M RU BT Optic Atten UL
+    description: M RU BT Optic Atten UL
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.set_form_data}'
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(),"Optic Atten")]/following-sibling::table[1]//tr[2]/td[3]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  m_ru_bt_optic_ld_power:
+    name: M RU BT Optic LD Power
+    description: M RU BT Optic LD Power
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.set_form_data}'
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(),"Optic Power")]/following-sibling::table[1]//tr[2]/td[3]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  m_ru_bt_optic_pd_power:
+    name: M RU BT Optic PD Power
+    description: M RU BT Optic PD Power
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.set_form_data}'
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(),"Optic Power")]/following-sibling::table[1]//tr[2]/td[2]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  m_ru_bt_power_alc_atten_dl:
+    name: M RU BT Power ALC Atten DL
+    description: M RU BT Power ALC Atten DL
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.set_form_data}'
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(),"Power & Atten")]/following-sibling::table[1]//tr[3]/td[2]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  m_ru_bt_power_alc_atten_ul:
+    name: M RU BT Power ALC Atten UL
+    description: M RU BT Power ALC Atten UL
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.set_form_data}'
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(),"Power & Atten")]/following-sibling::table[1]//tr[3]/td[3]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  m_ru_bt_power_atten_dl:
+    name: M RU BT Power Atten DL
+    description: M RU BT Power Atten DL
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.set_form_data}'
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(),"Power & Atten")]/following-sibling::table[1]//tr[4]/td[2]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  m_ru_bt_power_atten_ul:
+    name: M RU BT Power Atten UL
+    description: M RU BT Power Atten UL
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.set_form_data}'
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(),"Power & Atten")]/following-sibling::table[1]//tr[4]/td[3]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  m_ru_bt_power_h_output_dl:
+    name: M RU BT Power H Output DL
+    description: M RU BT Power H Output DL
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.set_form_data}'
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(),"Power & Atten")]/following-sibling::table[1]//tr[6]/td[2]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  m_ru_bt_power_h_output_ul:
+    name: M RU BT Power H Output UL
+    description: M RU BT Power H Output UL
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.set_form_data}'
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(),"Power & Atten")]/following-sibling::table[1]//tr[6]/td[3]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  m_ru_bt_power_input_dl:
+    name: M RU BT Power Input DL
+    description: M RU BT Power Input DL
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.set_form_data}'
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(),"Power & Atten")]/following-sibling::table[1]//tr[2]/td[2]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  m_ru_bt_power_input_ul:
+    name: M RU BT Power Input UL
+    description: M RU BT Power Input UL
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.set_form_data}'
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(),"Power & Atten")]/following-sibling::table[1]//tr[2]/td[3]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  m_ru_bt_power_m_output_dl:
+    name: M RU BT Power M Output DL
+    description: M RU BT Power M Output DL
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.set_form_data}'
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(),"Power & Atten")]/following-sibling::table[1]//tr[5]/td[2]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  m_ru_bt_power_m_output_ul:
+    name: M RU BT Power M Output UL
+    description: M RU BT Power M Output UL
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.set_form_data}'
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(),"Power & Atten")]/following-sibling::table[1]//tr[5]/td[3]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  m_ru_bt_serial_number:
+    name: M RU BT Serial Number
+    description: M RU BT Serial Number
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.set_form_data}'
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(),"Serial Number")]/following-sibling::td/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  m_ru_bt_web_gui:
+    name: M RU BT Web GUI
+    description: M RU BT Web GUI
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.set_form_data}'
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(),"Web GUI")]/following-sibling::td/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  m_ru_rf_dl_overpower_alarm:
+    name: M-RU Rf DL Overpower Alarm
+    description: M-RU Rf DL Overpower Alarm
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.set_form_data}'
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  m_ru_rf_sync_fail_alarm:
+    name: M-RU Rf Sync Fail Alarm
+    description: M-RU Rf Sync Fail Alarm
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.set_form_data}'
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  m_ru_rf_ul_input_overload_alarm:
+    name: M-RU Rf UL Input Overload Alarm
+    description: M-RU Rf UL Input Overload Alarm
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.set_form_data}'
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  m_ru_rf_vswr_alarm:
+    name: M-RU Rf VSWR Alarm
+    description: M-RU Rf VSWR Alarm
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.set_form_data}'
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  m_ru_system_fan_fault_alarm:
+    name: M-RU System Fan Fault Alarm
+    description: M-RU System Fan Fault Alarm
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.set_form_data}'
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  m_ru_system_halt_alarm:
+    name: M-RU System Halt Alarm
+    description: M-RU System Halt Alarm
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.set_form_data}'
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  m_ru_system_link_fail_alarm:
+    name: M-RU System Link Fail Alarm
+    description: M-RU System Link Fail Alarm
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.set_form_data}'
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  m_ru_system_oru_ld_fail_alarm:
+    name: M-RU System ORU Ld Fail Alarm
+    description: M-RU System ORU Ld Fail Alarm
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.set_form_data}'
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  m_ru_system_oru_pd_fail_alarm:
+    name: M-RU System ORU Pd Fail Alarm
+    description: M-RU System ORU Pd Fail Alarm
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.set_form_data}'
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  m_ru_system_over_temperature_alarm:
+    name: M-RU System Over Temperature Alarm
+    description: M-RU System Over Temperature Alarm
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.set_form_data}'
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  m_ru_system_under_temperature_alarm:
+    name: M-RU System Under Temperature Alarm
+    description: M-RU System Under Temperature Alarm
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.set_form_data}'
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  nms_firmware:
+    name: NMS Firmware
+    description: NMS Firmware
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.set_form_data}'
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(),"Firmware")]/following-sibling::td/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  nms_latitude:
+    name: NMS Latitude
+    description: NMS Latitude
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.set_form_data}'
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(),"Latitude")]/following-sibling::td/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  nms_longitude:
+    name: NMS Longitude
+    description: NMS Longitude
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.set_form_data}'
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(),"Longitude")]/following-sibling::td/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  nms_power_ac_fail_alarm:
+    name: Nms Power Ac Fail Alarm
+    description: Nms Power Ac Fail Alarm
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.set_form_data}'
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  nms_power_dc_fail_alarm:
+    name: Nms Power Dc Fail Alarm
+    description: Nms Power Dc Fail Alarm
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.set_form_data}'
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  nms_power_over_current_alarm:
+    name: Nms Power Over Current Alarm
+    description: Nms Power Over Current Alarm
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.set_form_data}'
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  nms_serial_number:
+    name: Serial Number
+    description: Serial Number
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.set_form_data}'
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(),"Serial Number")]/following-sibling::td/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  nms_system_halt_alarm:
+    name: Nms System Halt Alarm
+    description: Nms System Halt Alarm
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.set_form_data}'
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  nms_system_over_temperature_alarm:
+    name: Nms System Over Temperature Alarm
+    description: Nms System Over Temperature Alarm
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.set_form_data}'
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  nms_system_under_temperature_alarm:
+    name: Nms System Under Temperature Alarm
+    description: Nms System Under Temperature Alarm
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.set_form_data}'
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  nms_web_gui:
+    name: NMS Web GUI
+    description: NMS Web GUI
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.set_form_data}'
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(),"Web GUI")]/following-sibling::td/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  odu_firmware:
+    name: ODU Firmware
+    description: ODU Firmware
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.set_form_data}'
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(),"Firmware")]/following-sibling::td/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  odu_latitude:
+    name: ODU Latitude
+    description: ODU Latitude
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.set_form_data}'
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(),"Latitude")]/following-sibling::td/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  odu_longitude:
+    name: ODU Longitude
+    description: ODU Longitude
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.set_form_data}'
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(),"Longitude")]/following-sibling::td/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  odu_odu_connection_status_1:
+    name: ODU Connection Status 1
+    description: ODU Connection Status 1
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.set_form_data}'
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(),"RF Status")]/following-sibling::table[2]//tr[2]/td[2]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  odu_odu_connection_status_2:
+    name: ODU Connection Status 2
+    description: ODU Connection Status 2
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.set_form_data}'
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(),"RF Status")]/following-sibling::table[2]//tr[3]/td[2]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  odu_optic_atten_link_1_to_4_dl:
+    name: ODU Optic Atten Link 1 To 4 DL
+    description: ODU Optic Atten Link 1 To 4 DL
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.set_form_data}'
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(),"Optic Atten")]/following-sibling::table//tr[3]/td[2]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  odu_optic_atten_link_1_to_4_ul_common:
+    name: ODU Optic Atten Link 1 To 4 UL Common
+    description: ODU Optic Atten Link 1 To 4 UL Common
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.set_form_data}'
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(),"Optic Atten")]/following-sibling::table//tr[3]/td[3]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  odu_optic_atten_link_1_ul_link:
+    name: ODU Optic Atten Link 1 UL Link
+    description: ODU Optic Atten Link 1 UL Link
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.set_form_data}'
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(),"Optic Atten")]/following-sibling::table//tr[3]/td[4]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  odu_optic_atten_link_2_ul_link:
+    name: ODU Optic Atten Link 2 UL Link
+    description: ODU Optic Atten Link 2 UL Link
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.set_form_data}'
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(),"Optic Atten")]/following-sibling::table//tr[4]/td[2]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  odu_optic_atten_link_3_ul_link:
+    name: ODU Optic Atten Link 3 UL Link
+    description: ODU Optic Atten Link 3 UL Link
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.set_form_data}'
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(),"Optic Atten")]/following-sibling::table//tr[5]/td[2]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  odu_optic_atten_link_4_ul_link:
+    name: ODU Optic Atten Link 4 UL Link
+    description: ODU Optic Atten Link 4 UL Link
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.set_form_data}'
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(),"Optic Atten")]/following-sibling::table//tr[6]/td[2]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  odu_optic_atten_link_5_to_8_dl:
+    name: ODU Optic Atten Link 5 To 8 DL
+    description: ODU Optic Atten Link 5 To 8 DL
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.set_form_data}'
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(),"Optic Atten")]/following-sibling::table//tr[7]/td[2]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  odu_optic_atten_link_5_to_8_ul_common:
+    name: ODU Optic Atten Link 5 To 8 UL Common
+    description: ODU Optic Atten Link 5 To 8 UL Common
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.set_form_data}'
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(),"Optic Atten")]/following-sibling::table//tr[7]/td[3]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  odu_optic_atten_link_5_ul_link:
+    name: ODU Optic Atten Link 5 UL Link
+    description: ODU Optic Atten Link 5 UL Link
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.set_form_data}'
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(),"Optic Atten")]/following-sibling::table//tr[7]/td[4]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  odu_optic_atten_link_6_ul_link:
+    name: ODU Optic Atten Link 6 UL Link
+    description: ODU Optic Atten Link 6 UL Link
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.set_form_data}'
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(),"Optic Atten")]/following-sibling::table//tr[8]/td[2]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  odu_optic_atten_link_7_ul_link:
+    name: ODU Optic Atten Link 7 UL Link
+    description: ODU Optic Atten Link 7 UL Link
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.set_form_data}'
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(),"Optic Atten")]/following-sibling::table//tr[9]/td[2]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  odu_optic_atten_link_8_ul_link:
+    name: ODU Optic Atten Link 8 UL Link
+    description: ODU Optic Atten Link 8 UL Link
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.set_form_data}'
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(),"Optic Atten")]/following-sibling::table//tr[10]/td[2]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  odu_optic_status_link_1_pd_power:
+    name: ODU Optic Status Link 1 PD Power
+    description: ODU Optic Status Link 1 PD Power
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.set_form_data}'
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(),"Optic Status")]/following-sibling::table//tr[2]/td[3]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  odu_optic_status_link_1_to_4_ld_power:
+    name: ODU Optic Status Link 1 To 4 LD Power
+    description: ODU Optic Status Link 1 To 4 LD Power
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.set_form_data}'
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(),"Optic Status")]/following-sibling::table//tr[2]/td[2]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  odu_optic_status_link_2_pd_power:
+    name: ODU Optic Status Link 2 PD Power
+    description: ODU Optic Status Link 2 PD Power
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.set_form_data}'
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(),"Optic Status")]/following-sibling::table//tr[3]/td[2]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  odu_optic_status_link_3_pd_power:
+    name: ODU Optic Status Link 3 PD Power
+    description: ODU Optic Status Link 3 PD Power
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.set_form_data}'
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(),"Optic Status")]/following-sibling::table//tr[4]/td[2]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  odu_optic_status_link_4_pd_power:
+    name: ODU Optic Status Link 4 PD Power
+    description: ODU Optic Status Link 4 PD Power
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.set_form_data}'
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(),"Optic Status")]/following-sibling::table//tr[5]/td[2]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  odu_optic_status_link_5_pd_power:
+    name: ODU Optic Status Link 5 PD Power
+    description: ODU Optic Status Link 5 PD Power
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.set_form_data}'
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(),"Optic Status")]/following-sibling::table//tr[6]/td[3]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  odu_optic_status_link_5_to_8_ld_power:
+    name: ODU Optic Status Link 5 To 8 LD Power
+    description: ODU Optic Status Link 5 To 8 LD Power
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.set_form_data}'
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(),"Optic Status")]/following-sibling::table//tr[6]/td[2]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  odu_optic_status_link_6_pd_power:
+    name: ODU Optic Status Link 6 PD Power
+    description: ODU Optic Status Link 6 PD Power
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.set_form_data}'
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(),"Optic Status")]/following-sibling::table//tr[7]/td[2]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  odu_optic_status_link_7_pd_power:
+    name: ODU Optic Status Link 7 PD Power
+    description: ODU Optic Status Link 7 PD Power
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.set_form_data}'
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(),"Optic Status")]/following-sibling::table//tr[8]/td[2]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  odu_optic_status_link_8_pd_power:
+    name: ODU Optic Status Link 8 PD Power
+    description: ODU Optic Status Link 8 PD Power
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.set_form_data}'
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(),"Optic Status")]/following-sibling::table//tr[9]/td[2]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  odu_rf_status_link_1_to_4_dl:
+    name: ODU RF Status Link 1 To 4 DL
+    description: ODU RF Status Link 1 To 4 DL
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.set_form_data}'
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(),"RF Status")]/following-sibling::table[1]//tr[2]/td[2]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  odu_rf_status_link_1_to_4_ul:
+    name: ODU RF Status Link 1 To 4 UL
+    description: ODU RF Status Link 1 To 4 UL
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.set_form_data}'
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(),"RF Status")]/following-sibling::table[1]//tr[2]/td[3]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  odu_rf_status_link_5_to_8_dl:
+    name: ODU RF Status Link 5 To 8 DL
+    description: ODU RF Status Link 5 To 8 DL
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.set_form_data}'
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(),"RF Status")]/following-sibling::table[1]//tr[3]/td[2]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  odu_rf_status_link_5_to_8_ul:
+    name: ODU RF Status Link 5 To 8 UL
+    description: ODU RF Status Link 5 To 8 UL
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.set_form_data}'
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(),"RF Status")]/following-sibling::table[1]//tr[3]/td[3]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  odu_serial_number:
+    name: ODU Serial Number
+    description: ODU Serial Number
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.set_form_data}'
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(),"Serial Number")]/following-sibling::td/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  odu_web_gui:
+    name: ODU Web GUI
+    description: ODU Web GUI
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.set_form_data}'
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(),"Web GUI")]/following-sibling::td/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  rfu_brs_td_lte_band_dl:
+    name: RFU BRS TD-LTE Band DL
+    description: RFU BRS TD-LTE Band DL
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.set_form_data}'
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(),"194 MHz")]/following-sibling::td/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  rfu_brs_td_lte_band_ul:
+    name: RFU BRS TD-LTE Band UL
+    description: RFU BRS TD-LTE Band UL
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.set_form_data}'
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(),"194 MHz")]/following-sibling::td/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  rfu_firmware:
+    name: RFU Firmware
+    description: RFU Firmware
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.set_form_data}'
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(),"Firmware")]/following-sibling::td/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  rfu_latitude:
+    name: RFU Latitude
+    description: RFU Latitude
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.set_form_data}'
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(),"Latitude")]/following-sibling::td/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  rfu_longitude:
+    name: RFU Longitude
+    description: RFU Longitude
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.set_form_data}'
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(),"Longitude")]/following-sibling::td/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  rfu_power_ac_fail_alarm:
+    name: RFU Power AC Fail Alarm
+    description: RFU Power AC Fail Alarm
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.set_form_data}'
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  rfu_power_alc_atten_dl:
+    name: RFU Power ALC Atten DL
+    description: RFU Power ALC Atten DL
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.set_form_data}'
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(),"ALC Atten [dB]")]/following-sibling::td[1]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  rfu_power_alc_atten_ul:
+    name: RFU Power ALC Atten UL
+    description: RFU Power ALC Atten UL
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.set_form_data}'
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(),"ALC Atten [dB]")]/following-sibling::td[2]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  rfu_power_atten_dl:
+    name: RFU Power Atten DL
+    description: RFU Power Atten DL
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.set_form_data}'
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(),"Atten[dB]")]/following-sibling::td[1]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  rfu_power_atten_ul:
+    name: RFU Power Atten UL
+    description: RFU Power Atten UL
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.set_form_data}'
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(),"Atten[dB]")]/following-sibling::td[2]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  rfu_power_dc_fail_alarm:
+    name: RFU Power DC Fail Alarm
+    description: RFU Power DC Fail Alarm
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.set_form_data}'
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  rfu_power_input_dl:
+    name: RFU Power Input DL
+    description: RFU Power Input DL
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.set_form_data}'
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(),"Input [dBm]")]/following-sibling::td[1]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  rfu_power_input_ul:
+    name: RFU Power Input UL
+    description: RFU Power Input UL
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.set_form_data}'
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(),"Input [dBm]")]/following-sibling::td[2]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  rfu_power_output_dl:
+    name: RFU Power Output DL
+    description: RFU Power Output DL
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.set_form_data}'
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(),"Output [dBm]")]/following-sibling::td[1]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  rfu_power_output_ul:
+    name: RFU Power Output UL
+    description: RFU Power Output UL
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.set_form_data}'
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(),"Output [dBm]")]/following-sibling::td[2]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  rfu_power_over_current_alarm:
+    name: RFU Power Over Current Alarm
+    description: RFU Power Over Current Alarm
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.set_form_data}'
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  rfu_rf_dl_input_overload_alarm:
+    name: RFU Rf DL Input Overload Alarm
+    description: RFU Rf DL Input Overload Alarm
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.set_form_data}'
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  rfu_rf_dl_signal_low_alarm:
+    name: RFU Rf DL Signal Low Alarm
+    description: RFU Rf DL Signal Low Alarm
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.set_form_data}'
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  rfu_rf_dl_signal_not_detected_alarm:
+    name: RFU Rf DL Signal Not Detected Alarm
+    description: RFU Rf DL Signal Not Detected Alarm
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.set_form_data}'
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  rfu_rf_sync_fail_alarm:
+    name: RFU Rf Sync Fail Alarm
+    description: RFU Rf Sync Fail Alarm
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.set_form_data}'
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  rfu_rf_ul_overpower_alarm:
+    name: RFU Rf UL Overpower Alarm
+    description: RFU Rf UL Overpower Alarm
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.set_form_data}'
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  rfu_serial_number:
+    name: RFU Serial Number
+    description: RFU Serial Number
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.set_form_data}'
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(),"Serial Number")]/following-sibling::td/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  rfu_system_halt_alarm:
+    name: RFU System Halt Alarm
+    description: RFU System Halt Alarm
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.set_form_data}'
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  rfu_system_link_fail_alarm:
+    name: RFU System Link Fail Alarm
+    description: RFU System Link Fail Alarm
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.set_form_data}'
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  rfu_system_over_temperature_alarm:
+    name: RFU System Over Temperature Alarm
+    description: RFU System Over Temperature Alarm
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.set_form_data}'
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  rfu_system_under_temperature_alarm:
+    name: RFU System Under Temperature Alarm
+    description: RFU System Under Temperature Alarm
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.set_form_data}'
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  rfu_web_gui:
+    name: RFU Web GUI
+    description: RFU Web GUI
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.set_form_data}'
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(),"Web GUI")]/following-sibling::td/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  ru_hub_firmware:
+    name: RU Hub Firmware
+    description: RU Hub Firmware
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.set_form_data}'
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(),"Firmware")]/following-sibling::td/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  ru_hub_latitude:
+    name: RU Hub Latitude
+    description: RU Hub Latitude
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.set_form_data}'
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(),"Latitude")]/following-sibling::td/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  ru_hub_longitude:
+    name: RU Hub Longitude
+    description: RU Hub Longitude
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.set_form_data}'
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(),"Longitude")]/following-sibling::td/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  ru_hub_optic_atten_dl:
+    name: RU Hub Optic Atten DL
+    description: RU Hub Optic Atten DL
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.set_form_data}'
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(),"Optic Atten")]/following-sibling::table//tr[2]/td[2]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  ru_hub_optic_atten_ul:
+    name: RU Hub Optic Atten UL
+    description: RU Hub Optic Atten UL
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.set_form_data}'
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(),"Optic Atten")]/following-sibling::table//tr[2]/td[3]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  ru_hub_optic_ld_power:
+    name: RU Hub Optic LD Power
+    description: RU Hub Optic LD Power
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.set_form_data}'
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(),"Optic Power")]/following-sibling::table[1]//tr[2]/td[3]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  ru_hub_optic_pd_power:
+    name: RU Hub Optic PD Power
+    description: RU Hub Optic PD Power
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.set_form_data}'
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(),"Optic Power")]/following-sibling::table[1]//tr[2]/td[2]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  ru_hub_serial_number:
+    name: RU Hub Serial Number
+    description: RU Hub Serial Number
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.set_form_data}'
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(),"Serial Number")]/following-sibling::td/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  ru_hub_system_halt_alarm:
+    name: RU Hub System Halt Alarm
+    description: RU Hub System Halt Alarm
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.set_form_data}'
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  ru_hub_system_link_fail_alarm:
+    name: RU Hub System Link Fail
+    description: RU Hub System Link Fail
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.set_form_data}'
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  ru_hub_web_gui:
+    name: RU Hub Web GUI
+    description: RU Hub Web GUI
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.set_form_data}'
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_status}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(),"Web GUI")]/following-sibling::td/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+resources:
+  auths:
+    upgraded-http:
+      http:
+        httpUri: false
+        actions:
+          login:
+            dataEngine: '%{engines.upgraded-http}'
+            dataSource: '%{resources.http.requests.login}'
+            selector:
+              type: cookie
+              expression: PHPSESSID
+            dataSink: '%{resources.globals.auth.sessionId}'
+          logout:
+            dataEngine: '%{engines.upgraded-http}'
+            dataSource: '%{resources.http.requests.logout}'
+            selector:
+              type: static
+              expression: ""
+            dataSink: '%{resources.globals.auth.sessionId}'
+  mappers:
+    alarms:
+      keyType: String
+      valueType: String
+      map:
+        gray: Severe
+        green: Normal
+        red: Critical
+        yellow: Warning
+  globals:
+    auth:
+      sessionId: 0
+    reg:
+      ip: ${registration.form.properties.ip}
+      password: ${registration.vault.properties.password}
+      port: ${registration.form.properties.port}
+      url: http://${registration.form.properties.ip}:${registration.form.properties.port}
+      username: ${registration.vault.properties.username}
+  http:
+    requests:
+      get_status:
+        uri: ${resources.globals.reg.url}/status.php
+        responseContentType: text/html
+        query:
+          ?cascadecode: ""
+          ipaddress: ""
+        responses:
+          success:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: "200"
+          failure:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: ^(?!200)
+      get_tree:
+        uri: ${resources.globals.reg.url}/status.php
+        responseContentType: text/html
+        query:
+          ?cascadecode: ""
+          ipaddress: ""
+        responses:
+          success:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: "200"
+          failure:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: ^(?!200)
+      login:
+        method: POST
+        uri: ${resources.globals.reg.url}/modules/setFormData.php
+        requestContentType: application/x-www-form-urlencoded
+        responseContentType: text/html
+        query:
+          ?cascadecode: ""
+          ipaddress: ""
+        body:
+          password: ${resources.globals.reg.password}
+          submit_login: Login
+          username: ${resources.globals.reg.username}
+        responses:
+          success:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: "200"
+          failure:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: ^(?!200)
+      logout:
+        uri: ${resources.globals.reg.url}/status.php
+        responseContentType: text/html
+        query:
+          ?cascadecode: ""
+          ipaddress: ""
+          logout: ""
+        responses:
+          success:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: "200"
+          failure:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: ^(?!200)
+      set_form_data:
+        method: POST
+        uri: ${resources.globals.reg.url}/modules/setFormData.php
+        requestContentType: application/x-www-form-urlencoded
+        responseContentType: text/html
+        query:
+          ?cascadecode: ""
+          ipaddress: ""
+        body:
+          newID: ${topology.discovery.flatten.device_name}
+          submit_newID: 1
+        responses:
+          success:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: "200"
+          failure:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: ^(?!200)

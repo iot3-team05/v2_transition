@@ -1,0 +1,1077 @@
+iot3: 2.0.0
+info:
+  name: Adrf Adx
+  oem: ADRF
+  model: ADX
+  versions:
+    - "3.0"
+  description: Adrf Adxv
+  author: deep.desai@qeleo.com
+  stage: alpha
+  revision: 2
+  labels:
+    - auto upgraded to v2
+  created: "2022-05-23"
+  updated: "2022-12-05"
+registration:
+  vaultId: vault_id
+  fingerprint:
+    - ip
+    - port
+    - vault_id
+  vault:
+    properties:
+      password:
+        key: password
+        placeholder: Password
+        required: true
+        title: Password
+        type: string
+      username:
+        key: username
+        placeholder: Username
+        required: true
+        title: Username
+        type: string
+    required:
+      - username
+      - password
+  form:
+    properties:
+      ip:
+        key: ip
+        placeholder: IP Address
+        required: true
+        title: IP
+        type: string
+      port:
+        inputType: number
+        key: port
+        maximum: 65535
+        minimum: 1
+        placeholder: Port
+        required: true
+        title: Port
+        type: number
+      vault_id:
+        key: vault_id
+        pattern: ^(cu\w{6})(-av\w{6})$
+        placeholder: Vault ID
+        required: true
+        title: Vault ID
+        type: string
+    required:
+      - ip
+      - port
+      - vault_id
+engines:
+  tunnel:
+    ssh:
+      supported: false
+    http:
+      supported: true
+  upgraded-http:
+    schedule: '@always'
+    auth: '%{resources.auths.upgraded-http}'
+    type: HTTP
+    options:
+      tls:
+        minVersion: "1.0"
+topology:
+  rootType: nms
+  wrapperType: system
+  nodes: true
+  discovery:
+    dataEngine: '%{engines.upgraded-http}'
+    dataSource: '%{resources.http.requests.get_tree}'
+    type: http
+    selectors:
+      nodes:
+        dataEngine: '%{engines.upgraded-http}'
+        selector:
+          type: xpath
+          expression: //*[@name="targetTree"]//*[contains(@class,"btnViewTarget")]/..
+        extractor:
+          filters:
+            1: wrap <table> </table>
+    flatten:
+      type:
+        transform: ${topology.discovery.selectors.nodes}
+        filters:
+          1: "switch\n\"%{0}\" ~= \"NMS\" : \"nms\"\n\"%{0}\" ~= \"RFU\" : \"rfu\"\n\"%{0}\" ~= \"ODU\" : \"odu\"\n\"%{0}\" ~= \"RU-Hub\" : \"ru_hub\"\n\"%{0}\" ~= \"M-RU\" : \"m_ru\"\ndefault: \"\"    \n"
+      topology:
+        transform: ${topology.discovery.selectors.nodes}
+        filters:
+          1: regexpExtract /((?<=01[_]01[_])[A-Z0-9_]+(?=[&]))/ => $1
+          2: regexpExtract /(^\d+)/ => $1
+          3: use %{1}
+          4: regexpExtract /((?<=0F_)\d+(?=[_]))/ => $1
+          5: use %{1}
+          6: regexpExtract /((?=\d+)\d+(?=[_]\d+$))/ => $1
+          7: use %{1}
+          8: regexpExtract /(\d+$)/ => $1
+          9: use %{0}
+          10: xpath //td/text()
+          11: |
+            switch
+            "%{10}" ~= "NMS" : "nms"
+            "%{10}" ~= "RFU" : "rfu"
+            "%{10}" ~= "ODU" : "odu"
+            "%{10}" ~= "RU-Hub" : "ru_hub"
+            "%{10}" ~= "M-RU" : "m_ru"
+            default: ""
+          12: |
+            switch
+            "%{11}" == "nms" : "'nms'"
+            "%{11}" == "rfu" : "'nms' -> 'rfu [%{2}]'"
+            "%{11}" == "odu" : "'nms' -> 'odu [%{4}]'"
+            "%{11}" == "ru_hub" : "'nms' -> 'odu [%{4}]' -> 'ru_hub [%{6}]'"
+            "%{11}" == "m_ru" : "'nms' -> 'odu [%{4}]' -> 'ru_hub [%{6}]' -> 'm_ru[33] [%{8}]'"
+            default: ""
+      version:
+        transform: "1.0"
+      device_name:
+        transform: ${topology.discovery.selectors.nodes}
+        filters:
+          1: regexpExtract /((?<=&#39;)[A-Z0-9_]+(?=&#39))/ => $1
+types:
+  m_ru:
+    name: M_Hub
+    version: '[1.0,)'
+    reference: m_ru
+    attributes:
+      - m_ru_system_link_fail_alarm
+      - m_ru_system_under_temperature_alarm
+      - m_ru_system_fan_fault_alarm
+      - m_ru_system_oru_pd_fail_alarm
+      - m_ru_system_over_temperature_alarm
+      - m_ru_system_halt_alarm
+      - m_ru_system_oru_ld_fail_alarm
+      - m_ru_rf_ul_input_overload_alarm
+      - m_ru_rf_dl_overpower_alarm
+      - m_ru_rf_vswr_alarm
+      - m_ru_rf_sync_fail_alarm
+    alarms:
+      m_ru_rf_dl_overpower_alarm:
+        attributes:
+          - m_ru_rf_dl_overpower_alarm
+        mapper: '%{resources.mappers.alarms}'
+      m_ru_rf_sync_fail_alarm:
+        attributes:
+          - m_ru_rf_sync_fail_alarm
+        mapper: '%{resources.mappers.alarms}'
+      m_ru_rf_ul_input_overload_alarm:
+        attributes:
+          - m_ru_rf_ul_input_overload_alarm
+        mapper: '%{resources.mappers.alarms}'
+      m_ru_rf_vswr_alarm:
+        attributes:
+          - m_ru_rf_vswr_alarm
+        mapper: '%{resources.mappers.alarms}'
+      m_ru_system_fan_fault_alarm:
+        attributes:
+          - m_ru_system_fan_fault_alarm
+        mapper: '%{resources.mappers.alarms}'
+      m_ru_system_halt_alarm:
+        attributes:
+          - m_ru_system_halt_alarm
+        mapper: '%{resources.mappers.alarms}'
+      m_ru_system_link_fail_alarm:
+        attributes:
+          - m_ru_system_link_fail_alarm
+        mapper: '%{resources.mappers.alarms}'
+      m_ru_system_oru_ld_fail_alarm:
+        attributes:
+          - m_ru_system_oru_ld_fail_alarm
+        mapper: '%{resources.mappers.alarms}'
+      m_ru_system_oru_pd_fail_alarm:
+        attributes:
+          - m_ru_system_oru_pd_fail_alarm
+        mapper: '%{resources.mappers.alarms}'
+      m_ru_system_over_temperature_alarm:
+        attributes:
+          - m_ru_system_over_temperature_alarm
+        mapper: '%{resources.mappers.alarms}'
+      m_ru_system_under_temperature_alarm:
+        attributes:
+          - m_ru_system_under_temperature_alarm
+        mapper: '%{resources.mappers.alarms}'
+    price:
+      value: 0
+      unit: USD
+    energy:
+      value: 0
+      unit: W
+  nms:
+    name: NMS
+    version: '[1.0,)'
+    reference: nms
+    attributes:
+      - nms_system_over_temperature_alarm
+      - nms_system_under_temperature_alarm
+      - nms_system_halt_alarm
+      - nms_power_ac_fail_alarm
+      - nms_power_dc_fail_alarm
+      - nms_power_over_current_alarm
+    alarms:
+      nms_power_ac_fail_alarm:
+        attributes:
+          - nms_power_ac_fail_alarm
+        mapper: '%{resources.mappers.alarms}'
+      nms_power_dc_fail_alarm:
+        attributes:
+          - nms_power_dc_fail_alarm
+        mapper: '%{resources.mappers.alarms}'
+      nms_power_over_current_alarm:
+        attributes:
+          - nms_power_over_current_alarm
+        mapper: '%{resources.mappers.alarms}'
+      nms_system_halt_alarm:
+        attributes:
+          - nms_system_halt_alarm
+        mapper: '%{resources.mappers.alarms}'
+      nms_system_over_temperature_alarm:
+        attributes:
+          - nms_system_over_temperature_alarm
+        mapper: '%{resources.mappers.alarms}'
+      nms_system_under_temperature_alarm:
+        attributes:
+          - nms_system_under_temperature_alarm
+        mapper: '%{resources.mappers.alarms}'
+    price:
+      value: 0
+      unit: USD
+    energy:
+      value: 0
+      unit: W
+  odu:
+    name: ODU
+    version: '[1.0,)'
+    reference: odu
+    price:
+      value: 0
+      unit: USD
+    energy:
+      value: 0
+      unit: W
+  rfu:
+    name: RFU
+    version: '[1.0,)'
+    reference: rfu
+    attributes:
+      - rfu_system_link_fail_alarm
+      - rfu_system_over_temperature_alarm
+      - rfu_system_under_temperature_alarm
+      - rfu_system_halt_alarm
+      - rfu_rf_dl_signal_not_detected_alarm
+      - rfu_rf_dl_signal_low_alarm
+      - rfu_rf_dl_input_overload_alarm
+      - rfu_rf_ul_overpower_alarm
+      - rfu_rf_sync_fail_alarm
+      - rfu_power_ac_fail_alarm
+      - rfu_power_dc_fail_alarm
+      - rfu_power_over_current_alarm
+    alarms:
+      rfu_power_ac_fail_alarm:
+        attributes:
+          - rfu_power_ac_fail_alarm
+        mapper: '%{resources.mappers.alarms}'
+      rfu_power_dc_fail_alarm:
+        attributes:
+          - rfu_power_dc_fail_alarm
+        mapper: '%{resources.mappers.alarms}'
+      rfu_power_over_current_alarm:
+        attributes:
+          - rfu_power_over_current_alarm
+        mapper: '%{resources.mappers.alarms}'
+      rfu_rf_dl_input_overload_alarm:
+        attributes:
+          - rfu_rf_dl_input_overload_alarm
+        mapper: '%{resources.mappers.alarms}'
+      rfu_rf_dl_signal_low_alarm:
+        attributes:
+          - rfu_rf_dl_signal_low_alarm
+        mapper: '%{resources.mappers.alarms}'
+      rfu_rf_dl_signal_not_detected_alarm:
+        attributes:
+          - rfu_rf_dl_signal_not_detected_alarm
+        mapper: '%{resources.mappers.alarms}'
+      rfu_rf_sync_fail_alarm:
+        attributes:
+          - rfu_rf_sync_fail_alarm
+        mapper: '%{resources.mappers.alarms}'
+      rfu_rf_ul_overpower_alarm:
+        attributes:
+          - rfu_rf_ul_overpower_alarm
+        mapper: '%{resources.mappers.alarms}'
+      rfu_system_halt_alarm:
+        attributes:
+          - rfu_system_halt_alarm
+        mapper: '%{resources.mappers.alarms}'
+      rfu_system_link_fail_alarm:
+        attributes:
+          - rfu_system_link_fail_alarm
+        mapper: '%{resources.mappers.alarms}'
+      rfu_system_over_temperature_alarm:
+        attributes:
+          - rfu_system_over_temperature_alarm
+        mapper: '%{resources.mappers.alarms}'
+      rfu_system_under_temperature_alarm:
+        attributes:
+          - rfu_system_under_temperature_alarm
+        mapper: '%{resources.mappers.alarms}'
+    price:
+      value: 0
+      unit: USD
+    energy:
+      value: 0
+      unit: W
+  ru_hub:
+    name: RU_Hub
+    version: '[1.0,)'
+    reference: ru_hub
+    attributes:
+      - ru_hub_system_link_fail_alarm
+      - ru_hub_system_halt_alarm
+    alarms:
+      ru_hub_system_halt_alarm:
+        attributes:
+          - ru_hub_system_halt_alarm
+        mapper: '%{resources.mappers.alarms}'
+      ru_hub_system_link_fail_alarm:
+        attributes:
+          - ru_hub_system_link_fail_alarm
+        mapper: '%{resources.mappers.alarms}'
+    price:
+      value: 0
+      unit: USD
+    energy:
+      value: 0
+      unit: W
+  system:
+    name: System
+    version: '[1.0,)'
+    reference: system
+    price:
+      value: 0
+      unit: USD
+    energy:
+      value: 0
+      unit: W
+attributes:
+  m_ru_rf_dl_overpower_alarm:
+    name: M-RU Rf DL Overpower Alarm
+    description: M-RU Rf DL Overpower Alarm
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.set_form_data}'
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  m_ru_rf_sync_fail_alarm:
+    name: M-RU Rf Sync Fail Alarm
+    description: M-RU Rf Sync Fail Alarm
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.set_form_data}'
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  m_ru_rf_ul_input_overload_alarm:
+    name: M-RU Rf UL Input Overload Alarm
+    description: M-RU Rf UL Input Overload Alarm
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.set_form_data}'
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  m_ru_rf_vswr_alarm:
+    name: M-RU Rf VSWR Alarm
+    description: M-RU Rf VSWR Alarm
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.set_form_data}'
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  m_ru_system_fan_fault_alarm:
+    name: M-RU System Fan Fault Alarm
+    description: M-RU System Fan Fault Alarm
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.set_form_data}'
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  m_ru_system_halt_alarm:
+    name: M-RU System Halt Alarm
+    description: M-RU System Halt Alarm
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.set_form_data}'
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  m_ru_system_link_fail_alarm:
+    name: M-RU System Link Fail Alarm
+    description: M-RU System Link Fail Alarm
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.set_form_data}'
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  m_ru_system_oru_ld_fail_alarm:
+    name: M-RU System ORU Ld Fail Alarm
+    description: M-RU System ORU Ld Fail Alarm
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.set_form_data}'
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  m_ru_system_oru_pd_fail_alarm:
+    name: M-RU System ORU Pd Fail Alarm
+    description: M-RU System ORU Pd Fail Alarm
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.set_form_data}'
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  m_ru_system_over_temperature_alarm:
+    name: M-RU System Over Temperature Alarm
+    description: M-RU System Over Temperature Alarm
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.set_form_data}'
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  m_ru_system_under_temperature_alarm:
+    name: M-RU System Under Temperature Alarm
+    description: M-RU System Under Temperature Alarm
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.set_form_data}'
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  nms_power_ac_fail_alarm:
+    name: Nms Power Ac Fail Alarm
+    description: Nms Power Ac Fail Alarm
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.set_form_data}'
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  nms_power_dc_fail_alarm:
+    name: Nms Power Dc Fail Alarm
+    description: Nms Power Dc Fail Alarm
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.set_form_data}'
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  nms_power_over_current_alarm:
+    name: Nms Power Over Current Alarm
+    description: Nms Power Over Current Alarm
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.set_form_data}'
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  nms_system_halt_alarm:
+    name: Nms System Halt Alarm
+    description: Nms System Halt Alarm
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.set_form_data}'
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  nms_system_over_temperature_alarm:
+    name: Nms System Over Temperature Alarm
+    description: Nms System Over Temperature Alarm
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.set_form_data}'
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  nms_system_under_temperature_alarm:
+    name: Nms System Under Temperature Alarm
+    description: Nms System Under Temperature Alarm
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.set_form_data}'
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  rfu_power_ac_fail_alarm:
+    name: RFU Power AC Fail Alarm
+    description: RFU Power AC Fail Alarm
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.set_form_data}'
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  rfu_power_dc_fail_alarm:
+    name: RFU Power DC Fail Alarm
+    description: RFU Power DC Fail Alarm
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.set_form_data}'
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  rfu_power_over_current_alarm:
+    name: RFU Power Over Current Alarm
+    description: RFU Power Over Current Alarm
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.set_form_data}'
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  rfu_rf_dl_input_overload_alarm:
+    name: RFU Rf DL Input Overload Alarm
+    description: RFU Rf DL Input Overload Alarm
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.set_form_data}'
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  rfu_rf_dl_signal_low_alarm:
+    name: RFU Rf DL Signal Low Alarm
+    description: RFU Rf DL Signal Low Alarm
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.set_form_data}'
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  rfu_rf_dl_signal_not_detected_alarm:
+    name: RFU Rf DL Signal Not Detected Alarm
+    description: RFU Rf DL Signal Not Detected Alarm
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.set_form_data}'
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  rfu_rf_sync_fail_alarm:
+    name: RFU Rf Sync Fail Alarm
+    description: RFU Rf Sync Fail Alarm
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.set_form_data}'
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  rfu_rf_ul_overpower_alarm:
+    name: RFU Rf UL Overpower Alarm
+    description: RFU Rf UL Overpower Alarm
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.set_form_data}'
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  rfu_system_halt_alarm:
+    name: RFU System Halt Alarm
+    description: RFU System Halt Alarm
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.set_form_data}'
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  rfu_system_link_fail_alarm:
+    name: RFU System Link Fail Alarm
+    description: RFU System Link Fail Alarm
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.set_form_data}'
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  rfu_system_over_temperature_alarm:
+    name: RFU System Over Temperature Alarm
+    description: RFU System Over Temperature Alarm
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.set_form_data}'
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  rfu_system_under_temperature_alarm:
+    name: RFU System Under Temperature Alarm
+    description: RFU System Under Temperature Alarm
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.set_form_data}'
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  ru_hub_system_halt_alarm:
+    name: RU_Hub System Halt Alarm
+    description: RU_Hub System Halt Alarm
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.set_form_data}'
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  ru_hub_system_link_fail_alarm:
+    name: RU_Hub System Link Fail
+    description: RU_Hub System Link Fail
+    conditions: {}
+    attributes:
+      dependsOn:
+        - '%{resources.http.requests.set_form_data}'
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+resources:
+  auths:
+    upgraded-http:
+      http:
+        httpUri: false
+        actions:
+          login:
+            dataEngine: '%{engines.upgraded-http}'
+            dataSource: '%{resources.http.requests.login}'
+            selector:
+              type: cookie
+              expression: PHPSESSID
+            dataSink: '%{resources.globals.auth.sessionId}'
+          logout:
+            dataEngine: '%{engines.upgraded-http}'
+            dataSource: '%{resources.http.requests.logout}'
+            selector:
+              type: static
+              expression: ""
+            dataSink: '%{resources.globals.auth.sessionId}'
+  mappers:
+    alarms:
+      keyType: String
+      valueType: String
+      map:
+        gray: Link Fail
+        green: Normal
+        red: Critical
+        yellow: Major
+  globals:
+    auth:
+      sessionId: 0
+    reg:
+      ip: ${registration.form.properties.ip}
+      password: ${registration.vault.properties.password}
+      port: ${registration.form.properties.port}
+      url: http://${registration.form.properties.ip}:${registration.form.properties.port}
+      username: ${registration.vault.properties.username}
+  http:
+    requests:
+      get_status:
+        uri: ${resources.globals.reg.url}/status.php
+        responseContentType: text/html
+        query:
+          ?cascadecode: ""
+          ipaddress: ""
+        responses:
+          success:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: "200"
+          failure:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: ^(?!200)
+      get_tree:
+        uri: ${resources.globals.reg.url}/status.php
+        responseContentType: text/html
+        query:
+          ?cascadecode: ""
+          ipaddress: ""
+        responses:
+          success:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: "200"
+          failure:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: ^(?!200)
+      login:
+        method: POST
+        uri: ${resources.globals.reg.url}/modules/setFormData.php
+        requestContentType: application/x-www-form-urlencoded
+        responseContentType: text/html
+        query:
+          ?cascadecode: ""
+          ipaddress: ""
+        body:
+          password: ${resources.globals.reg.password}
+          submit_login: Login
+          username: ${resources.globals.reg.username}
+        responses:
+          success:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: "200"
+          failure:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: ^(?!200)
+      logout:
+        uri: ${resources.globals.reg.url}/status.php
+        responseContentType: text/html
+        query:
+          ?cascadecode: ""
+          ipaddress: ""
+          logout: ""
+        responses:
+          success:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: "200"
+          failure:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: ^(?!200)
+      set_form_data:
+        method: POST
+        uri: ${resources.globals.reg.url}/modules/setFormData.php
+        requestContentType: application/x-www-form-urlencoded
+        responseContentType: text/html
+        query:
+          ?cascadecode: ""
+          ipaddress: ""
+        body:
+          newID: ${topology.discovery.flatten.device_name}
+          submit_newID: 1
+        responses:
+          success:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: "200"
+          failure:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: ^(?!200)

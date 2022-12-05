@@ -1,0 +1,1512 @@
+iot3: 2.0.0
+info:
+  name: ADRF PSR-78-9533-X Alarm Only
+  oem: ADRF
+  model: PSR-78-9533-X
+  versions:
+    - "2.0"
+  description: ADRF PSR-78-9533-X Alarm Only File
+  author: deep.desai@qeleo.com
+  stage: alpha
+  revision: 2
+  labels:
+    - ADRF
+    - PSR-78-9533-X
+    - Alarm Only
+    - auto upgraded to v2
+  created: "2022-03-04"
+  updated: "2022-11-04"
+  documentation:
+    description: This IoT3 file supports the ADRF Public Safety Repeater Series 78-9533-X
+registration:
+  vaultId: vault_id
+  fingerprint:
+    - ip
+    - port
+    - vault_id
+  vault:
+    properties:
+      password:
+        key: password
+        placeholder: Password
+        required: true
+        title: Password
+        type: string
+      username:
+        key: username
+        placeholder: Username
+        required: true
+        title: Username
+        type: string
+    required:
+      - username
+      - password
+  form:
+    properties:
+      ip:
+        key: ip
+        placeholder: IP Address
+        required: true
+        title: IP
+        type: string
+      port:
+        inputType: number
+        key: port
+        maximum: 65535
+        minimum: 0
+        placeholder: Port
+        required: true
+        title: Port
+        type: number
+      vault_id:
+        key: vault_id
+        pattern: ^(cu\w{6})(-av\w{6})$
+        placeholder: Vault ID
+        required: true
+        title: Vault ID
+        type: string
+    required:
+      - ip
+      - port
+      - vault_id
+engines:
+  tunnel:
+    ssh:
+      supported: false
+    http:
+      supported: true
+  upgraded-http:
+    schedule: '@always'
+    auth: '%{resources.auths.upgraded-http}'
+    type: HTTP
+    options:
+      tls:
+        minVersion: "1.0"
+topology:
+  rootType: psr789533
+  verify:
+    - dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: ""
+      match: ""
+  nodes: false
+types:
+  psr789533:
+    name: PSR789533
+    version: '[1.0,)'
+    reference: psr789533
+    attributes:
+      - psr_system_over_temperature_alarm
+      - psr_system_door_open_alarm
+      - psr_system_dsp_fail_alarm
+      - psr_system_system_halt_alarm
+      - psr_ps700_dl_signal_not_detected_alarm
+      - psr_ps700_dl_signal_low_alarm
+      - psr_ps700_dl_oscillation_alarm
+      - psr_ps700_dl_rf_power_alarm
+      - psr_ps700_dl_out_of_band_overload_alarm
+      - psr_ps700_ul_out_of_band_overload_alarm
+      - psr_ps700_dl_dsp_input_overload_alarm
+      - psr_ps700_ul_dsp_input_overload_alarm
+      - psr_ps700_dl_input_overload_alarm
+      - psr_ps700_ul_input_overload_alarm
+      - psr_ps700_dl_over_input_alarm
+      - psr_ps700_ul_over_input_alarm
+      - psr_ps700_dl_over_power_alarm
+      - psr_ps700_ul_over_power_alarm
+      - psr_ps700_dl_synthesizer_lock_fail_alarm
+      - psr_ps700_ul_synthesizer_lock_fail_alarm
+      - psr_ps700_dl_vswr_alarm
+      - psr_ps700_ul_vswr_alarm
+      - psr_ps800_dl_signal_not_detected_alarm
+      - psr_ps800_dl_signal_low_alarm
+      - psr_ps800_dl_oscillation_alarm
+      - psr_ps800_dl_rf_power_alarm
+      - psr_ps800_dl_out_of_band_overload_alarm
+      - psr_ps800_ul_out_of_band_overload_alarm
+      - psr_ps800_dl_dsp_input_overload_alarm
+      - psr_ps800_ul_dsp_input_overload_alarm
+      - psr_ps800_dl_input_overload_alarm
+      - psr_ps800_ul_input_overload_alarm
+      - psr_ps800_dl_over_input_alarm
+      - psr_ps800_ul_over_input_alarm
+      - psr_ps800_dl_over_power_alarm
+      - psr_ps800_ul_over_power_alarm
+      - psr_ps800_dl_synthesizer_lock_fail_alarm
+      - psr_ps800_ul_synthesizer_lock_fail_alarm
+      - psr_ps800_dl_vswr_alarm
+      - psr_ps800_ul_vswr_alarm
+      - psr_power_ac_alarm
+      - psr_power_dc_alarm
+      - psr_power_over_current_alarm
+      - psr_power_battery_fail_alarm
+      - psr_power_battery_not_installed_alarm
+      - psr_power_low_battery_alarm
+      - psr_power_battery_not_charge_alarm
+      - psr_aai_fire_donor_antenna_malfunction_alarm
+      - psr_aai_fire_active_rf_emitting_device_malfunction_alarm
+      - psr_aai_fire_low_battery_or_oscillation_alarm
+      - psr_aai_fire_system_component_or_ann_disconenction_alarm
+      - psr_aai_normal_ac_power_alarm
+      - psr_aai_loss_of_normal_ac_power_alarm
+      - psr_aai_battery_charger_failure_alarm
+      - psr_aai_system_low_battery_capacity_alarm
+      - psr_aai_donor_antenna_malfunction_alarm
+      - psr_aai_active_rf_emitting_device_malfunction_alarm
+      - psr_aai_system_component_alarm
+      - psr_aai_in_alarm
+    alarms:
+      psr_aai_active_rf_emitting_device_malfunction_alarm:
+        attributes:
+          - psr_aai_active_rf_emitting_device_malfunction_alarm
+        mapper: '%{resources.mappers.alarm}'
+      psr_aai_battery_charger_failure_alarm:
+        attributes:
+          - psr_aai_battery_charger_failure_alarm
+        mapper: '%{resources.mappers.alarm}'
+      psr_aai_donor_antenna_malfunction_alarm:
+        attributes:
+          - psr_aai_donor_antenna_malfunction_alarm
+        mapper: '%{resources.mappers.alarm}'
+      psr_aai_fire_active_rf_emitting_device_malfunction_alarm:
+        attributes:
+          - psr_aai_fire_active_rf_emitting_device_malfunction_alarm
+        mapper: '%{resources.mappers.alarm}'
+      psr_aai_fire_donor_antenna_malfunction_alarm:
+        attributes:
+          - psr_aai_fire_donor_antenna_malfunction_alarm
+        mapper: '%{resources.mappers.alarm}'
+      psr_aai_fire_low_battery_or_oscillation_alarm:
+        attributes:
+          - psr_aai_fire_low_battery_or_oscillation_alarm
+        mapper: '%{resources.mappers.alarm}'
+      psr_aai_fire_system_component_or_ann_disconenction_alarm:
+        attributes:
+          - psr_aai_fire_system_component_or_ann_disconenction_alarm
+        mapper: '%{resources.mappers.alarm}'
+      psr_aai_in_alarm:
+        attributes:
+          - psr_aai_in_alarm
+        mapper: '%{resources.mappers.alarm}'
+      psr_aai_loss_of_normal_ac_power_alarm:
+        attributes:
+          - psr_aai_loss_of_normal_ac_power_alarm
+        mapper: '%{resources.mappers.alarm}'
+      psr_aai_normal_ac_power_alarm:
+        attributes:
+          - psr_aai_normal_ac_power_alarm
+        mapper: '%{resources.mappers.alarm}'
+      psr_aai_system_component_alarm:
+        attributes:
+          - psr_aai_system_component_alarm
+        mapper: '%{resources.mappers.alarm}'
+      psr_aai_system_low_battery_capacity_alarm:
+        attributes:
+          - psr_aai_system_low_battery_capacity_alarm
+        mapper: '%{resources.mappers.alarm}'
+      psr_power_ac_alarm:
+        attributes:
+          - psr_power_ac_alarm
+        mapper: '%{resources.mappers.alarm}'
+      psr_power_battery_fail_alarm:
+        attributes:
+          - psr_power_battery_fail_alarm
+        mapper: '%{resources.mappers.alarm}'
+      psr_power_battery_not_charge_alarm:
+        attributes:
+          - psr_power_battery_not_charge_alarm
+        mapper: '%{resources.mappers.alarm}'
+      psr_power_battery_not_installed_alarm:
+        attributes:
+          - psr_power_battery_not_installed_alarm
+        mapper: '%{resources.mappers.alarm}'
+      psr_power_dc_alarm:
+        attributes:
+          - psr_power_dc_alarm
+        mapper: '%{resources.mappers.alarm}'
+      psr_power_low_battery_alarm:
+        attributes:
+          - psr_power_low_battery_alarm
+        mapper: '%{resources.mappers.alarm}'
+      psr_power_over_current_alarm:
+        attributes:
+          - psr_power_over_current_alarm
+        mapper: '%{resources.mappers.alarm}'
+      psr_ps700_dl_dsp_input_overload_alarm:
+        attributes:
+          - psr_ps700_dl_dsp_input_overload_alarm
+        mapper: '%{resources.mappers.alarm}'
+      psr_ps700_dl_input_overload_alarm:
+        attributes:
+          - psr_ps700_dl_input_overload_alarm
+        mapper: '%{resources.mappers.alarm}'
+      psr_ps700_dl_oscillation_alarm:
+        attributes:
+          - psr_ps700_dl_oscillation_alarm
+        mapper: '%{resources.mappers.alarm}'
+      psr_ps700_dl_out_of_band_overload_alarm:
+        attributes:
+          - psr_ps700_dl_out_of_band_overload_alarm
+        mapper: '%{resources.mappers.alarm}'
+      psr_ps700_dl_over_input_alarm:
+        attributes:
+          - psr_ps700_dl_over_input_alarm
+        mapper: '%{resources.mappers.alarm}'
+      psr_ps700_dl_over_power_alarm:
+        attributes:
+          - psr_ps700_dl_over_power_alarm
+        mapper: '%{resources.mappers.alarm}'
+      psr_ps700_dl_rf_power_alarm:
+        attributes:
+          - psr_ps700_dl_rf_power_alarm
+        mapper: '%{resources.mappers.alarm}'
+      psr_ps700_dl_signal_low_alarm:
+        attributes:
+          - psr_ps700_dl_signal_low_alarm
+        mapper: '%{resources.mappers.alarm}'
+      psr_ps700_dl_signal_not_detected_alarm:
+        attributes:
+          - psr_ps700_dl_signal_not_detected_alarm
+        mapper: '%{resources.mappers.alarm}'
+      psr_ps700_dl_synthesizer_lock_fail_alarm:
+        attributes:
+          - psr_ps700_dl_synthesizer_lock_fail_alarm
+        mapper: '%{resources.mappers.alarm}'
+      psr_ps700_dl_vswr_alarm:
+        attributes:
+          - psr_ps700_dl_vswr_alarm
+        mapper: '%{resources.mappers.alarm}'
+      psr_ps700_ul_dsp_input_overload_alarm:
+        attributes:
+          - psr_ps700_ul_dsp_input_overload_alarm
+        mapper: '%{resources.mappers.alarm}'
+      psr_ps700_ul_input_overload_alarm:
+        attributes:
+          - psr_ps700_ul_input_overload_alarm
+        mapper: '%{resources.mappers.alarm}'
+      psr_ps700_ul_out_of_band_overload_alarm:
+        attributes:
+          - psr_ps700_ul_out_of_band_overload_alarm
+        mapper: '%{resources.mappers.alarm}'
+      psr_ps700_ul_over_input_alarm:
+        attributes:
+          - psr_ps700_ul_over_input_alarm
+        mapper: '%{resources.mappers.alarm}'
+      psr_ps700_ul_over_power_alarm:
+        attributes:
+          - psr_ps700_ul_over_power_alarm
+        mapper: '%{resources.mappers.alarm}'
+      psr_ps700_ul_synthesizer_lock_fail_alarm:
+        attributes:
+          - psr_ps700_ul_synthesizer_lock_fail_alarm
+        mapper: '%{resources.mappers.alarm}'
+      psr_ps700_ul_vswr_alarm:
+        attributes:
+          - psr_ps700_ul_vswr_alarm
+        mapper: '%{resources.mappers.alarm}'
+      psr_ps800_dl_dsp_input_overload_alarm:
+        attributes:
+          - psr_ps800_dl_dsp_input_overload_alarm
+        mapper: '%{resources.mappers.alarm}'
+      psr_ps800_dl_input_overload_alarm:
+        attributes:
+          - psr_ps800_dl_input_overload_alarm
+        mapper: '%{resources.mappers.alarm}'
+      psr_ps800_dl_oscillation_alarm:
+        attributes:
+          - psr_ps800_dl_oscillation_alarm
+        mapper: '%{resources.mappers.alarm}'
+      psr_ps800_dl_out_of_band_overload_alarm:
+        attributes:
+          - psr_ps800_dl_out_of_band_overload_alarm
+        mapper: '%{resources.mappers.alarm}'
+      psr_ps800_dl_over_input_alarm:
+        attributes:
+          - psr_ps800_dl_over_input_alarm
+        mapper: '%{resources.mappers.alarm}'
+      psr_ps800_dl_over_power_alarm:
+        attributes:
+          - psr_ps800_dl_over_power_alarm
+        mapper: '%{resources.mappers.alarm}'
+      psr_ps800_dl_rf_power_alarm:
+        attributes:
+          - psr_ps800_dl_rf_power_alarm
+        mapper: '%{resources.mappers.alarm}'
+      psr_ps800_dl_signal_low_alarm:
+        attributes:
+          - psr_ps800_dl_signal_low_alarm
+        mapper: '%{resources.mappers.alarm}'
+      psr_ps800_dl_signal_not_detected_alarm:
+        attributes:
+          - psr_ps800_dl_signal_not_detected_alarm
+        mapper: '%{resources.mappers.alarm}'
+      psr_ps800_dl_synthesizer_lock_fail_alarm:
+        attributes:
+          - psr_ps800_dl_synthesizer_lock_fail_alarm
+        mapper: '%{resources.mappers.alarm}'
+      psr_ps800_dl_vswr_alarm:
+        attributes:
+          - psr_ps800_dl_vswr_alarm
+        mapper: '%{resources.mappers.alarm}'
+      psr_ps800_ul_dsp_input_overload_alarm:
+        attributes:
+          - psr_ps800_ul_dsp_input_overload_alarm
+        mapper: '%{resources.mappers.alarm}'
+      psr_ps800_ul_input_overload_alarm:
+        attributes:
+          - psr_ps800_ul_input_overload_alarm
+        mapper: '%{resources.mappers.alarm}'
+      psr_ps800_ul_out_of_band_overload_alarm:
+        attributes:
+          - psr_ps800_ul_out_of_band_overload_alarm
+        mapper: '%{resources.mappers.alarm}'
+      psr_ps800_ul_over_input_alarm:
+        attributes:
+          - psr_ps800_ul_over_input_alarm
+        mapper: '%{resources.mappers.alarm}'
+      psr_ps800_ul_over_power_alarm:
+        attributes:
+          - psr_ps800_ul_over_power_alarm
+        mapper: '%{resources.mappers.alarm}'
+      psr_ps800_ul_synthesizer_lock_fail_alarm:
+        attributes:
+          - psr_ps800_ul_synthesizer_lock_fail_alarm
+        mapper: '%{resources.mappers.alarm}'
+      psr_ps800_ul_vswr_alarm:
+        attributes:
+          - psr_ps800_ul_vswr_alarm
+        mapper: '%{resources.mappers.alarm}'
+      psr_system_door_open_alarm:
+        attributes:
+          - psr_system_door_open_alarm
+        mapper: '%{resources.mappers.alarm}'
+      psr_system_dsp_fail_alarm:
+        attributes:
+          - psr_system_dsp_fail_alarm
+        mapper: '%{resources.mappers.alarm}'
+      psr_system_over_temperature_alarm:
+        attributes:
+          - psr_system_over_temperature_alarm
+        mapper: '%{resources.mappers.alarm}'
+      psr_system_system_halt_alarm:
+        attributes:
+          - psr_system_system_halt_alarm
+        mapper: '%{resources.mappers.alarm}'
+    price:
+      value: 0
+      unit: USD
+    energy:
+      value: 0
+      unit: "0"
+attributes:
+  psr_aai_active_rf_emitting_device_malfunction_alarm:
+    name: PSR AAI Active RF Emitting Device Malfunction Alarm
+    description: PSR AAI Active RF Emitting Device Malfunction Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor:
+        mapper: '%{resources.mappers.active}'
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_aai_battery_charger_failure_alarm:
+    name: PSR AAI Battery Charger Failure Alarm
+    description: PSR AAI Battery Charger Failure Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor:
+        mapper: '%{resources.mappers.active}'
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_aai_donor_antenna_malfunction_alarm:
+    name: PSR AAI Donor Antenna Malfunction Alarm
+    description: PSR AAI Donor Antenna Malfunction Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor:
+        mapper: '%{resources.mappers.active}'
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_aai_fire_active_rf_emitting_device_malfunction_alarm:
+    name: PSR AAI Fire Active RF Emitting Device Malfunction Alarm
+    description: PSR AAI Fire Active RF Emitting Device Malfunction Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor:
+        mapper: '%{resources.mappers.active}'
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_aai_fire_donor_antenna_malfunction_alarm:
+    name: PSR AAI Fire Donor Antenna Malfunction Alarm
+    description: PSR AAI Fire Donor Antenna Malfunction Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor:
+        mapper: '%{resources.mappers.active}'
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_aai_fire_low_battery_or_oscillation_alarm:
+    name: PSR AAI Fire Low Battery Or Oscillation Alarm
+    description: PSR AAI Fire Low Battery Or Oscillation Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor:
+        mapper: '%{resources.mappers.active}'
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_aai_fire_system_component_or_ann_disconenction_alarm:
+    name: PSR AAI Fire System Component Or ANN Disconnection Alarm
+    description: PSR AAI Fire System Component Or ANN Disconnection Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor:
+        mapper: '%{resources.mappers.active}'
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_aai_in_alarm:
+    name: PSR AAI In Alarm
+    description: PSR AAI In Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor:
+        mapper: '%{resources.mappers.active}'
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_aai_loss_of_normal_ac_power_alarm:
+    name: PSR AAI Loss Of Normal AC Power Alarm
+    description: PSR AAI Loss Of Normal AC Power Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor:
+        mapper: '%{resources.mappers.active}'
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_aai_normal_ac_power_alarm:
+    name: PSR AAI Normal AC Power Alarm
+    description: PSR AAI Normal AC Power Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor:
+        mapper: '%{resources.mappers.active}'
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_aai_system_component_alarm:
+    name: PSR AAI System Component Alarm
+    description: PSR AAI System Component Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor:
+        mapper: '%{resources.mappers.active}'
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_aai_system_low_battery_capacity_alarm:
+    name: PSR AAI System Low Battery Capacity Alarm
+    description: PSR AAI System Low Battery Capacity Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor:
+        mapper: '%{resources.mappers.active}'
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_power_ac_alarm:
+    name: PSR Power AC Alarm
+    description: PSR Power AC Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_power_battery_fail_alarm:
+    name: PSR Power Battery Fail Alarm
+    description: PSR Power Battery Fail Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_power_battery_not_charge_alarm:
+    name: PSR Power Battery Not Charge Alarm
+    description: PSR Power Battery Not Charge Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_power_battery_not_installed_alarm:
+    name: PSR Power Battery Not Installed Alarm
+    description: PSR Power Battery Not Installed Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_power_dc_alarm:
+    name: PSR Power DC Alarm
+    description: PSR Power DC Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_power_low_battery_alarm:
+    name: PSR Power Low Battery Alarm
+    description: PSR Power Low Battery Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_power_over_current_alarm:
+    name: PSR Power Over Current Alarm
+    description: PSR Power Over Current Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps700_dl_dsp_input_overload_alarm:
+    name: PSR PS700 DL DSP Input Overload Alarm
+    description: PSR PS700 DL DSP Input Overload Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps700_dl_input_overload_alarm:
+    name: PSR PS700 DL Input Overload Alarm
+    description: PSR PS700 DL Input Overload Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps700_dl_oscillation_alarm:
+    name: PSR PS700 DL Oscillation Alarm
+    description: PSR PS700 DL Oscillation Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps700_dl_out_of_band_overload_alarm:
+    name: PSR PS700 DL Out Of Band Overload Alarm
+    description: PSR PS700 DL Out Of Band Overload Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps700_dl_over_input_alarm:
+    name: PSR PS700 DL Over Input Alarm
+    description: PSR PS700 DL Over Input Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps700_dl_over_power_alarm:
+    name: PSR PS700 DL Over Power Alarm
+    description: PSR PS700 DL Over Power Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps700_dl_rf_power_alarm:
+    name: PSR PS700 DL RF Power Alarm
+    description: PSR PS700 DL RF Power Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps700_dl_signal_low_alarm:
+    name: PSR PS700 DL Signal Low Alarm
+    description: PSR PS700 DL Signal Low Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps700_dl_signal_not_detected_alarm:
+    name: PSR PS700 DL Signal Not Detected Alarm
+    description: PSR PS700 DL Signal Not Detected Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps700_dl_synthesizer_lock_fail_alarm:
+    name: PSR PS700 DL Synthesizer Lock Fail Alarm
+    description: PSR PS700 DL Synthesizer Lock Fail Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps700_dl_vswr_alarm:
+    name: PSR PS700 DL VSWR Alarm
+    description: PSR PS700 DL VSWR Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps700_ul_dsp_input_overload_alarm:
+    name: PSR PS700 UL DSP Input Overload Alarm
+    description: PSR PS700 UL DSP Input Overload Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps700_ul_input_overload_alarm:
+    name: PSR PS700 UL Input Overload Alarm
+    description: PSR PS700 UL Input Overload Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps700_ul_out_of_band_overload_alarm:
+    name: PSR PS700 UL Out Of Band Overload Alarm
+    description: PSR PS700 UL Out Of Band Overload Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps700_ul_over_input_alarm:
+    name: PSR PS700 UL Over Input Alarm
+    description: PSR PS700 UL Over Input Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps700_ul_over_power_alarm:
+    name: PSR PS700 UL Over Power Alarm
+    description: PSR PS700 UL Over Power Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps700_ul_synthesizer_lock_fail_alarm:
+    name: PSR PS700 UL Synthesizer Lock Fail Alarm
+    description: PSR PS700 UL Synthesizer Lock Fail Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps700_ul_vswr_alarm:
+    name: PSR PS700 UL VSWR Alarm
+    description: PSR PS700 UL VSWR Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps800_dl_dsp_input_overload_alarm:
+    name: PSR PS800 DL DSP Input Overload Alarm
+    description: PSR PS800 DL DSP Input Overload Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps800_dl_input_overload_alarm:
+    name: PSR PS800 DL Input Overload Alarm
+    description: PSR PS800 DL Input Overload Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps800_dl_oscillation_alarm:
+    name: PSR PS800 DL Oscillation Alarm
+    description: PSR PS800 DL Oscillation Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps800_dl_out_of_band_overload_alarm:
+    name: PSR PS800 DL Out Of Band Overload Alarm
+    description: PSR PS800 DL Out Of Band Overload Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps800_dl_over_input_alarm:
+    name: PSR PS800 DL Over Input Alarm
+    description: PSR PS800 DL Over Input Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps800_dl_over_power_alarm:
+    name: PSR PS800 DL Over Power Alarm
+    description: PSR PS800 DL Over Power Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps800_dl_rf_power_alarm:
+    name: PSR PS800 DL RF Power Alarm
+    description: PSR PS800 DL RF Power Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps800_dl_signal_low_alarm:
+    name: PSR PS800 DL Signal Low Alarm
+    description: PSR PS800 DL Signal Low Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps800_dl_signal_not_detected_alarm:
+    name: PSR PS800 DL Signal Not Detected Alarm
+    description: PSR PS800 DL Signal Not Detected Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps800_dl_synthesizer_lock_fail_alarm:
+    name: PSR PS800 DL Synthesizer Lock Fail Alarm
+    description: PSR PS800 DL Synthesizer Lock Fail Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps800_dl_vswr_alarm:
+    name: PSR PS800 DL VSWR Alarm
+    description: PSR PS800 DL VSWR Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps800_ul_dsp_input_overload_alarm:
+    name: PSR PS800 UL DSP Input Overload Alarm
+    description: PSR PS800 UL DSP Input Overload Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps800_ul_input_overload_alarm:
+    name: PSR PS800 UL Input Overload Alarm
+    description: PSR PS800 UL Input Overload Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps800_ul_out_of_band_overload_alarm:
+    name: PSR PS800 UL Out Of Band Overload Alarm
+    description: PSR PS800 UL Out Of Band Overload Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps800_ul_over_input_alarm:
+    name: PSR PS800 UL Over Input Alarm
+    description: PSR PS800 UL Over Input Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps800_ul_over_power_alarm:
+    name: PSR PS800 UL Over Power Alarm
+    description: PSR PS800 UL Over Power Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps800_ul_synthesizer_lock_fail_alarm:
+    name: PSR PS800 UL Synthesizer Lock Fail Alarm
+    description: PSR PS800 UL Synthesizer Lock Fail Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_ps800_ul_vswr_alarm:
+    name: PSR PS800 UL VSWR Alarm
+    description: PSR PS800 UL VSWR Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_system_door_open_alarm:
+    name: PSR System Door Open Alarm
+    description: PSR System Door Open Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_system_dsp_fail_alarm:
+    name: PSR System DSP Fail Alarm
+    description: PSR System DSP Fail Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_system_over_temperature_alarm:
+    name: PSR System Over temperature Alarm
+    description: PSR System Over temperature Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  psr_system_system_halt_alarm:
+    name: PSR System System Halt Alarm
+    description: PSR System System Halt Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+resources:
+  auths:
+    upgraded-http:
+      http:
+        httpUri: false
+        actions:
+          login:
+            dataEngine: '%{engines.upgraded-http}'
+            dataSource: '%{resources.http.requests.login}'
+            selector:
+              type: cookie
+              expression: PHPSESSID
+            dataSink: ${resources.globals.auth.sessionId}
+          logout:
+            dataEngine: '%{engines.upgraded-http}'
+            dataSource: '%{resources.http.requests.logout}'
+            selector:
+              type: cookie
+              expression: PHPSESSID
+            dataSink: ${resources.globals.auth.sessionId}
+  mappers:
+    active:
+      keyType: String
+      valueType: String
+      map:
+        blue_aai: Inactive
+        red_aai: Active
+    alarm:
+      keyType: String
+      valueType: String
+      map:
+        gray: Inactive
+        green: Normal
+        red: Hard Fail
+        yellow: Soft Fail
+  globals:
+    auth:
+      sessionId: 0
+    reg:
+      ip: ${registration.form.properties.ip}
+      password: ${registration.vault.properties.password}
+      port: ${registration.form.properties.port}
+      url: http://${registration.form.properties.ip}:${registration.form.properties.port}
+      username: ${registration.vault.properties.username}
+  http:
+    requests:
+      get_status:
+        uri: ${resources.globals.reg.url}/status.php
+        responseContentType: text/html
+        query:
+          ?cascadecode: ""
+          ipaddress: ""
+        responses:
+          success:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: "200"
+          failure:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: ^(?!200)
+      login:
+        method: POST
+        uri: ${resources.globals.reg.url}/functions/setFormData.php
+        requestContentType: application/x-www-form-urlencoded
+        responseContentType: text/html
+        query:
+          ?cascadecode: ""
+          ipaddress: ""
+        body:
+          password: ${resources.globals.reg.password}
+          submit_login: Login
+          username: ${resources.globals.reg.username}
+        responses:
+          success:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: "200"
+          failure:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: ^(?!200)
+      logout:
+        uri: ${resources.globals.reg.url}/status.php
+        responseContentType: text/html
+        query:
+          logout: "1"
+        responses:
+          success:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: "200"
+          failure:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: ^(?!200)
