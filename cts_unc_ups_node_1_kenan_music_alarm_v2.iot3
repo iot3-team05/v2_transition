@@ -1,0 +1,325 @@
+iot3: 2.0.0
+info:
+  name: CTS Kenan Music Eaton 93E [Alarm Only]
+  oem: Eaton
+  model: 93E
+  versions:
+    - "1.30"
+  author: deep.desai@qeleo.com
+  stage: alpha
+  revision: 2
+  labels:
+    - cts kenan music
+    - eaton
+    - 93e
+    - alarms
+    - auto upgraded to v2
+  created: "2022-06-22"
+  updated: "2022-12-06"
+  documentation:
+    description: CTS Kenan Music Eaton 93E [Alarm Only]
+registration:
+  vaultId: vault_id
+  fingerprint:
+    - ip
+    - vault_id
+    - port
+  vault:
+    properties:
+      password:
+        key: password
+        placeholder: Password
+        required: true
+        title: Password
+        type: string
+      username:
+        key: username
+        placeholder: Username
+        required: true
+        title: Username
+        type: string
+    required:
+      - username
+      - password
+  form:
+    properties:
+      ip:
+        key: ip
+        placeholder: IP Address
+        required: true
+        title: IP
+        type: string
+      port:
+        inputType: number
+        key: port
+        maximum: 65535
+        minimum: 1
+        placeholder: Port
+        required: true
+        title: Port
+        type: number
+      vault_id:
+        key: vault_id
+        pattern: ^(cu\w{6})(-av\w{6})$
+        placeholder: Vault ID
+        required: true
+        title: Vault ID
+        type: string
+    required:
+      - ip
+      - port
+      - vault_id
+engines:
+  tunnel:
+    ssh:
+      supported: false
+    http:
+      supported: true
+  upgraded-http:
+    schedule: '@always'
+    auth: '%{resources.auths.upgraded-http}'
+    type: HTTP
+    options:
+      tls:
+        minVersion: "1.0"
+topology:
+  rootType: eaton
+  verify:
+    - dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: ""
+      match: ""
+  nodes: false
+types:
+  eaton:
+    name: Eaton
+    version: '[0.1,)'
+    reference: eaton
+    attributes:
+      - ups_normal_ac_nok_alarm
+      - ups_normal_ac_frequency_out_of_tolerance_alarm
+      - ups_normal_ac_voltage_out_of_tolerance_alarm
+      - ups_normal_ac_voltage_too_low_alarm
+      - ups_bypass_ac_frequency_out_of_tolerance_alarm
+      - ups_bypass_ac_voltage_out_of_tolerance_alarm
+      - ups_on_battery_alarm
+    alarms:
+      ups_bypass_ac_frequency_out_of_tolerance_alarm:
+        attributes:
+          - ups_bypass_ac_frequency_out_of_tolerance_alarm
+        mapper: '%{resources.mappers.alarms}'
+      ups_bypass_ac_voltage_out_of_tolerance_alarm:
+        attributes:
+          - ups_bypass_ac_voltage_out_of_tolerance_alarm
+        mapper: '%{resources.mappers.alarms}'
+      ups_normal_ac_frequency_out_of_tolerance_alarm:
+        attributes:
+          - ups_normal_ac_frequency_out_of_tolerance_alarm
+        mapper: '%{resources.mappers.alarms}'
+      ups_normal_ac_nok_alarm:
+        attributes:
+          - ups_normal_ac_nok_alarm
+        mapper: '%{resources.mappers.alarms}'
+      ups_normal_ac_voltage_out_of_tolerance_alarm:
+        attributes:
+          - ups_normal_ac_voltage_out_of_tolerance_alarm
+        mapper: '%{resources.mappers.alarms}'
+      ups_normal_ac_voltage_too_low_alarm:
+        attributes:
+          - ups_normal_ac_voltage_too_low_alarm
+        mapper: '%{resources.mappers.alarms}'
+      ups_on_battery_alarm:
+        attributes:
+          - ups_on_battery_alarm
+        mapper: '%{resources.mappers.alarms}'
+    price:
+      value: 0
+      unit: USD
+    energy:
+      value: 0
+      unit: W
+attributes:
+  ups_bypass_ac_frequency_out_of_tolerance_alarm:
+    name: UPS Bypass AC frequency out of tolerance Alarm
+    description: UPS Bypass AC frequency out of tolerance Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  ups_bypass_ac_voltage_out_of_tolerance_alarm:
+    name: UPS Bypass AC voltage out of tolerance Alarm
+    description: UPS Bypass AC voltage out of tolerance  Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  ups_normal_ac_frequency_out_of_tolerance_alarm:
+    name: UPS Normal AC frequency out of tolerance Alarm
+    description: UPS Normal AC frequency out of tolerance Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  ups_normal_ac_nok_alarm:
+    name: UPS Normal AC NOK Alarm
+    description: UPS Normal AC NOK Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  ups_normal_ac_voltage_out_of_tolerance_alarm:
+    name: UPS Normal AC voltage out of tolerance Alarm
+    description: UPS Normal AC voltage out of tolerance Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  ups_normal_ac_voltage_too_low_alarm:
+    name: UPS Normal AC voltage too low Alarm
+    description: UPS Normal AC voltage too low Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  ups_on_battery_alarm:
+    name: UPS on battery Alarm
+    description: UPS on battery Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+resources:
+  auths:
+    upgraded-http:
+      http:
+        httpUri: false
+        method: Basic
+        properties:
+          password: ${global.auth.password}
+          username: ${global.auth.username}
+  mappers:
+    alarms:
+      keyType: String
+      valueType: String
+      map:
+        html/Images/status_critical.gif: Critical
+        html/Images/status_warning.gif: Warning
+  globals:
+    auth:
+      password: ${registration.vault.properties.password}
+      username: ${registration.vault.properties.username}
+    reg:
+      ip: ${registration.form.properties.ip}
+      port: ${registration.form.properties.port}
+      url: http://${registration.form.properties.ip}:${registration.form.properties.port}
+  http:
+    requests:
+      get_network:
+        uri: ${resources.globals.reg.url}/set_net.htm
+        responseContentType: text/html
+        responses:
+          success:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: "200"
+          failure:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: ^(?!200)
+      get_system_settings:
+        uri: ${resources.globals.reg.url}/set_sys.htm
+        responseContentType: text/html
+        responses:
+          success:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: "200"
+          failure:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: ^(?!200)
+      get_ups_alarms:
+        uri: ${resources.globals.reg.url}/ups_propAlarms.htm
+        responseContentType: text/html
+        responses:
+          success:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: "200"
+          failure:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: ^(?!200)
+      get_ups_prop_about:
+        uri: ${resources.globals.reg.url}/ups_propAbout.htm
+        responseContentType: text/html
+        responses:
+          success:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: "200"
+          failure:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: ^(?!200)
+      get_ups_prop_status:
+        uri: ${resources.globals.reg.url}/ups_propStatus.htm
+        responseContentType: text/html
+        responses:
+          success:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: "200"
+          failure:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: ^(?!200)

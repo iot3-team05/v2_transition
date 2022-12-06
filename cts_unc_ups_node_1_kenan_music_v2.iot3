@@ -1,0 +1,1028 @@
+iot3: 2.0.0
+info:
+  name: CTS Kenan Music Eaton 93E
+  oem: Eaton
+  model: 93E
+  versions:
+    - "1.30"
+  author: deep.desai@qeleo.com
+  stage: alpha
+  revision: 2
+  labels:
+    - cts kenan music
+    - eaton
+    - 93e
+    - auto upgraded to v2
+  created: "2022-06-22"
+  updated: "2022-12-06"
+  documentation:
+    description: CTS Kenan Music Eaton 93E
+registration:
+  vaultId: vault_id
+  fingerprint:
+    - ip
+    - vault_id
+    - port
+  vault:
+    properties:
+      password:
+        key: password
+        placeholder: Password
+        required: true
+        title: Password
+        type: string
+      username:
+        key: username
+        placeholder: Username
+        required: true
+        title: Username
+        type: string
+    required:
+      - username
+      - password
+  form:
+    properties:
+      ip:
+        key: ip
+        placeholder: IP Address
+        required: true
+        title: IP
+        type: string
+      port:
+        inputType: number
+        key: port
+        maximum: 65535
+        minimum: 1
+        placeholder: Port
+        required: true
+        title: Port
+        type: number
+      vault_id:
+        key: vault_id
+        pattern: ^(cu\w{6})(-av\w{6})$
+        placeholder: Vault ID
+        required: true
+        title: Vault ID
+        type: string
+    required:
+      - ip
+      - port
+      - vault_id
+engines:
+  tunnel:
+    ssh:
+      supported: false
+    http:
+      supported: true
+  upgraded-http:
+    schedule: '@always'
+    auth: '%{resources.auths.upgraded-http}'
+    type: HTTP
+    options:
+      tls:
+        minVersion: "1.0"
+topology:
+  rootType: eaton
+  verify:
+    - dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: ""
+      match: ""
+  nodes: false
+types:
+  eaton:
+    name: Eaton
+    version: '[0.1,)'
+    reference: eaton
+    attributes:
+      - ups_status_power_source
+      - ups_status_output_load_level
+      - ups_status_output
+      - ups_status_battery_load_level
+      - ups_status_battery_remaining_backup_time
+      - ups_status_battery_status
+      - ups_status_battery_modbus_jbus_port
+      - ups_name
+      - ups_part_number
+      - ups_serial_number
+      - ups_technical_level
+      - ups_system_technical_level_firmware_revision
+      - ups_card_firmware_revision
+      - ups_card_commercial_reference
+      - ups_card_technical_level
+      - ups_card_revision
+      - ups_card_serial_number
+      - ups_card_ethernet_mac_address
+      - ups_card_ethernet_speed
+      - network_bootp_dhcp
+      - network_ip_address
+      - network_subnet_mask
+      - network_gateway_address
+      - network_hostname
+      - network_domain_name
+      - network_ipv6_enabled
+      - network_ipv6_auto_config_enabled
+      - network_ipv6_address_1
+      - network_prefix_length
+      - network_ipv6_gateway
+      - network_ipv6_local_address
+      - network_ipv6_address_2
+      - network_firmware_upload
+      - network_primary_dns_server_ipv4_or_ipv6
+      - network_secondary_dns_server
+      - network_smtp_server_for_email_notification
+      - network_smtp_server_authentication
+      - network_login
+      - network_password
+      - system_ups_contact
+      - system_ups_location
+      - system_default_language
+      - system_history_log_interval
+      - system_environment_log_interval
+      - ups_normal_ac_nok_alarm
+      - ups_normal_ac_frequency_out_of_tolerance_alarm
+      - ups_normal_ac_voltage_out_of_tolerance_alarm
+      - ups_normal_ac_voltage_too_low_alarm
+      - ups_bypass_ac_frequency_out_of_tolerance_alarm
+      - ups_bypass_ac_voltage_out_of_tolerance_alarm
+      - ups_on_battery_alarm
+    alarms:
+      ups_bypass_ac_frequency_out_of_tolerance_alarm:
+        attributes:
+          - ups_bypass_ac_frequency_out_of_tolerance_alarm
+        mapper: '%{resources.mappers.alarms}'
+      ups_bypass_ac_voltage_out_of_tolerance_alarm:
+        attributes:
+          - ups_bypass_ac_voltage_out_of_tolerance_alarm
+        mapper: '%{resources.mappers.alarms}'
+      ups_normal_ac_frequency_out_of_tolerance_alarm:
+        attributes:
+          - ups_normal_ac_frequency_out_of_tolerance_alarm
+        mapper: '%{resources.mappers.alarms}'
+      ups_normal_ac_nok_alarm:
+        attributes:
+          - ups_normal_ac_nok_alarm
+        mapper: '%{resources.mappers.alarms}'
+      ups_normal_ac_voltage_out_of_tolerance_alarm:
+        attributes:
+          - ups_normal_ac_voltage_out_of_tolerance_alarm
+        mapper: '%{resources.mappers.alarms}'
+      ups_normal_ac_voltage_too_low_alarm:
+        attributes:
+          - ups_normal_ac_voltage_too_low_alarm
+        mapper: '%{resources.mappers.alarms}'
+      ups_on_battery_alarm:
+        attributes:
+          - ups_on_battery_alarm
+        mapper: '%{resources.mappers.alarms}'
+    price:
+      value: 0
+      unit: USD
+    energy:
+      value: 0
+      unit: W
+attributes:
+  network_bootp_dhcp:
+    name: Network BootP/DHCP
+    description: Network BootP/DHCP
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_network}'
+      selector:
+        type: xpath
+        expression: //select[@name="BootP/DHCP"]/option[@selected=""]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  network_domain_name:
+    name: Network Domain Name
+    description: Network Domain Name
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_network}'
+      selector:
+        type: xpath
+        expression: //input[@name="DomainName"]/@value
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  network_firmware_upload:
+    name: Network Firmware Upload
+    description: Network Firmware Upload
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_network}'
+      selector:
+        type: xpath
+        expression: //select[@name="FirmwareUpload"]/option[@selected=""]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  network_gateway_address:
+    name: Network Gateway Address
+    description: Network Gateway Address
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_network}'
+      selector:
+        type: xpath
+        expression: //input[@name="GatewayAddress"]/@value
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  network_hostname:
+    name: Network Hostname
+    description: Network Hostname
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_network}'
+      selector:
+        type: xpath
+        expression: //input[@name="Hostname"]/@value
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  network_ip_address:
+    name: Network IP address
+    description: Network IP address
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_network}'
+      selector:
+        type: xpath
+        expression: //input[@name="IPaddress"]/@value
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  network_ipv6_address_1:
+    name: Network IPv6 Address 1
+    description: Network IPv6 Address 1
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_network}'
+      selector:
+        type: xpath
+        expression: //input[@name="IPAddress1"]/@value
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  network_ipv6_address_2:
+    name: Network IPv6 Address 2
+    description: Network IPv6 Address 2
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_network}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(),"IPv6 Address 2 :")]/following-sibling::td/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  network_ipv6_auto_config_enabled:
+    name: Network IPv6 Auto Config Enabled
+    description: Network IPv6 Auto Config Enabled
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_network}'
+      selector:
+        type: xpath
+        expression: //input[@name="IPV6AutoConfig"]/@checked
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  network_ipv6_enabled:
+    name: Network IPv6 Enabled
+    description: Network IPv6 Enabled
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_network}'
+      selector:
+        type: xpath
+        expression: //input[@name="IPv6Enable"]/@checked
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  network_ipv6_gateway:
+    name: Network IPv6 Gateway
+    description: Network IPv6 Gateway
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_network}'
+      selector:
+        type: xpath
+        expression: //input[@name="Gateway"]/@value
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  network_ipv6_local_address:
+    name: Network IPv6 Local Address
+    description: Network IPv6 Local Address
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_network}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(),"IPv6 Local Address :")]/following-sibling::td/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  network_login:
+    name: Network Login
+    description: Network Login
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_network}'
+      selector:
+        type: xpath
+        expression: //input[@name="SmtpLog"]/@value
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  network_password:
+    name: Network Password
+    description: Network Password
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_network}'
+      selector:
+        type: xpath
+        expression: //input[@name="SmtpPwd"]/@value
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  network_prefix_length:
+    name: Network Prefix length
+    description: Network Prefix length
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_network}'
+      selector:
+        type: xpath
+        expression: //input[@name="PrefixLength"]/@value
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  network_primary_dns_server_ipv4_or_ipv6:
+    name: Network Primary DNS Server IPv4 or IPv6
+    description: Network Primary DNS Server IPv4 or IPv6
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_network}'
+      selector:
+        type: xpath
+        expression: //input[@name="PrimaryDNS"]/@value
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  network_secondary_dns_server:
+    name: Network Secondary DNS Server
+    description: Network Secondary DNS Server
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_network}'
+      selector:
+        type: xpath
+        expression: //input[@name="SecondaryDNS"]/@value
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  network_smtp_server_authentication:
+    name: Network SMTP server authentication
+    description: Network SMTP server authentication
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_network}'
+      selector:
+        type: xpath
+        expression: //input[@name="AuthenticationId"]/@checked
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  network_smtp_server_for_email_notification:
+    name: Network SMTP Server for Email Notification
+    description: Network SMTP Server for Email Notification
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_network}'
+      selector:
+        type: xpath
+        expression: //input[@name="SMTPserver"]/@value
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  network_subnet_mask:
+    name: Network Subnet Mask
+    description: Network Subnet Mask
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_network}'
+      selector:
+        type: xpath
+        expression: //input[@name="SubnetMask"]/@value
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  system_default_language:
+    name: System Default Language
+    description: System Default Language
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_system_settings}'
+      selector:
+        type: xpath
+        expression: //select[@name="DefaultLanguage"]/option[@selected]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  system_environment_log_interval:
+    name: System Environment log interval
+    description: System Environment log interval
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_system_settings}'
+      selector:
+        type: xpath
+        expression: //input[@name="EnvironmentLogInterval"]/@value
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  system_history_log_interval:
+    name: System History log interval
+    description: System History log interval
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_system_settings}'
+      selector:
+        type: xpath
+        expression: //input[@name="HistoryLogInterval"]/@value
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  system_ups_contact:
+    name: System UPS Contact
+    description: System UPS Contact
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_system_settings}'
+      selector:
+        type: xpath
+        expression: //input[@name="ComputerRoomManager"]/@value
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  system_ups_location:
+    name: System UPS Location
+    description: System UPS Location
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_system_settings}'
+      selector:
+        type: xpath
+        expression: //input[@name="ComputerRoom"]/@value
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  ups_bypass_ac_frequency_out_of_tolerance_alarm:
+    name: UPS Bypass AC frequency out of tolerance Alarm
+    description: UPS Bypass AC frequency out of tolerance Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  ups_bypass_ac_voltage_out_of_tolerance_alarm:
+    name: UPS Bypass AC voltage out of tolerance Alarm
+    description: UPS Bypass AC voltage out of tolerance  Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  ups_card_commercial_reference:
+    name: UPS Card Commercial Reference
+    description: UPS Card Commercial Reference
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_ups_prop_about}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(),"Card Commercial Reference :")]/following-sibling::td/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  ups_card_ethernet_mac_address:
+    name: UPS Card Ethernet Mac Address
+    description: UPS Card Ethernet Mac Address
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_ups_prop_about}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(),"Card Ethernet Mac Address :")]/following-sibling::td/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  ups_card_ethernet_speed:
+    name: UPS Card Ethernet Speed
+    description: UPS Card Ethernet Speed
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_ups_prop_about}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(),"Card Ethernet Speed :")]/following-sibling::td/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  ups_card_firmware_revision:
+    name: UPS Card Firmware revision
+    description: UPS Card Firmware revision
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_ups_prop_about}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(),"Card Firmware revision :")]/following-sibling::td/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  ups_card_revision:
+    name: UPS Card Revision
+    description: UPS Card Revision
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_ups_prop_about}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(),"Card Revision :")]/following-sibling::td/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  ups_card_serial_number:
+    name: UPS Card Serial Number
+    description: UPS Card Serial Number
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_ups_prop_about}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(),"Card Serial Number :")]/following-sibling::td/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  ups_card_technical_level:
+    name: UPS Card Technical Level
+    description: UPS Card Technical Level
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_ups_prop_about}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(),"Card Technical Level :")]/following-sibling::td/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  ups_name:
+    name: UPS Name
+    description: UPS Name
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_ups_prop_about}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(),"UPS Name :")]/following-sibling::td/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  ups_normal_ac_frequency_out_of_tolerance_alarm:
+    name: UPS Normal AC frequency out of tolerance Alarm
+    description: UPS Normal AC frequency out of tolerance Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  ups_normal_ac_nok_alarm:
+    name: UPS Normal AC NOK Alarm
+    description: UPS Normal AC NOK Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  ups_normal_ac_voltage_out_of_tolerance_alarm:
+    name: UPS Normal AC voltage out of tolerance Alarm
+    description: UPS Normal AC voltage out of tolerance Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  ups_normal_ac_voltage_too_low_alarm:
+    name: UPS Normal AC voltage too low Alarm
+    description: UPS Normal AC voltage too low Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  ups_on_battery_alarm:
+    name: UPS on battery Alarm
+    description: UPS on battery Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  ups_part_number:
+    name: UPS Part Number
+    description: UPS Part Number
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_ups_prop_about}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(),"UPS Part Number :")]/following-sibling::td/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  ups_serial_number:
+    name: UPS Serial Number
+    description: UPS Serial Number
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_ups_prop_about}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(),"UPS Serial Number :")]/following-sibling::td/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  ups_status_battery_load_level:
+    name: UPS Status Battery load level
+    description: UPS Status Battery load level
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_ups_prop_status}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(),"Battery load level :")]/following-sibling::td/table/tbody/tr/td[2]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  ups_status_battery_modbus_jbus_port:
+    name: UPS Status Battery ModBus/JBus port
+    description: UPS Status Battery ModBus/JBus port
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_ups_prop_status}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(),"ModBus/JBus port :")]/following-sibling::td/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  ups_status_battery_remaining_backup_time:
+    name: UPS Status Battery Remaining backup time
+    description: UPS Status Battery Remaining backup time
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_ups_prop_status}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(),"Remaining backup time :")]/following-sibling::td/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  ups_status_battery_status:
+    name: UPS Status Battery status
+    description: UPS Status Battery status
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_ups_prop_status}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(),"Battery status :")]/following-sibling::td/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  ups_status_output:
+    name: UPS Status Output
+    description: UPS Status Output
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_ups_prop_status}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(),"Master")]/following-sibling::td/b/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  ups_status_output_load_level:
+    name: UPS Status Output load level
+    description: UPS Status Output load level
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_ups_prop_status}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(),"Output load level :")]/following-sibling::td/table/tbody/tr/td[2]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  ups_status_power_source:
+    name: UPS Status Power source
+    description: UPS Status Power source
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_ups_prop_status}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(),"Power source :")]/following-sibling::td/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  ups_system_technical_level_firmware_revision:
+    name: UPS System Technical Level / Firmware Revision
+    description: UPS System Technical Level / Firmware Revision
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_ups_prop_about}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(),"System Technical Level /")]/following-sibling::td/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  ups_technical_level:
+    name: UPS Technical Level
+    description: UPS Technical Level
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_ups_prop_about}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(),"UPS Technical Level :")]/following-sibling::td/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+resources:
+  auths:
+    upgraded-http:
+      http:
+        httpUri: false
+        method: Basic
+        properties:
+          password: ${global.auth.password}
+          username: ${global.auth.username}
+  mappers:
+    alarms:
+      keyType: String
+      valueType: String
+      map:
+        html/Images/status_critical.gif: Critical
+        html/Images/status_warning.gif: Warning
+  globals:
+    auth:
+      password: ${registration.vault.properties.password}
+      username: ${registration.vault.properties.username}
+    reg:
+      ip: ${registration.form.properties.ip}
+      port: ${registration.form.properties.port}
+      url: http://${registration.form.properties.ip}:${registration.form.properties.port}
+  http:
+    requests:
+      get_network:
+        uri: ${resources.globals.reg.url}/set_net.htm
+        responseContentType: text/html
+        responses:
+          success:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: "200"
+          failure:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: ^(?!200)
+      get_system_settings:
+        uri: ${resources.globals.reg.url}/set_sys.htm
+        responseContentType: text/html
+        responses:
+          success:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: "200"
+          failure:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: ^(?!200)
+      get_ups_alarms:
+        uri: ${resources.globals.reg.url}/ups_propAlarms.htm
+        responseContentType: text/html
+        responses:
+          success:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: "200"
+          failure:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: ^(?!200)
+      get_ups_prop_about:
+        uri: ${resources.globals.reg.url}/ups_propAbout.htm
+        responseContentType: text/html
+        responses:
+          success:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: "200"
+          failure:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: ^(?!200)
+      get_ups_prop_status:
+        uri: ${resources.globals.reg.url}/ups_propStatus.htm
+        responseContentType: text/html
+        responses:
+          success:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: "200"
+          failure:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: ^(?!200)
