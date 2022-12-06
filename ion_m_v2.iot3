@@ -1,0 +1,3748 @@
+iot3: 2.0.0
+info:
+  name: CommScope Ion-M
+  oem: CommScope
+  model: Ion-M
+  versions:
+    - "7.4"
+  description: CommScope Ion-M
+  author: namira.mansuri@qeleo.com
+  stage: alpha
+  revision: 2
+  labels:
+    - auto upgraded to v2
+  created: "2021-05-09"
+  updated: "2022-12-06"
+registration:
+  vaultId: vault_id
+  fingerprint:
+    - ip
+    - port
+    - version
+    - vault_id
+  vault:
+    properties:
+      password:
+        key: password
+        placeholder: Password
+        required: true
+        title: Password
+        type: string
+      username:
+        key: username
+        placeholder: Username
+        required: true
+        title: Username
+        type: string
+    required:
+      - username
+      - password
+  form:
+    properties:
+      ip:
+        key: ip
+        placeholder: IP Address
+        required: true
+        title: IP
+        type: string
+      port:
+        inputType: number
+        key: port
+        maximum: 65535
+        minimum: 1
+        placeholder: Port
+        required: true
+        title: Port
+        type: number
+      vault_id:
+        key: vault_id
+        pattern: ^(cu\w{6})(-av\w{6})$
+        placeholder: Vault ID
+        required: true
+        title: Vault ID
+        type: string
+      version:
+        key: version
+        placeholder: Version
+        required: true
+        title: Version
+        type: string
+    required:
+      - ip
+      - port
+      - vault_id
+      - version
+engines:
+  tunnel:
+    ssh:
+      supported: false
+    http:
+      supported: true
+  upgraded-http:
+    schedule: '@always'
+    auth: '%{resources.auths.upgraded-http}'
+    type: HTTP
+    options:
+      tls:
+        minVersion: "1.0"
+topology:
+  rootType: mc
+  nodes: true
+  discovery:
+    dataEngine: '%{engines.upgraded-http}'
+    dataSource: '%{resources.http.requests.get_tree}'
+    type: http
+    expression: {}
+    selectors:
+      nodes:
+        dataEngine: '%{engines.upgraded-http}'
+        selector:
+          type: regexp
+          expression: /((?<=['])(?!ION|Master).+(?=[']))/g
+    flatten:
+      type:
+        transform: ${topology.discovery.selectors.nodes}
+        filters:
+          1: regexpExtract /^([A-Z]+)/ => $1
+          2: |
+            switch
+            "%{1}" ~= "TSUN" : "tsun"
+            "%{1}" ~= "TPRN" : "tprn"
+            "%{1}" ~= "SAB" : "sab"
+            default: ""
+      topology:
+        transform: ${topology.discovery.selectors.nodes}
+        filters:
+          1: regexpExtract /(.+(?=[][,][]))/ => $1
+          2: |
+            switch
+            "%{1}" ~= "TSUN.*" : "tsun"
+            "%{1}" ~= "TPRN.*" : "tprn"
+            "%{1}" ~= "SAB" : "sab"
+            default: ""
+          3: use %{1}
+          4: regexpExtract /(\d+$|\d+[.]\d+[.]\d+|\d+[.]\d+)/ => $1
+          5: regexpExtract /^(\d+)/ => $1
+          6: use %{4}
+          7: regexpExtract /((?<=\.)\d+(?=\.))/ => $1
+          8: use %{4}
+          9: regexpExtract /(\d+)$/ => $1
+          10: |
+            switch
+            "%{2}" == "tprn" : "'mc' -> 'tprn [%{5}]'"
+            "%{2}" == "sab" : "'mc' -> 'sab [%{5}]'"
+            "%{2}" == "tsun" : "'mc' -> 'tprn [%{5}]' -> 'tsun [%{9}]'"
+            default: "mc"
+      version:
+        transform: "0.1"
+      addr:
+        transform: ${topology.discovery.selectors.nodes}
+        filters:
+          1: regexpExtract /((?<=addr[=])\d+)/ => $1
+      gui_str:
+        transform: ${topology.discovery.selectors.nodes}
+        filters:
+          1: regexpExtract /((?<=gui[_]str[=]).+(?=[&]))/ => $1
+      unit_str:
+        transform: ${topology.discovery.selectors.nodes}
+        filters:
+          1: regexpExtract /((?<=unit[_]str[=])[a-zA-Z0-9\.]*)/ => $1
+types:
+  mc:
+    name: Master Controller
+    version: '[5.30,)'
+    reference: mc
+    attributes:
+      - mc_setting_unit_id
+      - mc_setting_system_name
+      - mc_setting_location
+      - mc_setting_longitude
+      - mc_setting_latitude
+      - mc_overview_error_status
+      - mc_overview_software_version
+      - mc_overview_configuration_automatic_reboot
+      - mc_overview_configuration_battery_backup
+      - mc_overview_temperature_internal
+      - mc_overview_temperature_external
+      - mc_overview_temperature_alarm_threshold
+      - mc_external_1_alarm
+      - mc_external_2_alarm
+      - mc_external_3_alarm
+      - mc_external_4_alarm
+      - mc_external_5_alarm
+      - mc_external_6_alarm
+      - mc_external_7_alarm
+      - mc_external_8_alarm
+      - mc_external_output_1_alarm
+      - mc_external_output_2_alarm
+      - mc_external_output_3_alarm
+      - mc_external_output_4_alarm
+      - mc_external_output_5_alarm
+      - mc_external_output_6_alarm
+      - mc_external_output_7_alarm
+      - mc_external_output_8_alarm
+      - mc_fan_failure_alarm
+      - mc_mains_power_failure_alarm
+      - mc_temperature_alarm
+      - mc_battery_capacity_reduced_alarm
+      - mc_battery_missing_alarm
+      - mc_battery_refresh_alarm
+      - mc_shutdown_mc_on_battery_low_alarm
+      - mc_shutdown_mc_on_over_temperature_alarm
+      - mc_shutdown_mc_on_ctrl_board_failure_alarm
+      - mc_shutdown_canceled_alarm
+      - mc_battery_charge_circuit_failure_alarm
+      - mc_o_and_m_communication_failure_alarm
+      - mc_system_supervision_watchdog_alarm
+      - mc_queue_overflow_alarm
+      - mc_vpn_connection_failure_alarm
+      - mc_rf_configuration_changed_alarm
+      - mc_hardware_alarm
+      - mc_modem_supply_fuse_alarm
+      - mc_invalid_user_login_attempt_alarm
+      - mc_application_user_temporary_locked_alarm
+      - mc_running_low_on_resources_alarm
+    alarms:
+      mc_application_user_temporary_locked_alarm:
+        attributes:
+          - mc_application_user_temporary_locked_alarm
+        mapper: '%{resources.mappers.alarm_severity}'
+      mc_battery_capacity_reduced_alarm:
+        attributes:
+          - mc_battery_capacity_reduced_alarm
+        mapper: '%{resources.mappers.alarm_severity}'
+      mc_battery_charge_circuit_failure_alarm:
+        attributes:
+          - mc_battery_charge_circuit_failure_alarm
+        mapper: '%{resources.mappers.alarm_severity}'
+      mc_battery_missing_alarm:
+        attributes:
+          - mc_battery_missing_alarm
+        mapper: '%{resources.mappers.alarm_severity}'
+      mc_battery_refresh_alarm:
+        attributes:
+          - mc_battery_refresh_alarm
+        mapper: '%{resources.mappers.alarm_severity}'
+      mc_external_1_alarm:
+        attributes:
+          - mc_external_1_alarm
+        mapper: '%{resources.mappers.alarm_severity}'
+      mc_external_2_alarm:
+        attributes:
+          - mc_external_2_alarm
+        mapper: '%{resources.mappers.alarm_severity}'
+      mc_external_3_alarm:
+        attributes:
+          - mc_external_3_alarm
+        mapper: '%{resources.mappers.alarm_severity}'
+      mc_external_4_alarm:
+        attributes:
+          - mc_external_4_alarm
+        mapper: '%{resources.mappers.alarm_severity}'
+      mc_external_5_alarm:
+        attributes:
+          - mc_external_5_alarm
+        mapper: '%{resources.mappers.alarm_severity}'
+      mc_external_6_alarm:
+        attributes:
+          - mc_external_6_alarm
+        mapper: '%{resources.mappers.alarm_severity}'
+      mc_external_7_alarm:
+        attributes:
+          - mc_external_7_alarm
+        mapper: '%{resources.mappers.alarm_severity}'
+      mc_external_8_alarm:
+        attributes:
+          - mc_external_8_alarm
+        mapper: '%{resources.mappers.alarm_severity}'
+      mc_external_output_1_alarm:
+        attributes:
+          - mc_external_output_1_alarm
+        mapper: '%{resources.mappers.alarm_severity}'
+      mc_external_output_2_alarm:
+        attributes:
+          - mc_external_output_2_alarm
+        mapper: '%{resources.mappers.alarm_severity}'
+      mc_external_output_3_alarm:
+        attributes:
+          - mc_external_output_3_alarm
+        mapper: '%{resources.mappers.alarm_severity}'
+      mc_external_output_4_alarm:
+        attributes:
+          - mc_external_output_4_alarm
+        mapper: '%{resources.mappers.alarm_severity}'
+      mc_external_output_5_alarm:
+        attributes:
+          - mc_external_output_5_alarm
+        mapper: '%{resources.mappers.alarm_severity}'
+      mc_external_output_6_alarm:
+        attributes:
+          - mc_external_output_6_alarm
+        mapper: '%{resources.mappers.alarm_severity}'
+      mc_external_output_7_alarm:
+        attributes:
+          - mc_external_output_7_alarm
+        mapper: '%{resources.mappers.alarm_severity}'
+      mc_external_output_8_alarm:
+        attributes:
+          - mc_external_output_8_alarm
+        mapper: '%{resources.mappers.alarm_severity}'
+      mc_fan_failure_alarm:
+        attributes:
+          - mc_fan_failure_alarm
+        mapper: '%{resources.mappers.alarm_severity}'
+      mc_hardware_alarm:
+        attributes:
+          - mc_hardware_alarm
+        mapper: '%{resources.mappers.alarm_severity}'
+      mc_invalid_user_login_attempt_alarm:
+        attributes:
+          - mc_invalid_user_login_attempt_alarm
+        mapper: '%{resources.mappers.alarm_severity}'
+      mc_mains_power_failure_alarm:
+        attributes:
+          - mc_mains_power_failure_alarm
+        mapper: '%{resources.mappers.alarm_severity}'
+      mc_modem_supply_fuse_alarm:
+        attributes:
+          - mc_modem_supply_fuse_alarm
+        mapper: '%{resources.mappers.alarm_severity}'
+      mc_o_and_m_communication_failure_alarm:
+        attributes:
+          - mc_o_and_m_communication_failure_alarm
+        mapper: '%{resources.mappers.alarm_severity}'
+      mc_queue_overflow_alarm:
+        attributes:
+          - mc_queue_overflow_alarm
+        mapper: '%{resources.mappers.alarm_severity}'
+      mc_rf_configuration_changed_alarm:
+        attributes:
+          - mc_rf_configuration_changed_alarm
+        mapper: '%{resources.mappers.alarm_severity}'
+      mc_running_low_on_resources_alarm:
+        attributes:
+          - mc_running_low_on_resources_alarm
+        mapper: '%{resources.mappers.alarm_severity}'
+      mc_shutdown_canceled_alarm:
+        attributes:
+          - mc_shutdown_canceled_alarm
+        mapper: '%{resources.mappers.alarm_severity}'
+      mc_shutdown_mc_on_battery_low_alarm:
+        attributes:
+          - mc_shutdown_mc_on_battery_low_alarm
+        mapper: '%{resources.mappers.alarm_severity}'
+      mc_shutdown_mc_on_ctrl_board_failure_alarm:
+        attributes:
+          - mc_shutdown_mc_on_ctrl_board_failure_alarm
+        mapper: '%{resources.mappers.alarm_severity}'
+      mc_shutdown_mc_on_over_temperature_alarm:
+        attributes:
+          - mc_shutdown_mc_on_over_temperature_alarm
+        mapper: '%{resources.mappers.alarm_severity}'
+      mc_system_supervision_watchdog_alarm:
+        attributes:
+          - mc_system_supervision_watchdog_alarm
+        mapper: '%{resources.mappers.alarm_severity}'
+      mc_temperature_alarm:
+        attributes:
+          - mc_temperature_alarm
+        mapper: '%{resources.mappers.alarm_severity}'
+      mc_vpn_connection_failure_alarm:
+        attributes:
+          - mc_vpn_connection_failure_alarm
+        mapper: '%{resources.mappers.alarm_severity}'
+    price:
+      value: 0
+      unit: USD
+    energy:
+      value: 0
+      unit: ""
+  sab:
+    name: SAB
+    version: '[0.1,)'
+    reference: sab
+    attributes:
+      - sab_inventory_module_type
+      - sab_inventory_id_number
+      - sab_inventory_serial_number
+      - sab_inventory_manufacturer
+      - sab_inventory_production_year
+      - sab_inventory_description
+      - sab_inventory_hardware_revision
+      - sab_inventory_status_of_changes
+      - sab_inventory_software_id
+      - sab_inventory_software_version
+      - sab_external_1_alarm
+      - sab_external_2_alarm
+      - sab_external_3_alarm
+      - sab_external_4_alarm
+      - sab_external_5_alarm
+      - sab_external_6_alarm
+      - sab_external_7_alarm
+      - sab_external_8_alarm
+      - sab_external_output_1_alarm
+      - sab_external_output_2_alarm
+      - sab_external_output_3_alarm
+      - sab_external_output_4_alarm
+      - sab_external_output_5_alarm
+      - sab_external_output_6_alarm
+      - sab_external_output_7_alarm
+      - sab_external_output_8_alarm
+      - sab_unit_unavailable_alarm
+    alarms:
+      sab_external_1_alarm:
+        attributes:
+          - sab_external_1_alarm
+        mapper: '%{resources.mappers.alarm_severity}'
+      sab_external_2_alarm:
+        attributes:
+          - sab_external_2_alarm
+        mapper: '%{resources.mappers.alarm_severity}'
+      sab_external_3_alarm:
+        attributes:
+          - sab_external_3_alarm
+        mapper: '%{resources.mappers.alarm_severity}'
+      sab_external_4_alarm:
+        attributes:
+          - sab_external_4_alarm
+        mapper: '%{resources.mappers.alarm_severity}'
+      sab_external_5_alarm:
+        attributes:
+          - sab_external_5_alarm
+        mapper: '%{resources.mappers.alarm_severity}'
+      sab_external_6_alarm:
+        attributes:
+          - sab_external_6_alarm
+        mapper: '%{resources.mappers.alarm_severity}'
+      sab_external_7_alarm:
+        attributes:
+          - sab_external_7_alarm
+        mapper: '%{resources.mappers.alarm_severity}'
+      sab_external_8_alarm:
+        attributes:
+          - sab_external_8_alarm
+        mapper: '%{resources.mappers.alarm_severity}'
+      sab_external_output_1_alarm:
+        attributes:
+          - sab_external_output_1_alarm
+        mapper: '%{resources.mappers.alarm_severity}'
+      sab_external_output_2_alarm:
+        attributes:
+          - sab_external_output_2_alarm
+        mapper: '%{resources.mappers.alarm_severity}'
+      sab_external_output_3_alarm:
+        attributes:
+          - sab_external_output_3_alarm
+        mapper: '%{resources.mappers.alarm_severity}'
+      sab_external_output_4_alarm:
+        attributes:
+          - sab_external_output_4_alarm
+        mapper: '%{resources.mappers.alarm_severity}'
+      sab_external_output_5_alarm:
+        attributes:
+          - sab_external_output_5_alarm
+        mapper: '%{resources.mappers.alarm_severity}'
+      sab_external_output_6_alarm:
+        attributes:
+          - sab_external_output_6_alarm
+        mapper: '%{resources.mappers.alarm_severity}'
+      sab_external_output_7_alarm:
+        attributes:
+          - sab_external_output_7_alarm
+        mapper: '%{resources.mappers.alarm_severity}'
+      sab_external_output_8_alarm:
+        attributes:
+          - sab_external_output_8_alarm
+        mapper: '%{resources.mappers.alarm_severity}'
+      sab_unit_unavailable_alarm:
+        attributes:
+          - sab_unit_unavailable_alarm
+        mapper: '%{resources.mappers.alarm_severity}'
+    price:
+      value: 0
+      unit: USD
+    energy:
+      value: 0
+      unit: ""
+  tprn:
+    name: TPRN
+    version: '[0.1,)'
+    reference: tprn
+    attributes:
+      - tprn_parameters_1_current_value
+      - tprn_parameters_1_new_value
+      - tprn_parameters_2_current_value
+      - tprn_parameters_2_new_value
+      - tprn_parameters_3_current_value
+      - tprn_parameters_3_new_value
+      - tprn_parameters_4_current_value
+      - tprn_parameters_4_new_value
+      - tprn_parameters_5_current_value
+      - tprn_parameters_5_new_value
+      - tprn_parameters_6_current_value
+      - tprn_parameters_6_new_value
+      - tprn_parameters_7_current_value
+      - tprn_parameters_7_new_value
+      - tprn_parameters_8_current_value
+      - tprn_parameters_8_new_value
+      - tprn_parameters_9_current_value
+      - tprn_parameters_9_new_value
+      - tprn_parameters_10_current_value
+      - tprn_parameters_10_new_value
+      - tprn_parameters_11_current_value
+      - tprn_parameters_11_new_value
+      - tprn_parameters_12_current_value
+      - tprn_parameters_12_new_value
+      - tprn_parameters_13_current_value
+      - tprn_parameters_13_new_value
+      - tprn_parameters_14_current_value
+      - tprn_parameters_14_new_value
+      - tprn_parameters_15_current_value
+      - tprn_parameters_15_new_value
+      - tprn_parameters_16_current_value
+      - tprn_parameters_16_new_value
+      - tprn_parameters_17_current_value
+      - tprn_parameters_17_new_value
+      - tprn_parameters_18_current_value
+      - tprn_parameters_18_new_value
+      - tprn_parameters_19_current_value
+      - tprn_parameters_19_new_value
+      - tprn_parameters_20_current_value
+      - tprn_parameters_20_new_value
+      - tprn_parameters_21_current_value
+      - tprn_parameters_21_new_value
+      - tprn_parameters_22_current_value
+      - tprn_parameters_22_new_value
+      - tprn_analogue_values_1_current_value
+      - tprn_analogue_values_1_new_value
+      - tprn_analogue_values_1_range
+      - tprn_inventory_unit_id
+      - tprn_inventory_module_type
+      - tprn_inventory_id_number
+      - tprn_inventory_serial_number
+      - tprn_inventory_manufacturer
+      - tprn_inventory_production_year
+      - tprn_inventory_description
+      - tprn_inventory_hardware_revision
+      - tprn_inventory_software_id
+      - tprn_inventory_software_version
+      - tprn_temperature_alarm
+      - i2c_bus_alarm
+      - tprn_power_supply_alarm
+      - general_slot_1_alarm
+      - general_slot_2_alarm
+      - general_slot_3_alarm
+      - general_slot_4_alarm
+      - general_slot_5_alarm
+      - general_slot_6_alarm
+      - general_slot_7_alarm
+      - general_slot_8_alarm
+      - general_slot_9_alarm
+      - general_slot_10_alarm
+      - general_slot_11_alarm
+      - general_slot_12_alarm
+      - aux_input_nr_0_alarm
+      - aux_input_nr_1_alarm
+      - aux_input_nr_2_alarm
+      - aux_input_nr_3_alarm
+    alarms:
+      aux_input_nr_0_alarm:
+        attributes:
+          - aux_input_nr_0_alarm
+        mapper: '%{resources.mappers.alarm_severity}'
+      aux_input_nr_1_alarm:
+        attributes:
+          - aux_input_nr_1_alarm
+        mapper: '%{resources.mappers.alarm_severity}'
+      aux_input_nr_2_alarm:
+        attributes:
+          - aux_input_nr_2_alarm
+        mapper: '%{resources.mappers.alarm_severity}'
+      aux_input_nr_3_alarm:
+        attributes:
+          - aux_input_nr_3_alarm
+        mapper: '%{resources.mappers.alarm_severity}'
+      general_slot_1_alarm:
+        attributes:
+          - general_slot_1_alarm
+        mapper: '%{resources.mappers.alarm_severity}'
+      general_slot_2_alarm:
+        attributes:
+          - general_slot_2_alarm
+        mapper: '%{resources.mappers.alarm_severity}'
+      general_slot_3_alarm:
+        attributes:
+          - general_slot_3_alarm
+        mapper: '%{resources.mappers.alarm_severity}'
+      general_slot_4_alarm:
+        attributes:
+          - general_slot_4_alarm
+        mapper: '%{resources.mappers.alarm_severity}'
+      general_slot_5_alarm:
+        attributes:
+          - general_slot_5_alarm
+        mapper: '%{resources.mappers.alarm_severity}'
+      general_slot_6_alarm:
+        attributes:
+          - general_slot_6_alarm
+        mapper: '%{resources.mappers.alarm_severity}'
+      general_slot_7_alarm:
+        attributes:
+          - general_slot_7_alarm
+        mapper: '%{resources.mappers.alarm_severity}'
+      general_slot_8_alarm:
+        attributes:
+          - general_slot_8_alarm
+        mapper: '%{resources.mappers.alarm_severity}'
+      general_slot_9_alarm:
+        attributes:
+          - general_slot_9_alarm
+        mapper: '%{resources.mappers.alarm_severity}'
+      general_slot_10_alarm:
+        attributes:
+          - general_slot_10_alarm
+        mapper: '%{resources.mappers.alarm_severity}'
+      general_slot_11_alarm:
+        attributes:
+          - general_slot_11_alarm
+        mapper: '%{resources.mappers.alarm_severity}'
+      general_slot_12_alarm:
+        attributes:
+          - general_slot_12_alarm
+        mapper: '%{resources.mappers.alarm_severity}'
+      i2c_bus_alarm:
+        attributes:
+          - i2c_bus_alarm
+        mapper: '%{resources.mappers.alarm_severity}'
+      tprn_power_supply_alarm:
+        attributes:
+          - tprn_power_supply_alarm
+        mapper: '%{resources.mappers.alarm_severity}'
+      tprn_temperature_alarm:
+        attributes:
+          - tprn_temperature_alarm
+        mapper: '%{resources.mappers.alarm_severity}'
+    price:
+      value: 0
+      unit: USD
+    energy:
+      value: 0
+      unit: ""
+  tsun:
+    name: TSUN
+    version: '[0.3,)'
+    reference: tsun
+    attributes:
+      - tsun_parameters_1_current_value
+      - tsun_parameters_1_new_value
+      - tsun_parameters_2_current_value
+      - tsun_parameters_2_new_value
+      - tsun_parameters_3_current_value
+      - tsun_parameters_3_new_value
+      - tsun_parameters_4_current_value
+      - tsun_parameters_4_new_value
+      - tsun_parameters_5_current_value
+      - tsun_parameters_5_new_value
+      - tsun_parameters_6_current_value
+      - tsun_parameters_6_new_value
+      - tsun_parameters_7_current_value
+      - tsun_parameters_7_new_value
+      - tsun_analogue_values_1_current_value
+      - tsun_analogue_values_1_new_value
+      - tsun_analogue_values_1_range
+      - tsun_analogue_values_2_current_value
+      - tsun_analogue_values_2_new_value
+      - tsun_analogue_values_2_range
+      - tsun_analogue_values_3_current_value
+      - tsun_analogue_values_3_new_value
+      - tsun_analogue_values_3_range
+      - tsun_inventory_unit_id
+      - tsun_inventory_module_type
+      - tsun_inventory_id_number
+      - tsun_inventory_serial_number
+      - tsun_inventory_manufacturer
+      - tsun_inventory_production_year
+      - tsun_inventory_description
+      - tsun_inventory_hardware_revision
+      - tsun_inventory_software_id
+      - tsun_inventory_software_version
+      - cpu_fault_alarm
+      - internal_bus_alarm
+    alarms:
+      cpu_fault_alarm:
+        attributes:
+          - cpu_fault_alarm
+        mapper: '%{resources.mappers.alarm_severity}'
+      internal_bus_alarm:
+        attributes:
+          - internal_bus_alarm
+        mapper: '%{resources.mappers.alarm_severity}'
+    price:
+      value: 0
+      unit: USD
+    energy:
+      value: 0
+      unit: ""
+attributes:
+  aux_input_nr_0_alarm:
+    name: Aux Input Nr 0 Alarm
+    description: Aux Input Nr 0 Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_alarms}'
+      selector:
+        type: xpath
+        expression: //td[contains(text(),"Aux input alarm nr 0")]/..//td[contains(text(), "${topology.discovery.flatten.gui_str}")]/../td[2]/@class
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  aux_input_nr_1_alarm:
+    name: Aux Input Nr 1 Alarm
+    description: Aux Input Nr 1 Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_alarms}'
+      selector:
+        type: xpath
+        expression: //td[contains(text(),"Aux input alarm nr 1")]/..//td[contains(text(), "${topology.discovery.flatten.gui_str}")]/../td[2]/@class
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  aux_input_nr_2_alarm:
+    name: Aux Input Nr 2 Alarm
+    description: Aux Input Nr 2 Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_alarms}'
+      selector:
+        type: xpath
+        expression: //td[contains(text(),"Aux input alarm nr 2")]/..//td[contains(text(), "${topology.discovery.flatten.gui_str}")]/../td[2]/@class
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  aux_input_nr_3_alarm:
+    name: Aux Input Nr 3 Alarm
+    description: Aux Input Nr 3 Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_alarms}'
+      selector:
+        type: xpath
+        expression: //td[contains(text(),"Aux input alarm nr 3")]/..//td[contains(text(), "${topology.discovery.flatten.gui_str}")]/../td[2]/@class
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  cpu_fault_alarm:
+    name: CPU Fault Alarm
+    description: CPU Fault Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_alarms}'
+      selector:
+        type: xpath
+        expression: //td[contains(text(),"CPU Fault")]/..//td[contains(text(), "${topology.discovery.flatten.gui_str}")]/../td[2]/@class
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  general_slot_1_alarm:
+    name: General Slot 1 Alarm
+    description: General Slot 1 Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_alarms}'
+      selector:
+        type: xpath
+        expression: //td[contains(text(),"general alarm slot 1")]/..//td[contains(text(), "${topology.discovery.flatten.gui_str}")]/..
+      extractor:
+        filters:
+          1: wrap <table> </table>
+          2: xpath //td[text()=" general alarm slot 1"]/../td[2]/@class
+    properties:
+      readWrite: R
+      read:
+        type: String
+  general_slot_2_alarm:
+    name: General Slot 2 Alarm
+    description: General Slot 2 Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_alarms}'
+      selector:
+        type: xpath
+        expression: //td[contains(text(),"general alarm slot 2")]/..//td[contains(text(), "${topology.discovery.flatten.gui_str}")]/..
+      extractor:
+        filters:
+          1: wrap <table> </table>
+          2: xpath //td[text()=" general alarm slot 2"]/../td[2]/@class
+    properties:
+      readWrite: R
+      read:
+        type: String
+  general_slot_3_alarm:
+    name: General Slot 3 Alarm
+    description: General Slot 3 Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_alarms}'
+      selector:
+        type: xpath
+        expression: //td[contains(text(),"general alarm slot 3")]/..//td[contains(text(), "${topology.discovery.flatten.gui_str}")]/..
+      extractor:
+        filters:
+          1: wrap <table> </table>
+          2: xpath //td[text()=" general alarm slot 3"]/../td[2]/@class
+    properties:
+      readWrite: R
+      read:
+        type: String
+  general_slot_4_alarm:
+    name: General Slot 4 Alarm
+    description: General Slot 4 Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_alarms}'
+      selector:
+        type: xpath
+        expression: //td[contains(text(),"general alarm slot 4")]/..//td[contains(text(), "${topology.discovery.flatten.gui_str}")]/..
+      extractor:
+        filters:
+          1: wrap <table> </table>
+          2: xpath //td[text()=" general alarm slot 4"]/../td[2]/@class
+    properties:
+      readWrite: R
+      read:
+        type: String
+  general_slot_5_alarm:
+    name: General Slot 5 Alarm
+    description: General Slot 5 Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_alarms}'
+      selector:
+        type: xpath
+        expression: //td[contains(text(),"general alarm slot 5")]/..//td[contains(text(), "${topology.discovery.flatten.gui_str}")]/..
+      extractor:
+        filters:
+          1: wrap <table> </table>
+          2: xpath //td[text()=" general alarm slot 5"]/../td[2]/@class
+    properties:
+      readWrite: R
+      read:
+        type: String
+  general_slot_6_alarm:
+    name: General Slot 6 Alarm
+    description: General Slot 6 Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_alarms}'
+      selector:
+        type: xpath
+        expression: //td[contains(text(),"general alarm slot 6")]/..//td[contains(text(), "${topology.discovery.flatten.gui_str}")]/..
+      extractor:
+        filters:
+          1: wrap <table> </table>
+          2: xpath //td[text()=" general alarm slot 6"]/../td[2]/@class
+    properties:
+      readWrite: R
+      read:
+        type: String
+  general_slot_7_alarm:
+    name: General Slot 7 Alarm
+    description: General Slot 7 Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_alarms}'
+      selector:
+        type: xpath
+        expression: //td[contains(text(),"general alarm slot 7")]/..//td[contains(text(), "${topology.discovery.flatten.gui_str}")]/..
+      extractor:
+        filters:
+          1: wrap <table> </table>
+          2: xpath //td[text()=" general alarm slot 7"]/../td[2]/@class
+    properties:
+      readWrite: R
+      read:
+        type: String
+  general_slot_8_alarm:
+    name: General Slot 8 Alarm
+    description: General Slot 8 Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_alarms}'
+      selector:
+        type: xpath
+        expression: //td[contains(text(),"general alarm slot 8")]/..//td[contains(text(), "${topology.discovery.flatten.gui_str}")]/..
+      extractor:
+        filters:
+          1: wrap <table> </table>
+          2: xpath //td[text()=" general alarm slot 8"]/../td[2]/@class
+    properties:
+      readWrite: R
+      read:
+        type: String
+  general_slot_9_alarm:
+    name: General Slot 9 Alarm
+    description: General Slot 9 Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_alarms}'
+      selector:
+        type: xpath
+        expression: //td[contains(text(),"general alarm slot 9")]/..//td[contains(text(), "${topology.discovery.flatten.gui_str}")]/..
+      extractor:
+        filters:
+          1: wrap <table> </table>
+          2: xpath //td[text()=" general alarm slot 9"]/../td[2]/@class
+    properties:
+      readWrite: R
+      read:
+        type: String
+  general_slot_10_alarm:
+    name: General Slot 10 Alarm
+    description: General Slot 10 Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_alarms}'
+      selector:
+        type: xpath
+        expression: //td[contains(text(),"general alarm slot 10")]/..//td[contains(text(), "${topology.discovery.flatten.gui_str}")]/..
+      extractor:
+        filters:
+          1: wrap <table> </table>
+          2: xpath //td[text()=" general alarm slot 10"]/../td[2]/@class
+    properties:
+      readWrite: R
+      read:
+        type: String
+  general_slot_11_alarm:
+    name: General Slot 11 Alarm
+    description: General Slot 11 Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_alarms}'
+      selector:
+        type: xpath
+        expression: //td[contains(text(),"general alarm slot 11")]/..//td[contains(text(), "${topology.discovery.flatten.gui_str}")]/..
+      extractor:
+        filters:
+          1: wrap <table> </table>
+          2: xpath //td[text()=" general alarm slot 11"]/../td[2]/@class
+    properties:
+      readWrite: R
+      read:
+        type: String
+  general_slot_12_alarm:
+    name: General Slot 12 Alarm
+    description: General Slot 12 Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_alarms}'
+      selector:
+        type: xpath
+        expression: //td[contains(text(),"general alarm slot 12")]/..//td[contains(text(), "${topology.discovery.flatten.gui_str}")]/..
+      extractor:
+        filters:
+          1: wrap <table> </table>
+          2: xpath //td[text()=" general alarm slot 12"]/../td[2]/@class
+    properties:
+      readWrite: R
+      read:
+        type: String
+  i2c_bus_alarm:
+    name: I2c Bus Alarm
+    description: I2c Bus Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_alarms}'
+      selector:
+        type: xpath
+        expression: //td[contains(text(),"I2C Bus alarm")]/..//td[contains(text(), "${topology.discovery.flatten.gui_str}")]/../td[2]/@class
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  internal_bus_alarm:
+    name: Internal Bus Alarm
+    description: Internal Bus Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_alarms}'
+      selector:
+        type: xpath
+        expression: //td[contains(text(),"Internal bus alarm")]/..//td[contains(text(), "${topology.discovery.flatten.gui_str}")]/../td[2]/@class
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  mc_application_user_temporary_locked_alarm:
+    name: MC Application User Temporary Locked Alarm
+    description: MC Application User Temporary Locked Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_alarms}'
+      selector:
+        type: xpath
+        expression: //td[contains(text(),"Application User Temporary Locked Alarm")]/../td[2]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  mc_battery_capacity_reduced_alarm:
+    name: MC Battery Capacity Reduced Alarm
+    description: MC Battery Capacity Reduced Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_alarms}'
+      selector:
+        type: xpath
+        expression: //td[contains(text(),"Battery Capacity Reduced Alarm")]/../td[2]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  mc_battery_charge_circuit_failure_alarm:
+    name: MC Battery Charge Circuit Failure Alarm
+    description: MC Battery Charge Circuit Failure Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_alarms}'
+      selector:
+        type: xpath
+        expression: //td[contains(text(),"Battery Charge Circuit Failure Alarm")]/../td[2]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  mc_battery_missing_alarm:
+    name: MC Battery Missing Alarm
+    description: MC Battery Missing Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_alarms}'
+      selector:
+        type: xpath
+        expression: //td[contains(text(),"Battery Missing Alarm")]/../td[2]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  mc_battery_refresh_alarm:
+    name: MC Battery Refresh Alarm
+    description: MC Battery Refresh Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_alarms}'
+      selector:
+        type: xpath
+        expression: //td[contains(text(),"Battery Refresh Alarm")]/../td[2]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  mc_external_1_alarm:
+    name: MC External 1 Alarm
+    description: MC External 1 Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_alarms}'
+      selector:
+        type: xpath
+        expression: //td[contains(text(),"External 1 Alarm")]/../td[2]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  mc_external_2_alarm:
+    name: MC External 2 Alarm
+    description: MC External 2 Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_alarms}'
+      selector:
+        type: xpath
+        expression: //td[contains(text(),"External 2 Alarm")]/../td[2]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  mc_external_3_alarm:
+    name: MC External 3 Alarm
+    description: MC External 3 Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_alarms}'
+      selector:
+        type: xpath
+        expression: //td[contains(text(),"External 3 Alarm")]/../td[2]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  mc_external_4_alarm:
+    name: MC External 4 Alarm
+    description: MC External 4 Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_alarms}'
+      selector:
+        type: xpath
+        expression: //td[contains(text(),"External 4 Alarm")]/../td[2]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  mc_external_5_alarm:
+    name: MC External 5 Alarm
+    description: MC External 5 Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_alarms}'
+      selector:
+        type: xpath
+        expression: //td[contains(text(),"External 5 Alarm")]/../td[2]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  mc_external_6_alarm:
+    name: MC External 6 Alarm
+    description: MC External 6 Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_alarms}'
+      selector:
+        type: xpath
+        expression: //td[contains(text(),"External 6 Alarm")]/../td[2]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  mc_external_7_alarm:
+    name: MC External 7 Alarm
+    description: MC External 7 Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_alarms}'
+      selector:
+        type: xpath
+        expression: //td[contains(text(),"External 7 Alarm")]/../td[2]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  mc_external_8_alarm:
+    name: MC External 8 Alarm
+    description: MC External 8 Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_alarms}'
+      selector:
+        type: xpath
+        expression: //td[contains(text(),"External 8 Alarm")]/../td[2]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  mc_external_output_1_alarm:
+    name: MC External Output 1 Alarm
+    description: MC External Output 1 Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_alarms}'
+      selector:
+        type: xpath
+        expression: //td[contains(text(),"External Output 1 Alarm")]/../td[2]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  mc_external_output_2_alarm:
+    name: MC External Output 2 Alarm
+    description: MC External Output 2 Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_alarms}'
+      selector:
+        type: xpath
+        expression: //td[contains(text(),"External Output 2 Alarm")]/../td[2]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  mc_external_output_3_alarm:
+    name: MC External Output 3 Alarm
+    description: MC External Output 3 Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_alarms}'
+      selector:
+        type: xpath
+        expression: //td[contains(text(),"External Output 3 Alarm")]/../td[2]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  mc_external_output_4_alarm:
+    name: MC External Output 4 Alarm
+    description: MC External Output 4 Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_alarms}'
+      selector:
+        type: xpath
+        expression: //td[contains(text(),"External Output 4 Alarm")]/../td[2]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  mc_external_output_5_alarm:
+    name: MC External Output 5 Alarm
+    description: MC External Output 5 Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_alarms}'
+      selector:
+        type: xpath
+        expression: //td[contains(text(),"External Output 5 Alarm")]/../td[2]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  mc_external_output_6_alarm:
+    name: MC External Output 6 Alarm
+    description: MC External Output 6 Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_alarms}'
+      selector:
+        type: xpath
+        expression: //td[contains(text(),"External Output 6 Alarm")]/../td[2]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  mc_external_output_7_alarm:
+    name: MC External Output 7 Alarm
+    description: MC External Output 7 Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_alarms}'
+      selector:
+        type: xpath
+        expression: //td[contains(text(),"External Output 7 Alarm")]/../td[2]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  mc_external_output_8_alarm:
+    name: MC External Output 8 Alarm
+    description: MC External Output 8 Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_alarms}'
+      selector:
+        type: xpath
+        expression: //td[contains(text(),"External Output 8 Alarm")]/../td[2]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  mc_fan_failure_alarm:
+    name: MC Fan Failure Alarm
+    description: MC Fan Failure Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_alarms}'
+      selector:
+        type: xpath
+        expression: //td[contains(text(),"Fan Failure Alarm")]/../td[2]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  mc_hardware_alarm:
+    name: MC Hardware Alarm
+    description: MC Hardware Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_alarms}'
+      selector:
+        type: xpath
+        expression: //td[contains(text(),"Hardware Alarm")]/../td[2]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  mc_invalid_user_login_attempt_alarm:
+    name: MC Invalid User Login Attempt Alarm
+    description: MC Invalid User Login Attempt Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_alarms}'
+      selector:
+        type: xpath
+        expression: //td[contains(text(),"Invalid User Login Attempt Alarm")]/../td[2]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  mc_mains_power_failure_alarm:
+    name: MC Mains Power Failure Alarm
+    description: MC Mains Power Failure Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_alarms}'
+      selector:
+        type: xpath
+        expression: //td[contains(text(),"Mains Power Failure Alarm")]/../td[2]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  mc_modem_supply_fuse_alarm:
+    name: MC Modem Supply Fuse Alarm
+    description: MC Modem Supply Fuse Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_alarms}'
+      selector:
+        type: xpath
+        expression: //td[contains(text(),"Modem Supply Fuse Alarm")]/../td[2]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  mc_o_and_m_communication_failure_alarm:
+    name: MC O And M Communication Failure Alarm
+    description: MC O And M Communication Failure Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_alarms}'
+      selector:
+        type: xpath
+        expression: //td[contains(text(),"O&M Communication Failure Alarm")]/../td[2]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  mc_overview_configuration_automatic_reboot:
+    name: Master Controller Automatic Reboot After Overtemperature Shutdown
+    description: Master Controller Automatix Reboot after Overtemperature Shutdown
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_mc_status}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(), "Automatic reboot")]/following-sibling::td[1]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  mc_overview_configuration_battery_backup:
+    name: Master Controller Battery Backup
+    description: Master Controller Battery Backup
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_mc_status}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(), "Battery Backup")]/following-sibling::td/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  mc_overview_error_status:
+    name: Master Controller Error Status
+    description: Master Controller Error Status
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_mc_status}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(), "MC Error Status")]/../following-sibling::tr[1]/td/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  mc_overview_software_version:
+    name: Master Controller Software Version
+    description: Master Controller Software Version
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_mc_status}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(), "Version:")]/following-sibling::td/text()
+      extractor:
+        filters:
+          1: regexpReplace /^(\d+\.\d+)\.?.*$/ => $1
+    properties:
+      readWrite: R
+      read:
+        type: String
+  mc_overview_temperature_alarm_threshold:
+    name: Master Controller Temperature Alarm Threshold
+    description: Master Controller Temperature Alarm Threshold
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_mc_status}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(), "Alarm Threshold")]/following-sibling::td[1]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: Int32
+        unit: C
+  mc_overview_temperature_external:
+    name: Master Controller External Temperature
+    description: Master Controller External Temperature
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_mc_status}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(), "External Temperature")]/following-sibling::td/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: Int32
+        unit: C
+  mc_overview_temperature_internal:
+    name: Master Controller Internal Temperature
+    description: Master Controller Internal Temperature
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_mc_status}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(), "Internal Temperature")]/following-sibling::td/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: Int32
+        unit: C
+  mc_queue_overflow_alarm:
+    name: MC Queue Overflow Alarm
+    description: MC Queue Overflow Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_alarms}'
+      selector:
+        type: xpath
+        expression: //td[contains(text(),"Queue Overflow Alarm")]/../td[2]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  mc_rf_configuration_changed_alarm:
+    name: MC RF Configuration Changed Alarm
+    description: MC RF Configuration Changed Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_alarms}'
+      selector:
+        type: xpath
+        expression: //td[contains(text(),"RF Configuration Changed Alarm")]/../td[2]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  mc_running_low_on_resources_alarm:
+    name: MC Running Low On Resources Alarm
+    description: MC Running Low On Resources Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_alarms}'
+      selector:
+        type: xpath
+        expression: //td[contains(text(),"Running Low On Resources Alarm")]/../td[2]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  mc_setting_latitude:
+    name: Master Controller Unit Latitude
+    description: Master Controller Unit Latitude
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_mc_unit_id}'
+      selector:
+        type: xpath
+        expression: //*[contains(@name, "mmrLocationLat")]/@value
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  mc_setting_location:
+    name: Master Controller Location
+    description: Master Controller Location
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_mc_unit_id}'
+      selector:
+        type: xpath
+        expression: //*[contains(@name, "mmrLocationValue")]/@value
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  mc_setting_longitude:
+    name: Master Controller Unit Longitude
+    description: Master Controller Unit Longitude
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_mc_unit_id}'
+      selector:
+        type: xpath
+        expression: //*[contains(@name, "mmrLocationLon")]/@value
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  mc_setting_system_name:
+    name: Master Controller SysName / SiteID
+    description: System Name/ Site ID
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_mc_unit_id}'
+      selector:
+        type: xpath
+        expression: //*[contains(@name, "mmrLocationSysName")]/@value
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  mc_setting_unit_id:
+    name: Master Controller Unit
+    description: Master Controller Unit
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_mc_unit_id}'
+      selector:
+        type: xpath
+        expression: //*[contains(@name, "mmrLocationAddress")]/@value
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  mc_shutdown_canceled_alarm:
+    name: Shutdown Canceled Alarm
+    description: Shutdown Canceled Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_alarms}'
+      selector:
+        type: xpath
+        expression: //td[contains(text(),"Shutdown Canceled Alarm")]/../td[2]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  mc_shutdown_mc_on_battery_low_alarm:
+    name: Shutdown MC On Battery Low Alarm
+    description: Shutdown MC On Battery Low Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_alarms}'
+      selector:
+        type: xpath
+        expression: //td[contains(text(),"Shutdown MC on Battery Low Alarm")]/../td[2]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  mc_shutdown_mc_on_ctrl_board_failure_alarm:
+    name: Shutdown MC On Control Board Failure  Alarm
+    description: Shutdown MC On Control Board Failure  Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_alarms}'
+      selector:
+        type: xpath
+        expression: //td[contains(text(),"Shutdown MC on Control Board Failure  Alarm")]/../td[2]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  mc_shutdown_mc_on_over_temperature_alarm:
+    name: Shutdown MC On Over Temperature Alarm
+    description: Shutdown MC On Over Temperature Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_alarms}'
+      selector:
+        type: xpath
+        expression: //td[contains(text(),"Shutdown MC on Over Temperature Alarm")]/../td[2]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  mc_system_supervision_watchdog_alarm:
+    name: MC System Supervision Watchdog Alarm
+    description: MC System Supervision Watchdog Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_alarms}'
+      selector:
+        type: xpath
+        expression: //td[contains(text(),"System Supervision Watchdog Alarm")]/../td[2]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  mc_temperature_alarm:
+    name: MC Temperature Alarm
+    description: MC Temperature Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_alarms}'
+      selector:
+        type: xpath
+        expression: //td[contains(text(),"Temperature Alarm")]/../td[2]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  mc_vpn_connection_failure_alarm:
+    name: MC VPN Connection Failure Alarm
+    description: MC VPN Connection Failure Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_alarms}'
+      selector:
+        type: xpath
+        expression: //td[contains(text(),"VPN Connection Failure Alarm")]/../td[2]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  sab_external_1_alarm:
+    name: SAB External 1 Alarm
+    description: SAB External 1 Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_alarms}'
+      selector:
+        type: xpath
+        expression: //td[contains(text(),"External 1 Alarm")]/../td[2]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  sab_external_2_alarm:
+    name: SAB External 2 Alarm
+    description: SAB External 2 Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_alarms}'
+      selector:
+        type: xpath
+        expression: //td[contains(text(),"External 2 Alarm")]/../td[2]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  sab_external_3_alarm:
+    name: SAB External 3 Alarm
+    description: SAB External 3 Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_alarms}'
+      selector:
+        type: xpath
+        expression: //td[contains(text(),"External 3 Alarm")]/../td[2]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  sab_external_4_alarm:
+    name: SAB External 4 Alarm
+    description: SAB External 4 Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_alarms}'
+      selector:
+        type: xpath
+        expression: //td[contains(text(),"External 4 Alarm")]/../td[2]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  sab_external_5_alarm:
+    name: SAB External 5 Alarm
+    description: SAB External 5 Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_alarms}'
+      selector:
+        type: xpath
+        expression: //td[contains(text(),"External 5 Alarm")]/../td[2]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  sab_external_6_alarm:
+    name: SAB External 6 Alarm
+    description: SAB External 6 Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_alarms}'
+      selector:
+        type: xpath
+        expression: //td[contains(text(),"External 6 Alarm")]/../td[2]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  sab_external_7_alarm:
+    name: SAB External 7 Alarm
+    description: SAB External 7 Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_alarms}'
+      selector:
+        type: xpath
+        expression: //td[contains(text(),"External 7 Alarm")]/../td[2]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  sab_external_8_alarm:
+    name: SAB External 8 Alarm
+    description: SAB External 8 Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_alarms}'
+      selector:
+        type: xpath
+        expression: //td[contains(text(),"External 8 Alarm")]/../td[2]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  sab_external_output_1_alarm:
+    name: SAB External Output 1 Alarm
+    description: SAB External Output 1 Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_alarms}'
+      selector:
+        type: xpath
+        expression: //td[contains(text(),"External Output 1 Alarm")]/../td[2]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  sab_external_output_2_alarm:
+    name: SAB External Output 2 Alarm
+    description: SAB External Output 2 Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_alarms}'
+      selector:
+        type: xpath
+        expression: //td[contains(text(),"External Output 2 Alarm")]/../td[2]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  sab_external_output_3_alarm:
+    name: SAB External Output 3 Alarm
+    description: SAB External Output 3 Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_alarms}'
+      selector:
+        type: xpath
+        expression: //td[contains(text(),"External Output 3 Alarm")]/../td[2]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  sab_external_output_4_alarm:
+    name: SAB External Output 4 Alarm
+    description: SAB External Output 4 Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_alarms}'
+      selector:
+        type: xpath
+        expression: //td[contains(text(),"External Output 4 Alarm")]/../td[2]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  sab_external_output_5_alarm:
+    name: SAB External Output 5 Alarm
+    description: SAB External Output 5 Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_alarms}'
+      selector:
+        type: xpath
+        expression: //td[contains(text(),"External Output 5 Alarm")]/../td[2]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  sab_external_output_6_alarm:
+    name: SAB External Output 6 Alarm
+    description: SAB External Output 6 Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_alarms}'
+      selector:
+        type: xpath
+        expression: //td[contains(text(),"External Output 6 Alarm")]/../td[2]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  sab_external_output_7_alarm:
+    name: SAB External Output 7 Alarm
+    description: SAB External Output 7 Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_alarms}'
+      selector:
+        type: xpath
+        expression: //td[contains(text(),"External Output 7 Alarm")]/../td[2]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  sab_external_output_8_alarm:
+    name: SAB External Output 8 Alarm
+    description: SAB External Output 8 Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_alarms}'
+      selector:
+        type: xpath
+        expression: //td[contains(text(),"External Output 8 Alarm")]/../td[2]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  sab_inventory_description:
+    name: SAB Inventory Description
+    description: SAB Inventory Description
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_sab_inventory}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(), "Inventory Data")]/../../tr[3]/td[6]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  sab_inventory_hardware_revision:
+    name: SAB Inventory Hardware Revision
+    description: SAB Inventory Hardware Revision
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_sab_inventory}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(), "Inventory Data")]/../../tr[3]/td[7]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  sab_inventory_id_number:
+    name: SAB Inventory ID Number
+    description: SAB Inventory ID Number
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_sab_inventory}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(), "Inventory Data")]/../../tr[3]/td[2]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  sab_inventory_manufacturer:
+    name: SAB Inventory Manufacturer
+    description: SAB Inventory Manufacturer
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_sab_inventory}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(), "Inventory Data")]/../../tr[3]/td[4]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  sab_inventory_module_type:
+    name: SAB Inventory Module Type
+    description: SAB Inventory Module Type
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_sab_inventory}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(), "Inventory Data")]/../../tr[3]/td[1]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  sab_inventory_production_year:
+    name: SAB Inventory Production Year
+    description: SAB Inventory Production Year
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_sab_inventory}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(), "Inventory Data")]/../../tr[3]/td[5]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  sab_inventory_serial_number:
+    name: SAB Inventory Serial Number
+    description: SAB Inventory Serial Number
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_sab_inventory}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(), "Inventory Data")]/../../tr[3]/td[3]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  sab_inventory_software_id:
+    name: SAB Inventory Software ID
+    description: SAB Inventory Software ID
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_sab_inventory}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(), "Inventory Data")]/../../tr[3]/td[9]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  sab_inventory_software_version:
+    name: SAB Inventory Software Version
+    description: SAB Inventory Software Version
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_sab_inventory}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(), "Inventory Data")]/../../tr[3]/td[10]/text()
+      extractor:
+        filters:
+          1: regexpReplace /^(\d+\.\d+)\.?.*$/ => $1
+    properties:
+      readWrite: R
+      read:
+        type: String
+  sab_inventory_status_of_changes:
+    name: SAB Inventory Status of Changes
+    description: SAB Inventory Status of Changes
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_sab_inventory}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(), "Inventory Data")]/../../tr[3]/td[8]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  sab_unit_unavailable_alarm:
+    name: SAB Unit Unavailable Alarm
+    description: SAB Unit Unavailable Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_alarms}'
+      selector:
+        type: xpath
+        expression: //td[contains(text(),"Unit Unavailable Alarm")]/../td[2]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  tprn_analogue_values_1_current_value:
+    name: "TPRN Parameters Subrack Temperature\tCurrent Value"
+    description: TPRN Parameters Subrack Temperature Current Value
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_tprn_parameters}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(), "Subrack Temperature")]/../td[2]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+        unit: C
+  tprn_analogue_values_1_new_value:
+    name: TPRN Parameters Subrack Temperature New Value
+    description: TPRN Parameters Subrack Temperature New Value
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_tprn_parameters}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(), "Subrack Temperature")]/../td[3]/input/@value
+      extractor: {}
+    properties:
+      readWrite: RW
+      read:
+        type: String
+        unit: C
+  tprn_analogue_values_1_range:
+    name: TPRN Analogue Values 1 Range
+    description: TPRN Analogue Values 1 Range
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_tprn_parameters}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(), "Subrack Temperature")]/../td[4]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  tprn_inventory_description:
+    name: TPRN Inventory Description
+    description: TPRN Inventory Description
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_tprn_inventory}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(), "Inventory Data")]/../../tr[3]/td[7]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  tprn_inventory_hardware_revision:
+    name: TPRN Inventory Hardware Revision
+    description: TPRN Inventory Hardware Revision
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_tprn_inventory}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(), "Inventory Data")]/../../tr[3]/td[8]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  tprn_inventory_id_number:
+    name: TPRN Inventory ID Number
+    description: TPRN Inventory ID Number
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_tprn_inventory}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(), "Inventory Data")]/../../tr[3]/td[3]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  tprn_inventory_manufacturer:
+    name: TPRN Inventory Manufacturer
+    description: TPRN Inventory Manufacturer
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_tprn_inventory}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(), "Inventory Data")]/../../tr[3]/td[5]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  tprn_inventory_module_type:
+    name: TPRN Inventory Module Type
+    description: TPRN Inventory Module Type
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_tprn_inventory}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(), "Inventory Data")]/../../tr[3]/td[2]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  tprn_inventory_production_year:
+    name: TPRN Inventory Production Year
+    description: TPRN Inventory Production Year
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_tprn_inventory}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(), "Inventory Data")]/../../tr[3]/td[6]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  tprn_inventory_serial_number:
+    name: TPRN Inventory Serial Number
+    description: TPRN Inventory Serial Number
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_tprn_inventory}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(), "Inventory Data")]/../../tr[3]/td[4]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  tprn_inventory_software_id:
+    name: TPRN Inventory Software ID
+    description: TPRN Inventory Software ID
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_tprn_inventory}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(), "Inventory Data")]/../../tr[3]/td[9]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  tprn_inventory_software_version:
+    name: TPRN Inventory Software Version
+    description: TPRN Inventory Software Version
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_tprn_inventory}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(), "Inventory Data")]/../../tr[3]/td[10]/text()
+      extractor:
+        filters:
+          1: regexpReplace /^(\d+\.\d+)\.?.*$/ => $1
+    properties:
+      readWrite: R
+      read:
+        type: String
+  tprn_inventory_unit_id:
+    name: TPRN Inventory Unit
+    description: TPRN Inventory Unit
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_tprn_inventory}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(), "Inventory Data")]/../../tr[3]/td[1]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  tprn_parameters_1_current_value:
+    name: TPRN Parameter Relay 1 Status Current Value
+    description: TPRN Parameter Relay 1 Status Current Value
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_tprn_parameters}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(), "relay 1 status")]/../td[2]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  tprn_parameters_1_new_value:
+    name: TPRN Parameter relay 1 status New Value
+    description: TPRN Parameter relay 1 status New Value
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_tprn_parameters}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(), "relay 1 status")]/../td[3]/select/option[@selected]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  tprn_parameters_2_current_value:
+    name: TPRN Parameter Relay 2 Status Current Value
+    description: TPRN Parameter Relay 2 Status Current Value
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_tprn_parameters}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(), "relay 2 status")]/../td[2]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  tprn_parameters_2_new_value:
+    name: TPRN Parameter Relay 2 Status New Value
+    description: TPRN Parameter Relay 2 Status New Value
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_tprn_parameters}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(), "relay 2 status")]/../td[3]/select/option[@selected]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  tprn_parameters_3_current_value:
+    name: TPRN Parameter Relay 3 Status Current Value
+    description: TPRN Parameter Relay 3 Status Current Value
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_tprn_parameters}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(), "relay 3 status")]/../td[2]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  tprn_parameters_3_new_value:
+    name: TPRN Parameter Relay 3 Status New Value
+    description: TPRN Parameter relay 3 status New Value
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_tprn_parameters}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(), "relay 3 status")]/../td[3]/select/option[@selected]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  tprn_parameters_4_current_value:
+    name: TPRN Parameter Relay 4 Status Current Value
+    description: TPRN Parameter Relay 4 Status Current Value
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_tprn_parameters}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(), "relay 4 status")]/../td[2]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  tprn_parameters_4_new_value:
+    name: TPRN Parameter Relay 4 Status New Value
+    description: TPRN Parameter relay 4 status New Value
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_tprn_parameters}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(), "relay 4 status")]/../td[3]/select/option[@selected]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  tprn_parameters_5_current_value:
+    name: TPRN Parameter Power Supply Standby Current Value
+    description: TPRN Parameter Power supply standby Current Value
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_tprn_parameters}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(), "Power supply standby")]/../td[2]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  tprn_parameters_5_new_value:
+    name: TPRN Parameter Power Supply Standby New Value
+    description: TPRN Parameter Power supply standby New Value
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_tprn_parameters}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(), "Power supply standby")]/../td[3]/select/option[@selected]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  tprn_parameters_6_current_value:
+    name: TPRN Parameter Bus Reset Current Value
+    description: TPRN Parameter Bus reset Current Value
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_tprn_parameters}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(), "Bus reset")]/../td[2]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  tprn_parameters_6_new_value:
+    name: TPRN Parameter Bus Reset New Value
+    description: TPRN Parameter Bus reset New Value
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_tprn_parameters}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(), "Bus reset")]/../td[3]/select/option[@selected]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  tprn_parameters_7_current_value:
+    name: TPRN Parameter Board Presence Slot 1 Current Value
+    description: TPRN Parameter Board Presence Slot 1 Current Value
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_tprn_parameters}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(), "Slot 1")][1]/../td[2]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  tprn_parameters_7_new_value:
+    name: TPRN Parameter Board Presence Slot 1 New Value
+    description: TPRN Parameter Board Presence Slot 1 New Value
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_tprn_parameters}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(), "Slot 1")][1]/../td[3]/select/option[@selected]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  tprn_parameters_8_current_value:
+    name: TPRN Parameter Board Presence Slot 2 Current Value
+    description: TPRN Parameter Board Presence Slot 2 Current Value
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_tprn_parameters}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(), "Slot 2")]/../td[2]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  tprn_parameters_8_new_value:
+    name: TPRN Parameter Board Presence Slot 2 New Value
+    description: TPRN Parameter Board Presence Slot 2 New Value
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_tprn_parameters}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(), "Slot 2")]/../td[3]/select/option[@selected]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  tprn_parameters_9_current_value:
+    name: TPRN Parameter Board Presence Slot 3 Current Value
+    description: TPRN Parameter Board Presence Slot 3 Current Value
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_tprn_parameters}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(), "Slot 3")]/../td[2]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  tprn_parameters_9_new_value:
+    name: TPRN Parameter Board Presence Slot 3 New Value
+    description: TPRN Parameter Board Presence Slot 3 New Value
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_tprn_parameters}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(), "Slot 3")]/../td[3]/select/option[@selected]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  tprn_parameters_10_current_value:
+    name: TPRN Parameter Board Presence Slot 4 Current Value
+    description: TPRN Parameter Board Presence Slot 4 Current Value
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_tprn_parameters}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(), "Slot 4")]/../td[2]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  tprn_parameters_10_new_value:
+    name: TPRN Parameter Board Presence Slot 4 New Value
+    description: TPRN Parameter Board Presence Slot 4 New Value
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_tprn_parameters}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(), "Slot 4")]/../td[3]/select/option[@selected]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  tprn_parameters_11_current_value:
+    name: TPRN Parameter Board Presence Slot 5 Current Value
+    description: TPRN Parameter Board Presence Slot 5 Current Value
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_tprn_parameters}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(), "Slot 5")]/../td[2]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  tprn_parameters_11_new_value:
+    name: TPRN Parameter Board Presence Slot 5 New Value
+    description: TPRN Parameter Board Presence Slot 5 New Value
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_tprn_parameters}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(), "Slot 5")]/../td[3]/select/option[@selected]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  tprn_parameters_12_current_value:
+    name: TPRN Parameter Board Presence Slot 6 Current Value
+    description: TPRN Parameter Board Presence Slot 6 Current Value
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_tprn_parameters}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(), "Slot 6")]/../td[2]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  tprn_parameters_12_new_value:
+    name: TPRN Parameter Board Presence Slot 6 New Value
+    description: TPRN Parameter Board Presence Slot 6 New Value
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_tprn_parameters}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(), "Slot 6")]/../td[3]/select/option[@selected]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  tprn_parameters_13_current_value:
+    name: TPRN Parameter Board Presence Slot 7 Current Value
+    description: TPRN Parameter Board Presence Slot 7 Current Value
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_tprn_parameters}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(), "Slot 7")]/../td[2]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  tprn_parameters_13_new_value:
+    name: TPRN Parameter Board Presence Slot 7 New Value
+    description: TPRN Parameter Board Presence Slot 7 New Value
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_tprn_parameters}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(), "Slot 7")]/../td[3]/select/option[@selected]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  tprn_parameters_14_current_value:
+    name: TPRN Parameter Board Presence Slot 8 Current Value
+    description: TPRN Parameter Board Presence Slot 8 Current Value
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_tprn_parameters}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(), "Slot 8")]/../td[2]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  tprn_parameters_14_new_value:
+    name: TPRN Parameter Board Presence Slot 8 New Value
+    description: TPRN Parameter Board Presence Slot 8 New Value
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_tprn_parameters}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(), "Slot 8")]/../td[3]/select/option[@selected]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  tprn_parameters_15_current_value:
+    name: TPRN Parameter Board Presence Slot 9 Current Value
+    description: TPRN Parameter Board Presence Slot 9 Current Value
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_tprn_parameters}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(), "Slot 9")]/../td[2]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  tprn_parameters_15_new_value:
+    name: TPRN Parameter Board Presence Slot 9 New Value
+    description: TPRN Parameter Board Presence Slot 9 New Value
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_tprn_parameters}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(), "Slot 9")]/../td[3]/select/option[@selected]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  tprn_parameters_16_current_value:
+    name: TPRN Parameter Board Presence Slot 10 Current Value
+    description: TPRN Parameter Board Presence Slot 10 Current Value
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_tprn_parameters}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(), "Slot 10")]/../td[2]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  tprn_parameters_16_new_value:
+    name: TPRN Parameter Board Presence Slot 10 New Value
+    description: TPRN Parameter Board Presence Slot 10 New Value
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_tprn_parameters}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(), "Slot 10")]/../td[3]/select/option[@selected]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  tprn_parameters_17_current_value:
+    name: TPRN Parameter Board Presence Slot 11 Current Value
+    description: TPRN Parameter Board Presence Slot 11 Current Value
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_tprn_parameters}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(), "Slot 11")]/../td[2]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  tprn_parameters_17_new_value:
+    name: TPRN Parameter Board Presence Slot 11 New Value
+    description: TPRN Parameter Board Presence Slot 11 New Value
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_tprn_parameters}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(), "Slot 11")]/../td[3]/select/option[@selected]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  tprn_parameters_18_current_value:
+    name: TPRN Parameter Board Presence Slot 12 Current Value
+    description: TPRN Parameter Board Presence Slot 12 Current Value
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_tprn_parameters}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(), "Slot 12")]/../td[2]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  tprn_parameters_18_new_value:
+    name: TPRN Parameter Board Presence Slot 12 New Value
+    description: TPRN Parameter Board Presence Slot 12 New Value
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_tprn_parameters}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(), "Slot 12")]/../td[3]/select/option[@selected]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  tprn_parameters_19_current_value:
+    name: TPRN Parameter Aux input alarm nr 0 polarity Current Value
+    description: TPRN Parameter Aux input alarm nr 0 polarity Current Value
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_tprn_parameters}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(), "Aux input alarm nr 0 polarity")]/../td[2]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  tprn_parameters_19_new_value:
+    name: TPRN Parameter Aux input alarm nr 0 polarity New Value
+    description: TPRN Parameter Aux input alarm nr 0 polarity New Value
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_tprn_parameters}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(), "Aux input alarm nr 0 polarity")]/../td[3]/select/option[@selected]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  tprn_parameters_20_current_value:
+    name: TPRN Parameter Aux input alarm nr 1 polarity Current Value
+    description: TPRN Parameter Aux input alarm nr 1 polarity Current Value
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_tprn_parameters}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(), "Aux input alarm nr 1 polarity")]/../td[2]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  tprn_parameters_20_new_value:
+    name: TPRN Parameter Aux input alarm nr 1 polarity New Value
+    description: TPRN Parameter Aux input alarm nr 1 polarity New Value
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_tprn_parameters}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(), "Aux input alarm nr 1 polarity")]/../td[3]/select/option[@selected]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  tprn_parameters_21_current_value:
+    name: TPRN Parameter Aux input alarm nr 2 polarity Current Value
+    description: TPRN Parameter Aux input alarm nr 2 polarity Current Value
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_tprn_parameters}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(), "Aux input alarm nr 2 polarity")]/../td[2]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  tprn_parameters_21_new_value:
+    name: TPRN Parameter Aux input alarm nr 2 polarity New Value
+    description: TPRN Parameter Aux input alarm nr 2 polarity New Value
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_tprn_parameters}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(), "Aux input alarm nr 2 polarity")]/../td[3]/select/option[@selected]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  tprn_parameters_22_current_value:
+    name: TPRN Parameter Aux input alarm nr 3 polarity Current Value
+    description: TPRN Parameter Aux input alarm nr 3 polarity Current Value
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_tprn_parameters}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(), "Aux input alarm nr 3 polarity")]/../td[2]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  tprn_parameters_22_new_value:
+    name: TPRN Parameter Aux input alarm nr 3 polarity New Value
+    description: TPRN Parameter Aux input alarm nr 3 polarity New Value
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_tprn_parameters}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(), "Aux input alarm nr 3 polarity")]/../td[3]/select/option[@selected]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  tprn_power_supply_alarm:
+    name: Power Supply Alarm
+    description: Power Supply Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_alarms}'
+      selector:
+        type: xpath
+        expression: //td[contains(text(),"Power Supply Alarm")]/..//td[contains(text(), "${topology.discovery.flatten.gui_str}")]/../td[2]/@class
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  tprn_temperature_alarm:
+    name: Temperature Alarm
+    description: Temperature Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_alarms}'
+      selector:
+        type: xpath
+        expression: //td[contains(text(),"Temperature Alarm")]/..//td[contains(text(), "${topology.discovery.flatten.gui_str}")]/../td[2]/@class
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  tsun_analogue_values_1_current_value:
+    name: TSUN Analogue Values Temperature alarm High Threshold Current Value
+    description: TSUN Analogue Values Temperature alarm High Threshold Current Value
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_tsun_parameters}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(), "Temperature alarm High Threshold")]/../td[2]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+        unit: C
+  tsun_analogue_values_1_new_value:
+    name: TSUN Analogue Values Temperature alarm High Threshold New Value
+    description: TSUN Analogue Values Temperature alarm High Threshold New Value
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_tsun_parameters}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(), "Temperature alarm High Threshold")]/../td[3]/input/@value
+      extractor: {}
+    properties:
+      readWrite: RW
+      read:
+        type: String
+        unit: C
+  tsun_analogue_values_1_range:
+    name: TSUN Analogue Values Temperature alarm High Threshold Range
+    description: TSUN Analogue Values Temperature alarm High Threshold Range
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_tsun_parameters}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(), "Temperature alarm High Threshold")]/../td[4]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  tsun_analogue_values_2_current_value:
+    name: TSUN Analogue Values Temperature Current Value
+    description: TSUN Analogue Values Temperature Current Value
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_tsun_parameters}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(), "Analog Values")]/../../tr[5]/td[2]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+        unit: C
+  tsun_analogue_values_2_new_value:
+    name: TSUN Analogue Values Temperature New Value
+    description: TSUN Analogue Values Temperature New Value
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_tsun_parameters}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(), "Analog Values")]/../../tr[5]/td[3]/input/@value
+      extractor: {}
+    properties:
+      readWrite: RW
+      read:
+        type: String
+        unit: C
+  tsun_analogue_values_2_range:
+    name: TSUN Analogue Values Temperature Range
+    description: TSUN Analogue Values Temperature Range
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_tsun_parameters}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(), "Analog Values")]/../../tr[5]/td[4]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  tsun_analogue_values_3_current_value:
+    name: TSUN Analogue Values Main Power Voltage Current Value
+    description: TSUN Analogue Values Main Power Voltage Current Value
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_tsun_parameters}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(), "Main Power Voltage")]/../td[2]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+        unit: C
+  tsun_analogue_values_3_new_value:
+    name: TSUN Analogue Values Main Power Voltage New Value
+    description: TSUN Analogue Values Main Power Voltage New Value
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_tsun_parameters}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(), "Main Power Voltage")]/../td[3]/input/@value
+      extractor: {}
+    properties:
+      readWrite: RW
+      read:
+        type: String
+        unit: C
+  tsun_analogue_values_3_range:
+    name: TSUN Analogue Values Main Power Voltage Range
+    description: TSUN Analogue Values Main Power Voltage Range
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_tsun_parameters}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(), "Main Power Voltage")]/../td[4]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  tsun_inventory_description:
+    name: TSUN Inventory Description
+    description: TSUN Inventory Description
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_tsun_inventory}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(), "Inventory Data")]/../../tr[3]/td[7]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  tsun_inventory_hardware_revision:
+    name: TSUN Inventory Hardware Revision
+    description: TSUN Inventory Hardware Revision
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_tsun_inventory}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(), "Inventory Data")]/../../tr[3]/td[8]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  tsun_inventory_id_number:
+    name: TSUN Inventory ID Number
+    description: TSUN Inventory ID Number
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_tsun_inventory}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(), "Inventory Data")]/../../tr[3]/td[3]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  tsun_inventory_manufacturer:
+    name: TSUN Inventory Manufacturer
+    description: TSUN Inventory Manufacturer
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_tsun_inventory}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(), "Inventory Data")]/../../tr[3]/td[5]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  tsun_inventory_module_type:
+    name: TSUN Inventory Module Type
+    description: TSUN Inventory Module Type
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_tsun_inventory}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(), "Inventory Data")]/../../tr[3]/td[2]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  tsun_inventory_production_year:
+    name: TSUN Inventory Production Year
+    description: TSUN Inventory Production Year
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_tsun_inventory}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(), "Inventory Data")]/../../tr[3]/td[6]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  tsun_inventory_serial_number:
+    name: TSUN Inventory Serial Number
+    description: TSUN Inventory Serial Number
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_tsun_inventory}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(), "Inventory Data")]/../../tr[3]/td[4]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  tsun_inventory_software_id:
+    name: TSUN Inventory Software ID
+    description: TSUN Inventory Software ID
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_tsun_inventory}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(), "Inventory Data")]/../../tr[3]/td[9]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  tsun_inventory_software_version:
+    name: TSUN Inventory Software Version
+    description: TSUN Inventory Software Version
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_tsun_inventory}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(), "Inventory Data")]/../../tr[3]/td[10]/text()
+      extractor:
+        filters:
+          1: regexpReplace /^(\d+\.\d+)\.?.*$/ => $1
+    properties:
+      readWrite: R
+      read:
+        type: String
+  tsun_inventory_unit_id:
+    name: TSUN Inventory Unit ID
+    description: TSUN Inventory Unit ID
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_tsun_inventory}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(), "Inventory Data")]/../../tr[3]/td[1]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  tsun_parameters_1_current_value:
+    name: TSUN Parameter OverTemperature PC ShutDown Current Value
+    description: TSUN Parameter OverTemperature PC ShutDown Current Value
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_tsun_parameters}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(), "OverTemperature PC ShutDown")]/../td[2]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  tsun_parameters_1_new_value:
+    name: TSUN Parameter OverTemperature PC ShutDown New Value
+    description: TSUN Parameter OverTemperature PC ShutDown New Value
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_tsun_parameters}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(), "OverTemperature PC ShutDown")]/../td[3]/select/option[@selected]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  tsun_parameters_2_current_value:
+    name: TSUN Parameter PC ShutDown On Key Press Current Value
+    description: TSUN Parameter PC ShutDown On Key Press Current Value
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_tsun_parameters}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(), "PC ShutDown On Key Press")]/../td[2]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  tsun_parameters_2_new_value:
+    name: TSUN Parameter PC ShutDown On Key Press New Value
+    description: TSUN Parameter PC ShutDown On Key Press New Value
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_tsun_parameters}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(), "PC ShutDown On Key Press")]/../td[3]/select/option[@selected]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  tsun_parameters_3_current_value:
+    name: TSUN Parameter OverTemperature Auto Reboot Current Value
+    description: TSUN Parameter OverTemperature Auto Reboot Current Value
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_tsun_parameters}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(), "OverTemperature Auto Reboot")]/../td[2]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  tsun_parameters_3_new_value:
+    name: TSUN Parameter OverTemperature Auto Reboot New Value
+    description: TSUN Parameter OverTemperature Auto Reboot New Value
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_tsun_parameters}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(), "OverTemperature Auto Reboot")]/../td[3]/select/option[@selected]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  tsun_parameters_4_current_value:
+    name: TSUN Parameter System Summary Alarm Current Value
+    description: TSUN Parameter System Summary Alarm Current Value
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_tsun_parameters}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(), "System Summary Alarm")]/../td[2]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  tsun_parameters_4_new_value:
+    name: TSUN Parameter System Summary Alarm New Value
+    description: TSUN Parameter System Summary Alarm New Value
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_tsun_parameters}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(), "System Summary Alarm")]/../td[3]/select/option[@selected]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  tsun_parameters_5_current_value:
+    name: TSUN Parameter PC Status Current Value
+    description: TSUN Parameter PC Status Current Value
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_tsun_parameters}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(), "PC Status")]/../td[2]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  tsun_parameters_5_new_value:
+    name: TSUN Parameter PC Status New Value
+    description: TSUN Parameter PC Status New Value
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_tsun_parameters}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(), "PC Status")]/../td[3]/select/option[@selected]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  tsun_parameters_6_current_value:
+    name: TSUN Parameter Turn PC ON Current Value
+    description: TSUN Parameter Turn PC ON Current Value
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_tsun_parameters}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(), "Turn PC ON")]/../td[2]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  tsun_parameters_6_new_value:
+    name: TSUN Parameter Turn PC ON New Value
+    description: TSUN Parameter Turn PC ON New Value
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_tsun_parameters}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(), "Turn PC ON")]/../td[3]/select/option[@selected]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  tsun_parameters_7_current_value:
+    name: TSUN Parameter PC Watchdog Current Value
+    description: TSUN Parameter PC Watchdog Current Value
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_tsun_parameters}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(), "PC Watchdog")]/../td[2]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  tsun_parameters_7_new_value:
+    name: TSUN Parameter PC Watchdog New Value
+    description: TSUN Parameter PC Watchdog New Value
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_tsun_parameters}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(), "PC Watchdog")]/../td[3]/select/option[@selected]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+resources:
+  auths:
+    upgraded-http:
+      http:
+        httpUri: false
+        actions:
+          login:
+            dataEngine: '%{engines.upgraded-http}'
+            dataSource: '%{resources.http.requests.login}'
+            selector:
+              type: cookie
+              expression: JSESSIONID
+            dataSink: '%{resources.globals.auth.sessionId}'
+          logout:
+            dataEngine: '%{engines.upgraded-http}'
+            dataSource: '%{resources.http.requests.logout}'
+            selector:
+              type: static
+              expression: 0
+            dataSink: '%{resources.globals.auth.sessionId}'
+  mappers:
+    alarm_severity:
+      keyType: String
+      valueType: String
+      map:
+        sevCritical: Critical
+        sevMajor: Severe
+        sevMinor: Warning
+        sevOk: Normal
+        sevWarning: Warning
+  globals:
+    auth:
+      sessionId: 0
+    reg:
+      ip: ${registration.form.properties.ip}
+      password: ${registration.vault.properties.password}
+      port: ${registration.form.properties.port}
+      url: http://${registration.form.properties.ip}:${registration.form.properties.port}/ION-M_V${registration.form.properties.version}
+      username: ${registration.vault.properties.username}
+  http:
+    requests:
+      get_alarms:
+        uri: ${resources.globals.reg.url}/mmr/actalarms.jsp
+        responseContentType: text/html
+        responses:
+          success:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: "200"
+          failure:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: ^(?!200)
+      get_mc_status:
+        uri: ${resources.globals.reg.url}/mmcplus/sum.jsp
+        responseContentType: text/html
+        responses:
+          success:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: "200"
+          failure:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: ^(?!200)
+      get_mc_unit_id:
+        uri: ${resources.globals.reg.url}/mmr/location.jsp
+        responseContentType: text/html
+        query:
+          addr: "0"
+        responses:
+          success:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: "200"
+          failure:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: ^(?!200)
+      get_sab_inventory:
+        uri: ${resources.globals.reg.url}/eaosy/hid.jsp
+        responseContentType: text/html
+        query:
+          addr: ${topology.discovery.flatten.addr}
+        responses:
+          success:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: "200"
+          failure:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: ^(?!200)
+      get_tprn_inventory:
+        uri: ${resources.globals.reg.url}/ionb/sr/ionbhid.jsp
+        responseContentType: text/html
+        query:
+          addr: ${topology.discovery.flatten.addr}
+          addr_str: ${topology.discovery.flatten.unit_str}
+          gui_str: ${topology.discovery.flatten.gui_str}
+        responses:
+          success:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: "200"
+          failure:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: ^(?!200)
+      get_tprn_parameters:
+        uri: ${resources.globals.reg.url}/ionb/sr/parameter.jsp
+        responseContentType: text/html
+        query:
+          addr: ${topology.discovery.flatten.addr}
+          addr_str: ${topology.discovery.flatten.unit_str}
+        responses:
+          success:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: "200"
+          failure:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: ^(?!200)
+      get_tree:
+        uri: ${resources.globals.reg.url}/tigratree/1orgItems.js
+        responseContentType: text/javascript
+        responses:
+          success:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: "200"
+          failure:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: ^(?!200)
+      get_tsun_inventory:
+        uri: ${resources.globals.reg.url}/ionb/lunit/ionbhid.jsp
+        responseContentType: text/html
+        query:
+          addr: ${topology.discovery.flatten.addr}
+          addr_str: ${topology.discovery.flatten.unit_str}
+          gui_str: ${topology.discovery.flatten.gui_str}
+        responses:
+          success:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: "200"
+          failure:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: ^(?!200)
+      get_tsun_parameters:
+        uri: ${resources.globals.reg.url}/ionb/lunit/parameter.jsp
+        responseContentType: text/html
+        query:
+          addr: ${topology.discovery.flatten.addr}
+          addr_str: ${topology.discovery.flatten.unit_str}
+        responses:
+          success:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: "200"
+          failure:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: ^(?!200)
+      login:
+        method: POST
+        uri: ${resources.globals.reg.url}/index.jsp
+        requestContentType: application/x-www-form-urlencoded
+        responseContentType: text/html
+        body:
+          login: login
+          loginTimeDiff: -330
+          loginname: ${resources.globals.reg.username}
+          loginpwrd: ${resources.globals.reg.password}
+        responses:
+          success:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: "200"
+          failure:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: ^(?!200)
+      logout:
+        method: POST
+        uri: ${resources.globals.reg.url}/logout.jsp
+        requestContentType: application/x-www-form-urlencoded
+        responseContentType: text/html
+        body:
+          logout: logout
+        responses:
+          success:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: "200"
+          failure:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: ^(?!200)
