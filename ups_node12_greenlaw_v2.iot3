@@ -1,0 +1,1246 @@
+iot3: 2.0.0
+info:
+  name: Benning BENUPS-40KVA-48/36-1
+  oem: Benning
+  model: BENUPS-40KVA-48/36-1
+  versions:
+    - "1.15"
+  author: namira.mansuri@qeleo.com
+  stage: alpha
+  revision: 2
+  labels:
+    - cts ups node
+    - 12-grrenlaw
+    - alarm only
+    - auto upgraded to v2
+  created: "2021-06-21"
+  updated: "2022-12-06"
+  documentation:
+    description: 'This file supports the alarms of system CTS UPS Node 12-Greenlaw '
+registration:
+  fingerprint:
+    - ip
+    - port
+  form:
+    properties:
+      ip:
+        key: ip
+        placeholder: IP Address
+        required: true
+        title: IP
+        type: string
+      port:
+        inputType: number
+        key: port
+        maximum: 65535
+        minimum: 1
+        placeholder: Port
+        required: true
+        title: Port
+        type: number
+    required:
+      - ip
+      - port
+engines:
+  tunnel:
+    ssh:
+      supported: false
+    http:
+      supported: true
+  upgraded-http:
+    schedule: '@always'
+    type: HTTP
+    options:
+      tls:
+        minVersion: "1.0"
+topology:
+  rootType: benning
+  verify:
+    - dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: ""
+      match: ""
+  nodes: false
+types:
+  benning:
+    name: Benning
+    version: '[1.0,)'
+    reference: benning
+    attributes:
+      - generator_operation_alarm
+      - battery_not_available_alarm
+      - load_fuse_ac_tripped_alarm
+      - backfeed_error_b_alarm
+      - reserve_34_alarm
+      - reserve_35_alarm
+      - reserve_36_alarm
+      - reserve_37_alarm
+      - rectifier_01_fault_alarm
+      - battery_fuse_tripped_alarm
+      - group_signal_alarm
+      - urgent_error_alarm
+      - non_urgent_error_alarm
+      - temperature_feeler_alarm
+      - clock_alarm
+      - eeprom_checksumm_alarm
+      - default_eeprom_in_use_alarm
+      - configuration_error_alarm
+      - contact_error_alarm
+      - can_error_master_bus_off_alarm
+      - can_error_slave_bus_off_alarm
+      - sync_error_master_alarm
+      - sync_error_slave_alarm
+      - inverter_fault_alarm
+      - emergency_stop_alarm
+      - rectifier_operation_alarm
+      - inverter_operation_alarm
+      - overload_inverter_alarm
+      - static_bypass_overload_alarm
+      - temperature_high_alarm
+      - load_voltage_out_of_range_alarm
+      - inverter_voltage_out_of_range_alarm
+      - bypass_input_out_of_range_alarm
+      - batt_voltage_out_of_range_alarm
+      - bypass_inverter_alarm
+      - load_contactor_dropped_alarm
+      - bypass_switch_on_alarm
+      - sbp_switch_over_blocked_alarm
+      - backfeed_error_a_alarm
+      - battery_status_unknown_alarm
+      - battery_configuration_error_alarm
+      - discharging_battery_alarm
+      - processor_periph_error_master_alarm
+      - processor_periph_error_slave_alarm
+      - address_redundancy_error_alarm
+      - power_redundancy_error_alarm
+      - peripheral_module_lost_error_alarm
+      - ipc_rx_timeout_alarm
+      - can_address_error_alarm
+      - can_membertable_mismatch_alarm
+      - battery_voltage_low_alarm
+      - battery_exhaustive_discharged_alarm
+      - inverter_01_off_alarm
+      - inverter_01_fault_alarm
+      - inverter_02_off_alarm
+      - inverter_02_fault_alarm
+      - inverter_03_off_alarm
+      - inverter_03_fault_alarm
+      - inverter_04_off_alarm
+      - inverter_04_fault_alarm
+    alarms:
+      address_redundancy_error_alarm:
+        attributes:
+          - address_redundancy_error_alarm
+        mapper: '%{resources.mappers.alarms}'
+      backfeed_error_a_alarm:
+        attributes:
+          - backfeed_error_a_alarm
+        mapper: '%{resources.mappers.alarms}'
+      backfeed_error_b_alarm:
+        attributes:
+          - backfeed_error_b_alarm
+        mapper: '%{resources.mappers.alarms}'
+      batt_voltage_out_of_range_alarm:
+        attributes:
+          - batt_voltage_out_of_range_alarm
+        mapper: '%{resources.mappers.alarms}'
+      battery_configuration_error_alarm:
+        attributes:
+          - battery_configuration_error_alarm
+        mapper: '%{resources.mappers.alarms}'
+      battery_exhaustive_discharged_alarm:
+        attributes:
+          - battery_exhaustive_discharged_alarm
+        mapper: '%{resources.mappers.alarms}'
+      battery_fuse_tripped_alarm:
+        attributes:
+          - battery_fuse_tripped_alarm
+        mapper: '%{resources.mappers.alarms}'
+      battery_not_available_alarm:
+        attributes:
+          - battery_not_available_alarm
+        mapper: '%{resources.mappers.alarms}'
+      battery_status_unknown_alarm:
+        attributes:
+          - battery_status_unknown_alarm
+        mapper: '%{resources.mappers.alarms}'
+      battery_voltage_low_alarm:
+        attributes:
+          - battery_voltage_low_alarm
+        mapper: '%{resources.mappers.alarms}'
+      bypass_input_out_of_range_alarm:
+        attributes:
+          - bypass_input_out_of_range_alarm
+        mapper: '%{resources.mappers.alarms}'
+      bypass_inverter_alarm:
+        attributes:
+          - bypass_inverter_alarm
+        mapper: '%{resources.mappers.alarms}'
+      bypass_switch_on_alarm:
+        attributes:
+          - bypass_switch_on_alarm
+        mapper: '%{resources.mappers.alarms}'
+      can_address_error_alarm:
+        attributes:
+          - can_address_error_alarm
+        mapper: '%{resources.mappers.alarms}'
+      can_error_master_bus_off_alarm:
+        attributes:
+          - can_error_master_bus_off_alarm
+        mapper: '%{resources.mappers.alarms}'
+      can_error_slave_bus_off_alarm:
+        attributes:
+          - can_error_slave_bus_off_alarm
+        mapper: '%{resources.mappers.alarms}'
+      can_membertable_mismatch_alarm:
+        attributes:
+          - can_membertable_mismatch_alarm
+        mapper: '%{resources.mappers.alarms}'
+      clock_alarm:
+        attributes:
+          - clock_alarm
+        mapper: '%{resources.mappers.alarms}'
+      configuration_error_alarm:
+        attributes:
+          - configuration_error_alarm
+        mapper: '%{resources.mappers.alarms}'
+      contact_error_alarm:
+        attributes:
+          - contact_error_alarm
+        mapper: '%{resources.mappers.alarms}'
+      default_eeprom_in_use_alarm:
+        attributes:
+          - default_eeprom_in_use_alarm
+        mapper: '%{resources.mappers.alarms}'
+      discharging_battery_alarm:
+        attributes:
+          - discharging_battery_alarm
+        mapper: '%{resources.mappers.alarms}'
+      eeprom_checksumm_alarm:
+        attributes:
+          - eeprom_checksumm_alarm
+        mapper: '%{resources.mappers.alarms}'
+      emergency_stop_alarm:
+        attributes:
+          - emergency_stop_alarm
+        mapper: '%{resources.mappers.alarms}'
+      generator_operation_alarm:
+        attributes:
+          - generator_operation_alarm
+        mapper: '%{resources.mappers.alarms}'
+      group_signal_alarm:
+        attributes:
+          - group_signal_alarm
+        mapper: '%{resources.mappers.alarms}'
+      inverter_01_fault_alarm:
+        attributes:
+          - inverter_01_fault_alarm
+        mapper: '%{resources.mappers.alarms}'
+      inverter_01_off_alarm:
+        attributes:
+          - inverter_01_off_alarm
+        mapper: '%{resources.mappers.alarms}'
+      inverter_02_fault_alarm:
+        attributes:
+          - inverter_02_fault_alarm
+        mapper: '%{resources.mappers.alarms}'
+      inverter_02_off_alarm:
+        attributes:
+          - inverter_02_off_alarm
+        mapper: '%{resources.mappers.alarms}'
+      inverter_03_fault_alarm:
+        attributes:
+          - inverter_03_fault_alarm
+        mapper: '%{resources.mappers.alarms}'
+      inverter_03_off_alarm:
+        attributes:
+          - inverter_03_off_alarm
+        mapper: '%{resources.mappers.alarms}'
+      inverter_04_fault_alarm:
+        attributes:
+          - inverter_04_fault_alarm
+        mapper: '%{resources.mappers.alarms}'
+      inverter_04_off_alarm:
+        attributes:
+          - inverter_04_off_alarm
+        mapper: '%{resources.mappers.alarms}'
+      inverter_fault_alarm:
+        attributes:
+          - inverter_fault_alarm
+        mapper: '%{resources.mappers.alarms}'
+      inverter_operation_alarm:
+        attributes:
+          - inverter_operation_alarm
+        mapper: '%{resources.mappers.alarms}'
+      inverter_voltage_out_of_range_alarm:
+        attributes:
+          - inverter_voltage_out_of_range_alarm
+        mapper: '%{resources.mappers.alarms}'
+      ipc_rx_timeout_alarm:
+        attributes:
+          - ipc_rx_timeout_alarm
+        mapper: '%{resources.mappers.alarms}'
+      load_contactor_dropped_alarm:
+        attributes:
+          - load_contactor_dropped_alarm
+        mapper: '%{resources.mappers.alarms}'
+      load_fuse_ac_tripped_alarm:
+        attributes:
+          - load_fuse_ac_tripped_alarm
+        mapper: '%{resources.mappers.alarms}'
+      load_voltage_out_of_range_alarm:
+        attributes:
+          - load_voltage_out_of_range_alarm
+        mapper: '%{resources.mappers.alarms}'
+      non_urgent_error_alarm:
+        attributes:
+          - non_urgent_error_alarm
+        mapper: '%{resources.mappers.alarms}'
+      overload_inverter_alarm:
+        attributes:
+          - overload_inverter_alarm
+        mapper: '%{resources.mappers.alarms}'
+      peripheral_module_lost_error_alarm:
+        attributes:
+          - peripheral_module_lost_error_alarm
+        mapper: '%{resources.mappers.alarms}'
+      power_redundancy_error_alarm:
+        attributes:
+          - power_redundancy_error_alarm
+        mapper: '%{resources.mappers.alarms}'
+      processor_periph_error_master_alarm:
+        attributes:
+          - processor_periph_error_master_alarm
+        mapper: '%{resources.mappers.alarms}'
+      processor_periph_error_slave_alarm:
+        attributes:
+          - processor_periph_error_slave_alarm
+        mapper: '%{resources.mappers.alarms}'
+      rectifier_01_fault_alarm:
+        attributes:
+          - rectifier_01_fault_alarm
+        mapper: '%{resources.mappers.alarms}'
+      rectifier_operation_alarm:
+        attributes:
+          - rectifier_operation_alarm
+        mapper: '%{resources.mappers.alarms}'
+      reserve_34_alarm:
+        attributes:
+          - reserve_34_alarm
+        mapper: '%{resources.mappers.alarms}'
+      reserve_35_alarm:
+        attributes:
+          - reserve_35_alarm
+        mapper: '%{resources.mappers.alarms}'
+      reserve_36_alarm:
+        attributes:
+          - reserve_36_alarm
+        mapper: '%{resources.mappers.alarms}'
+      reserve_37_alarm:
+        attributes:
+          - reserve_37_alarm
+        mapper: '%{resources.mappers.alarms}'
+      sbp_switch_over_blocked_alarm:
+        attributes:
+          - sbp_switch_over_blocked_alarm
+        mapper: '%{resources.mappers.alarms}'
+      static_bypass_overload_alarm:
+        attributes:
+          - static_bypass_overload_alarm
+        mapper: '%{resources.mappers.alarms}'
+      sync_error_master_alarm:
+        attributes:
+          - sync_error_master_alarm
+        mapper: '%{resources.mappers.alarms}'
+      sync_error_slave_alarm:
+        attributes:
+          - sync_error_slave_alarm
+        mapper: '%{resources.mappers.alarms}'
+      temperature_feeler_alarm:
+        attributes:
+          - temperature_feeler_alarm
+        mapper: '%{resources.mappers.alarms}'
+      temperature_high_alarm:
+        attributes:
+          - temperature_high_alarm
+        mapper: '%{resources.mappers.alarms}'
+      urgent_error_alarm:
+        attributes:
+          - urgent_error_alarm
+        mapper: '%{resources.mappers.alarms}'
+    price:
+      value: 0
+      unit: USD
+    energy:
+      value: 0
+      unit: W
+attributes:
+  address_redundancy_error_alarm:
+    name: Address Redundancy Error Alarm
+    description: Address Redundancy Error Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  backfeed_error_a_alarm:
+    name: Backfeed Error A Alarm
+    description: Backfeed Error A Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  backfeed_error_b_alarm:
+    name: Backfeed Error B Alarm
+    description: Backfeed Error B Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  batt_voltage_out_of_range_alarm:
+    name: Batt Voltage Out Of Range Alarm
+    description: Batt Voltage Out Of Range Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  battery_configuration_error_alarm:
+    name: Battery Configuration Error Alarm
+    description: Battery Configuration Error Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  battery_exhaustive_discharged_alarm:
+    name: Battery Exhaustive Discharged Alarm
+    description: Battery Exhaustive Discharged Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  battery_fuse_tripped_alarm:
+    name: Battery Fuse Tripped Alarm
+    description: Battery Fuse Tripped Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  battery_not_available_alarm:
+    name: Battery Not Available Alarm
+    description: Battery Not Available Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  battery_status_unknown_alarm:
+    name: Battery Status Unknown Alarm
+    description: Battery Status Unknown Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  battery_voltage_low_alarm:
+    name: Battery Voltage Low Alarm
+    description: Battery Voltage Low Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  bypass_input_out_of_range_alarm:
+    name: Bypass Input Out Of Range Alarm
+    description: Bypass Input Out Of Range Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  bypass_inverter_alarm:
+    name: Bypass Inverter Alarm
+    description: Bypass Inverter Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  bypass_switch_on_alarm:
+    name: Bypass Switch On Alarm
+    description: Bypass Switch On Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  can_address_error_alarm:
+    name: Can Address Error Alarm
+    description: Can Address Error Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  can_error_master_bus_off_alarm:
+    name: Can Error Master Bus Off Alarm
+    description: Can Error Master Bus Off Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  can_error_slave_bus_off_alarm:
+    name: Can Error Slave Bus Off Alarm
+    description: Can Error Slave Bus Off Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  can_membertable_mismatch_alarm:
+    name: Can Membertable Mismatch Alarm
+    description: Can Membertable Mismatch Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  clock_alarm:
+    name: Clock Alarm
+    description: Clock Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  configuration_error_alarm:
+    name: Configuration Error Alarm
+    description: Configuration Error Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  contact_error_alarm:
+    name: Contact Error Alarm
+    description: Contact Error Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  default_eeprom_in_use_alarm:
+    name: Default-eeprom In Use Alarm
+    description: Default-eeprom In Use Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  discharging_battery_alarm:
+    name: Discharging Battery Alarm
+    description: Discharging Battery Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  eeprom_checksumm_alarm:
+    name: Eeprom Checksumm Alarm
+    description: Eeprom Checksumm Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  emergency_stop_alarm:
+    name: Emergency Stop Alarm
+    description: Emergency Stop Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  generator_operation_alarm:
+    name: Generator Operation Alarm
+    description: Generator Operation Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  group_signal_alarm:
+    name: Group Signal Alarm
+    description: Group Signal Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  inverter_01_fault_alarm:
+    name: Inverter 01 Fault Alarm
+    description: Inverter 01 Fault Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  inverter_01_off_alarm:
+    name: Inverter 01 Off Alarm
+    description: Inverter 01 Off Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  inverter_02_fault_alarm:
+    name: Inverter 02 Fault Alarm
+    description: Inverter 02 Fault Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  inverter_02_off_alarm:
+    name: Inverter 02 Off Alarm
+    description: Inverter 02 Off Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  inverter_03_fault_alarm:
+    name: Inverter 03 Fault Alarm
+    description: Inverter 03 Fault Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  inverter_03_off_alarm:
+    name: Inverter 03 Off Alarm
+    description: Inverter 03 Off Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  inverter_04_fault_alarm:
+    name: Inverter 04 Fault Alarm
+    description: Inverter 04 Fault Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  inverter_04_off_alarm:
+    name: Inverter 04 Off Alarm
+    description: Inverter 04 Off Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  inverter_fault_alarm:
+    name: Inverter Fault Alarm
+    description: Inverter Fault Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  inverter_operation_alarm:
+    name: Inverter Operation Alarm
+    description: Inverter Operation Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  inverter_voltage_out_of_range_alarm:
+    name: Inverter Voltage Out Of Range Alarm
+    description: Inverter Voltage Out Of Range Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  ipc_rx_timeout_alarm:
+    name: Ipc Rx Timeout Alarm
+    description: Ipc Rx Timeout Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  load_contactor_dropped_alarm:
+    name: Load Contactor Dropped Alarm
+    description: Load Contactor Dropped Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  load_fuse_ac_tripped_alarm:
+    name: Load Fuse Ac Tripped Alarm
+    description: Load Fuse Ac Tripped Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  load_voltage_out_of_range_alarm:
+    name: Load Voltage Out Of Range Alarm
+    description: Load Voltage Out Of Range Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  non_urgent_error_alarm:
+    name: Non-urgent Error Alarm
+    description: Non-urgent Error Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  overload_inverter_alarm:
+    name: Overload Inverter Alarm
+    description: Overload Inverter Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  peripheral_module_lost_error_alarm:
+    name: Peripheral Module Lost Error Alarm
+    description: Peripheral Module Lost Error Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  power_redundancy_error_alarm:
+    name: Power Redundancy Error Alarm
+    description: Power Redundancy Error Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  processor_periph_error_master_alarm:
+    name: Processor Periph Error Master Alarm
+    description: Processor Periph Error Master Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  processor_periph_error_slave_alarm:
+    name: Processor Periph Error Slave Alarm
+    description: Processor Periph Error Slave Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  rectifier_01_fault_alarm:
+    name: Rectifier 01 Fault Alarm
+    description: Rectifier 01 Fault Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  rectifier_operation_alarm:
+    name: Rectifier Operation Alarm
+    description: Rectifier Operation Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  reserve_34_alarm:
+    name: Reserve 34 Alarm
+    description: Reserve 34 Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  reserve_35_alarm:
+    name: Reserve 35 Alarm
+    description: Reserve 35 Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  reserve_36_alarm:
+    name: Reserve 36 Alarm
+    description: Reserve 36 Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  reserve_37_alarm:
+    name: Reserve 37 Alarm
+    description: Reserve 37 Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  sbp_switch_over_blocked_alarm:
+    name: Sbp Switch Over Blocked Alarm
+    description: Sbp Switch Over Blocked Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  static_bypass_overload_alarm:
+    name: Static Bypass Overload Alarm
+    description: Static Bypass Overload Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  sync_error_master_alarm:
+    name: Sync Error Master Alarm
+    description: Sync Error Master Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  sync_error_slave_alarm:
+    name: Sync Error Slave Alarm
+    description: Sync Error Slave Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  temperature_feeler_alarm:
+    name: Temperature Feeler Alarm
+    description: Temperature Feeler Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  temperature_high_alarm:
+    name: Temperature High Alarm
+    description: Temperature High Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  urgent_error_alarm:
+    name: Urgent Error Alarm
+    description: Urgent Error Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+resources:
+  mappers:
+    alarms:
+      keyType: String
+      valueType: String
+      map:
+        Alarm active: Critical
+        Alarm not active: Normal
+  globals:
+    reg:
+      ip: ${registration.form.properties.ip}
+      port: ${registration.form.properties.port}
+      url: http://${registration.form.properties.ip}:${registration.form.properties.port}
+  http:
+    requests:
+      get_alarms:
+        uri: ${resources.globals.reg.url}/index.cgi
+        responseContentType: text/html
+        body:
+          page_id: 1679091c5a880faf6fb5e6087eb1b2dc
+        responses:
+          success:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: "200"
+          failure:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: ^(?!200)

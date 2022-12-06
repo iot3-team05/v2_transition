@@ -1,0 +1,1119 @@
+iot3: 2.0.0
+info:
+  name: Benning UPS Node 14 Hinton James RH
+  oem: Benning
+  model: "6140027002"
+  versions:
+    - "1.06"
+  author: deep.desai@qeleo.com
+  stage: alpha
+  revision: 2
+  labels:
+    - Benning
+    - "6140027002"
+    - auto upgraded to v2
+  created: 2022-17-14
+  updated: "2022-12-06"
+  documentation:
+    description: CTS UPS Node 14 - Hinton James RH Benning 6140027002
+registration:
+  fingerprint:
+    - ip
+    - port
+  form:
+    properties:
+      ip:
+        key: ip
+        placeholder: IP Address
+        required: true
+        title: IP
+        type: string
+      port:
+        inputType: number
+        key: port
+        maximum: 65535
+        minimum: 1
+        placeholder: Port
+        required: true
+        title: Port
+        type: number
+    required:
+      - ip
+      - port
+engines:
+  tunnel:
+    ssh:
+      supported: false
+    http:
+      supported: true
+  upgraded-http:
+    schedule: '@always'
+    type: HTTP
+    options:
+      tls:
+        minVersion: "1.0"
+topology:
+  rootType: benning
+  verify:
+    - dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: ""
+      match: ""
+  nodes: false
+types:
+  benning:
+    name: Benning
+    version: '[0.1,)'
+    reference: benning
+    attributes:
+      - battery_voltage
+      - battery_current_total
+      - busbar_voltage
+      - load_current_total
+      - battery_current_00
+      - rectifier_current_total
+      - battery_temperature
+      - recitifier_power_01
+      - drawn_battery_capacity
+      - date_time
+      - passed_time_battery_test
+      - battery_test_voltage
+      - rectifier_current_01
+      - rectifier_current_02
+      - rectifier_current_04
+      - rectifier_current_05
+      - rectifier_current_06
+      - deep_discharge_cont_dropped_alarm
+      - load_contactor_dropped_alarm
+      - load_fuse_01_tripped_alarm
+      - load_fuse_02_tripped_alarm
+      - battery_fuse_01_tripped_alarm
+      - battery_fuse_02_tripped_alarm
+      - battery_fuse_03_tripped_alarm
+      - common_alarm
+      - urgent_error_alarm
+      - non_urgent_error_alarm
+      - direct_feed_alarm
+      - charge_alarm
+      - mcu_no_contact_with_satbus_alarm
+      - modem_fault_alarm
+      - battery_test_voltage_depres_alarm
+      - all_rectifiers_off_alarm
+      - battery_test_error_alarm
+      - rectifier_xx_fault_alarm
+      - discharging_battery_alarm
+      - busbar_voltage_46_0V_alarm
+      - busbar_voltage_42_0V_alarm
+      - busbar_voltage_48_0V_alarm
+      - battery_voltage_56_0_alarm
+      - battery_temperature_35C_alarm
+      - rectifier_01_fault_alarm
+      - mains_error_rectifier_01_alarm
+      - fan_rectifier_01_fault_alarm
+      - rectifier_02_fault_alarm
+      - mains_error_rectifier_02_alarm
+      - fan_rectifier_02_fault_alarm
+      - rectifier_04_fault_alarm
+      - mains_error_rectifier_04_alarm
+      - fan_rectifier_04_fault_alarm
+      - rectifier_05_fault_alarm
+      - mains_error_rectifier_05_alarm
+      - fan_rectifier_05_fault_alarm
+      - rectifier_06_fault_alarm
+      - mains_error_rectifier_06_alarm
+      - fan_rectifier_06_fault_alarm
+    alarms:
+      all_rectifiers_off_alarm:
+        attributes:
+          - all_rectifiers_off_alarm
+        mapper: '%{resources.mappers.alarm_severity}'
+      battery_fuse_01_tripped_alarm:
+        attributes:
+          - battery_fuse_01_tripped_alarm
+        mapper: '%{resources.mappers.alarm_severity}'
+      battery_fuse_02_tripped_alarm:
+        attributes:
+          - battery_fuse_02_tripped_alarm
+        mapper: '%{resources.mappers.alarm_severity}'
+      battery_fuse_03_tripped_alarm:
+        attributes:
+          - battery_fuse_03_tripped_alarm
+        mapper: '%{resources.mappers.alarm_severity}'
+      battery_temperature_35C_alarm:
+        attributes:
+          - battery_temperature_35C_alarm
+        mapper: '%{resources.mappers.alarm_severity}'
+      battery_test_error_alarm:
+        attributes:
+          - battery_test_error_alarm
+        mapper: '%{resources.mappers.alarm_severity}'
+      battery_test_voltage_depres_alarm:
+        attributes:
+          - battery_test_voltage_depres_alarm
+        mapper: '%{resources.mappers.alarm_severity}'
+      battery_voltage_56_0_alarm:
+        attributes:
+          - battery_voltage_56_0_alarm
+        mapper: '%{resources.mappers.alarm_severity}'
+      busbar_voltage_42_0V_alarm:
+        attributes:
+          - busbar_voltage_42_0V_alarm
+        mapper: '%{resources.mappers.alarm_severity}'
+      busbar_voltage_46_0V_alarm:
+        attributes:
+          - busbar_voltage_46_0V_alarm
+        mapper: '%{resources.mappers.alarm_severity}'
+      busbar_voltage_48_0V_alarm:
+        attributes:
+          - busbar_voltage_48_0V_alarm
+        mapper: '%{resources.mappers.alarm_severity}'
+      charge_alarm:
+        attributes:
+          - charge_alarm
+        mapper: '%{resources.mappers.alarm_severity}'
+      common_alarm:
+        attributes:
+          - common_alarm
+        mapper: '%{resources.mappers.alarm_severity}'
+      deep_discharge_cont_dropped_alarm:
+        attributes:
+          - deep_discharge_cont_dropped_alarm
+        mapper: '%{resources.mappers.alarm_severity}'
+      direct_feed_alarm:
+        attributes:
+          - direct_feed_alarm
+        mapper: '%{resources.mappers.alarm_severity}'
+      discharging_battery_alarm:
+        attributes:
+          - discharging_battery_alarm
+        mapper: '%{resources.mappers.alarm_severity}'
+      fan_rectifier_01_fault_alarm:
+        attributes:
+          - fan_rectifier_01_fault_alarm
+        mapper: '%{resources.mappers.alarm_severity}'
+      fan_rectifier_02_fault_alarm:
+        attributes:
+          - fan_rectifier_02_fault_alarm
+        mapper: '%{resources.mappers.alarm_severity}'
+      fan_rectifier_04_fault_alarm:
+        attributes:
+          - fan_rectifier_04_fault_alarm
+        mapper: '%{resources.mappers.alarm_severity}'
+      fan_rectifier_05_fault_alarm:
+        attributes:
+          - fan_rectifier_05_fault_alarm
+        mapper: '%{resources.mappers.alarm_severity}'
+      fan_rectifier_06_fault_alarm:
+        attributes:
+          - fan_rectifier_06_fault_alarm
+        mapper: '%{resources.mappers.alarm_severity}'
+      load_contactor_dropped_alarm:
+        attributes:
+          - load_contactor_dropped_alarm
+        mapper: '%{resources.mappers.alarm_severity}'
+      load_fuse_01_tripped_alarm:
+        attributes:
+          - load_fuse_01_tripped_alarm
+        mapper: '%{resources.mappers.alarm_severity}'
+      load_fuse_02_tripped_alarm:
+        attributes:
+          - load_fuse_02_tripped_alarm
+        mapper: '%{resources.mappers.alarm_severity}'
+      mains_error_rectifier_01_alarm:
+        attributes:
+          - mains_error_rectifier_01_alarm
+        mapper: '%{resources.mappers.alarm_severity}'
+      mains_error_rectifier_02_alarm:
+        attributes:
+          - mains_error_rectifier_02_alarm
+        mapper: '%{resources.mappers.alarm_severity}'
+      mains_error_rectifier_04_alarm:
+        attributes:
+          - mains_error_rectifier_04_alarm
+        mapper: '%{resources.mappers.alarm_severity}'
+      mains_error_rectifier_05_alarm:
+        attributes:
+          - mains_error_rectifier_05_alarm
+        mapper: '%{resources.mappers.alarm_severity}'
+      mains_error_rectifier_06_alarm:
+        attributes:
+          - mains_error_rectifier_06_alarm
+        mapper: '%{resources.mappers.alarm_severity}'
+      mcu_no_contact_with_satbus_alarm:
+        attributes:
+          - mcu_no_contact_with_satbus_alarm
+        mapper: '%{resources.mappers.alarm_severity}'
+      modem_fault_alarm:
+        attributes:
+          - modem_fault_alarm
+        mapper: '%{resources.mappers.alarm_severity}'
+      non_urgent_error_alarm:
+        attributes:
+          - non_urgent_error_alarm
+        mapper: '%{resources.mappers.alarm_severity}'
+      rectifier_01_fault_alarm:
+        attributes:
+          - rectifier_01_fault_alarm
+        mapper: '%{resources.mappers.alarm_severity}'
+      rectifier_02_fault_alarm:
+        attributes:
+          - rectifier_02_fault_alarm
+        mapper: '%{resources.mappers.alarm_severity}'
+      rectifier_04_fault_alarm:
+        attributes:
+          - rectifier_04_fault_alarm
+        mapper: '%{resources.mappers.alarm_severity}'
+      rectifier_05_fault_alarm:
+        attributes:
+          - rectifier_05_fault_alarm
+        mapper: '%{resources.mappers.alarm_severity}'
+      rectifier_06_fault_alarm:
+        attributes:
+          - rectifier_06_fault_alarm
+        mapper: '%{resources.mappers.alarm_severity}'
+      rectifier_xx_fault_alarm:
+        attributes:
+          - rectifier_xx_fault_alarm
+        mapper: '%{resources.mappers.alarm_severity}'
+      urgent_error_alarm:
+        attributes:
+          - urgent_error_alarm
+        mapper: '%{resources.mappers.alarm_severity}'
+    price:
+      value: 0
+      unit: USD
+    energy:
+      value: 0
+      unit: W
+attributes:
+  all_rectifiers_off_alarm:
+    name: All Rectifiers Off Alarm
+    description: All Rectifiers Off Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  battery_current_00:
+    name: Battery Current 00
+    description: Battery Current 00
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_alarm}'
+      selector:
+        type: xpath
+        expression: //td[text()="battery current 00"]/following-sibling::td/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  battery_current_total:
+    name: battery current total
+    description: battery current total
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_alarm}'
+      selector:
+        type: xpath
+        expression: //td[text()="battery current (total)"]/following-sibling::td/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  battery_fuse_01_tripped_alarm:
+    name: Battery Fuse 01 Tripped Alarm
+    description: Battery Fuse 01 Tripped Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  battery_fuse_02_tripped_alarm:
+    name: Battery Fuse 02 Tripped Alarm
+    description: Battery Fuse 02 Tripped Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  battery_fuse_03_tripped_alarm:
+    name: Battery Fuse 03 Tripped Alarm
+    description: Battery Fuse 03 Tripped Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  battery_temperature:
+    name: Battery Temperature
+    description: Battery Temperature
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_alarm}'
+      selector:
+        type: xpath
+        expression: //td[text()="battery temperature"]/following-sibling::td/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  battery_temperature_35C_alarm:
+    name: Battery Temperature>35°C Alarm
+    description: Battery Temperature>35°C Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  battery_test_error_alarm:
+    name: Battery Test Error Alarm
+    description: Battery Test Error Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  battery_test_voltage:
+    name: Battery Test Voltage
+    description: Battery Test Voltage
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_alarm}'
+      selector:
+        type: xpath
+        expression: //td[text()="battery test voltage"]/following-sibling::td/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  battery_test_voltage_depres_alarm:
+    name: Battery Test/Voltage Depres Alarm
+    description: Battery Test/Voltage Depres Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  battery_voltage:
+    name: Battery Voltage
+    description: Battery Voltage
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_alarm}'
+      selector:
+        type: xpath
+        expression: //td[text()="battery voltage"]/following-sibling::td/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  battery_voltage_56_0_alarm:
+    name: Battery Voltage>56,0 Alarm
+    description: Battery Voltage>56,0 Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  busbar_voltage:
+    name: Busbar Voltage
+    description: Busbar Voltage
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_alarm}'
+      selector:
+        type: xpath
+        expression: //td[text()="busbar voltage"]/following-sibling::td/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  busbar_voltage_42_0V_alarm:
+    name: Busbar Voltage<42,0V Alarm
+    description: Busbar Voltage<42,0V Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  busbar_voltage_46_0V_alarm:
+    name: Busbar Voltage<46,0V Alarm
+    description: Busbar Voltage<46,0V Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  busbar_voltage_48_0V_alarm:
+    name: Busbar Voltage<48,0V Alarm
+    description: Busbar Voltage<48,0V Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  charge_alarm:
+    name: Charge Alarm
+    description: Charge Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  common_alarm:
+    name: Common Alarm
+    description: Common Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  date_time:
+    name: Date And Time
+    description: Date And Time
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_alarm}'
+      selector:
+        type: xpath
+        expression: //td[text()="date - time"]/following-sibling::td/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  deep_discharge_cont_dropped_alarm:
+    name: Deep Discharge Cont. Dropped Alarm
+    description: Deep Discharge Cont. Dropped Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  direct_feed_alarm:
+    name: Direct Feed Alarm
+    description: Direct Feed Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  discharging_battery_alarm:
+    name: Discharging Battery Alarm
+    description: Discharging Battery Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  drawn_battery_capacity:
+    name: Drawn Battery Capacity
+    description: Drawn Battery Capacity
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_alarm}'
+      selector:
+        type: xpath
+        expression: //td[text()="drawn battery capacity"]/following-sibling::td/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  fan_rectifier_01_fault_alarm:
+    name: Fan Rectifier 01 Fault Alarm
+    description: Fan Rectifier 01 Fault Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  fan_rectifier_02_fault_alarm:
+    name: Fan Rectifier 02 Fault Alarm
+    description: Fan Rectifier 02 Fault Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  fan_rectifier_04_fault_alarm:
+    name: Fan Rectifier 04 Fault Alarm
+    description: Fan Rectifier 04 Fault Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  fan_rectifier_05_fault_alarm:
+    name: Fan Rectifier 05 Fault Alarm
+    description: Fan Rectifier 05 Fault Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  fan_rectifier_06_fault_alarm:
+    name: Fan Rectifier 06 Fault Alarm
+    description: Fan Rectifier 06 Fault Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  load_contactor_dropped_alarm:
+    name: Load Contactor Dropped Alarm
+    description: Load Contactor Dropped Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  load_current_total:
+    name: load current total
+    description: load current total
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_alarm}'
+      selector:
+        type: xpath
+        expression: //td[text()="load current (total)"]/following-sibling::td/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  load_fuse_01_tripped_alarm:
+    name: Load Fuse 01 Tripped Alarm
+    description: Load Fuse 01 Tripped Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  load_fuse_02_tripped_alarm:
+    name: Load Fuse 02 Tripped Alarm
+    description: Load Fuse 02 Tripped Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  mains_error_rectifier_01_alarm:
+    name: Mains Error Rectifier 01 Alarm
+    description: Mains Error Rectifier 01 Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  mains_error_rectifier_02_alarm:
+    name: Mains Error Rectifier 02 Alarm
+    description: Mains Error Rectifier 02 Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  mains_error_rectifier_04_alarm:
+    name: Mains Error Rectifier 04 Alarm
+    description: Mains Error Rectifier 04 Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  mains_error_rectifier_05_alarm:
+    name: Mains Error Rectifier 05 Alarm
+    description: Mains Error Rectifier 05 Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  mains_error_rectifier_06_alarm:
+    name: Mains Error Rectifier 06 Alarm
+    description: Mains Error Rectifier 06 Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  mcu_no_contact_with_satbus_alarm:
+    name: MCU / No Contact With SATBUS Alarm
+    description: MCU / No Contact With SATBUS Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  modem_fault_alarm:
+    name: Modem Fault Alarm
+    description: Modem Fault Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  non_urgent_error_alarm:
+    name: Non-Urgent Error Alarm
+    description: Non-Urgent Error Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  passed_time_battery_test:
+    name: Passed Time Battery Test
+    description: Passed Time Battery Test
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_alarm}'
+      selector:
+        type: xpath
+        expression: //td[text()="passed time battery test"]/following-sibling::td/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  recitifier_power_01:
+    name: Recitifier Power 01
+    description: Recitifier Power 01
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_alarm}'
+      selector:
+        type: xpath
+        expression: //td[text()="recitifier power 01"]/following-sibling::td/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  rectifier_01_fault_alarm:
+    name: Rectifier 01 Fault Alarm
+    description: Rectifier 01 Fault Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  rectifier_02_fault_alarm:
+    name: Rectifier 02 Fault Alarm
+    description: Rectifier 02 Fault Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  rectifier_04_fault_alarm:
+    name: Rectifier 04 Fault Alarm
+    description: Rectifier 04 Fault Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  rectifier_05_fault_alarm:
+    name: Rectifier 05 Fault Alarm
+    description: Rectifier 05 Fault Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  rectifier_06_fault_alarm:
+    name: Rectifier 06 Fault Alarm
+    description: Rectifier 06 Fault Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  rectifier_current_01:
+    name: Rectifier Current 01
+    description: Rectifier Current 0
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_alarm}'
+      selector:
+        type: xpath
+        expression: //td[text()="rectifier current 01"]/following-sibling::td/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  rectifier_current_02:
+    name: Rectifier Current 02
+    description: Rectifier Current 02
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_alarm}'
+      selector:
+        type: xpath
+        expression: //td[text()="rectifier current 02"]/following-sibling::td/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  rectifier_current_04:
+    name: Rectifier Current 04
+    description: Rectifier Current 04
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_alarm}'
+      selector:
+        type: xpath
+        expression: //td[text()="rectifier current 04"]/following-sibling::td/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  rectifier_current_05:
+    name: Rectifier Current 05
+    description: Rectifier Current 05
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_alarm}'
+      selector:
+        type: xpath
+        expression: //td[text()="rectifier current 05"]/following-sibling::td/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  rectifier_current_06:
+    name: Rectifier Current 06
+    description: Rectifier Current 06
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_alarm}'
+      selector:
+        type: xpath
+        expression: //td[text()="rectifier current 06"]/following-sibling::td/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  rectifier_current_total:
+    name: Rectifier Current/Total
+    description: Rectifier Current/Total
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_alarm}'
+      selector:
+        type: xpath
+        expression: //td[text()="rectifier current/total"]/following-sibling::td/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  rectifier_xx_fault_alarm:
+    name: Rectifier XX Fault Alarm
+    description: Rectifier XX Fault Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  urgent_error_alarm:
+    name: Urgent Error Alarm
+    description: Urgent Error Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+resources:
+  mappers:
+    alarm_severity:
+      keyType: String
+      valueType: String
+      map:
+        active: Critical
+        inactive: Normal
+  globals:
+    reg:
+      ip: ${registration.form.properties.ip}
+      port: ${registration.form.properties.port}
+      url: http://${registration.form.properties.ip}:${registration.form.properties.port}
+  http:
+    requests:
+      get_alarm:
+        uri: ${resources.globals.reg.url}/
+        responseContentType: text/html
+        header:
+          Authorization:
+            - Basic c2VydmljZTpzZXJ2aWNl
+        responses:
+          success:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: "200"
+          failure:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: ^(?!200)
