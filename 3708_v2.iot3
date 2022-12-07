@@ -1,0 +1,2875 @@
+iot3: 2.0.0
+info:
+  name: 3708 Axell
+  oem: Axell
+  model: "3708"
+  versions:
+    - "6.4"
+  description: 3708 Axell
+  author: Kiara L'Herpiniere <support@qeleo.com>
+  stage: alpha
+  revision: 7
+  labels:
+    - Axell
+    - "3780"
+    - auto upgraded to v2
+  created: "2021-04-22"
+  updated: "2022-12-07"
+registration:
+  vaultId: vault_id
+  fingerprint:
+    - ip
+    - port
+    - vault_id
+  vault:
+    properties:
+      password:
+        key: password
+        placeholder: Password
+        required: true
+        title: Password
+        type: string
+      username:
+        key: username
+        placeholder: Username
+        required: true
+        title: Username
+        type: string
+    required:
+      - username
+      - password
+  form:
+    properties:
+      ip:
+        key: ip
+        placeholder: IP Address
+        required: true
+        title: IP
+        type: string
+      port:
+        inputType: number
+        key: port
+        maximum: 65535
+        minimum: 1
+        placeholder: Port
+        required: true
+        title: Port
+        type: number
+      vault_id:
+        key: vault_id
+        pattern: ^(cu\w{6})(-av\w{6})$
+        placeholder: Vault ID
+        required: true
+        title: Vault ID
+        type: string
+    required:
+      - ip
+      - port
+      - vault_id
+engines:
+  tunnel:
+    ssh:
+      supported: false
+    http:
+      supported: true
+  upgraded-http:
+    schedule: '@always'
+    auth: '%{resources.auths.upgraded-http}'
+    type: HTTP
+    options:
+      tls:
+        minVersion: "1.0"
+topology:
+  rootType: street
+  wrapperType: system
+  verify:
+    - dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_cmu_info}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(),"CMU Name")]/../../../tbody/tr[4]/td[2]/input/@value
+      extractor:
+        filters:
+          1: regexpReplace /(?:^\d+\_\d+_\d+|^\d+\.\d+.\d+)/ => $0
+      match: ^6.6
+  nodes: true
+  discovery:
+    dataEngine: '%{engines.upgraded-http}'
+    dataSource: '%{resources.http.requests.get_tree}'
+    type: http
+    selectors:
+      nodes:
+        dataEngine: '%{engines.upgraded-http}'
+        selector:
+          type: xpath
+          expression: //table[@id="cmu"]//tr/td[last()]/a/text()
+    flatten:
+      type:
+        transform: ${topology.discovery.selectors.nodes}
+        filters:
+          1: toLower
+          2: |
+            switch
+            "%{1}" ~= ".*street.*" : "street"
+            default: "axell"
+      topology:
+        transform: ${topology.discovery.selectors.nodes}
+        filters:
+          1: toLower
+          2: |
+            switch
+            "%{1}" ~= ".*street.*" : "street"
+            default: "axell"
+          3: |
+            switch
+            "%{2}" == "street" : "'system' -> '555 E STREET NW'"
+            default: "'system' -> '555 E STREET NW' -> '[%{0}]"
+      version:
+        transform: "0.1"
+types:
+  axell:
+    name: Axell
+    version: '[0.1,)'
+    reference: axell
+    attributes:
+      - axell_cmu_external_alarms_config_1_normal_mode
+      - axell_cmu_external_alarms_config_1_severity
+      - axell_cmu_external_alarms_config_1_active
+      - axell_cmu_external_alarms_config_1_description
+      - axell_cmu_external_alarms_config_2_normal_mode
+      - axell_cmu_external_alarms_config_2_severity
+      - axell_cmu_external_alarms_config_2_active
+      - axell_cmu_external_alarms_config_2_description
+      - axell_cmu_external_alarms_config_3_normal_mode
+      - axell_cmu_external_alarms_config_3_severity
+      - axell_cmu_external_alarms_config_3_active
+      - axell_cmu_external_alarms_config_3_description
+      - axell_cmu_external_alarms_config_4_normal_mode
+      - axell_cmu_external_alarms_config_4_severity
+      - axell_cmu_external_alarms_config_4_active
+      - axell_cmu_external_alarms_config_4_description
+      - axell_cmu_external_alarms_config_5_normal_mode
+      - axell_cmu_external_alarms_config_5_severity
+      - axell_cmu_external_alarms_config_5_active
+      - axell_cmu_external_alarms_config_5_description
+      - axell_cmu_external_alarms_config_6_normal_mode
+      - axell_cmu_external_alarms_config_6_severity
+      - axell_cmu_external_alarms_config_6_active
+      - axell_cmu_external_alarms_config_6_description
+      - axell_ne_rf_transmission_700_enable
+      - axell_ne_shutdown_mechanism_700_enable
+      - axell_ne_max_composite_dl_output_700_power
+      - axell_ne_max_composite_ul_output_700_power
+      - axell_ne_temperature_farenh_700
+      - axell_ne_temperature_celcius_700
+      - axell_ne_dl_output_threshold_delta_700
+      - axell_ne_meas_composite_dl_output_power_700
+      - axell_ne_rf_transmission_800_enable
+      - axell_ne_shutdown_mechanism_800_enable
+      - axell_ne_max_composite_dl_output_800_power
+      - axell_ne_max_composite_ul_output_800_power
+      - axell_ne_temperature_farenh_800
+      - axell_ne_temperature_celcius_800
+      - axell_ne_dl_output_threshold_delta_800
+      - axell_ne_meas_composite_dl_output_power_800
+      - axell_ne_serial_number_dl
+      - axell_ne_serial_number_ul
+      - axell_ne_build_version_dl
+      - axell_ne_build_version_ul
+      - axell_ne_nbfm_filters
+      - axell_ne_d_filters
+      - axell_ne_channels_700_band
+      - axell_ne_channels_800_band
+      - axell_ne_system_mute_dl_700_800_alarm_value
+      - axell_ne_system_mute_ul_alarm_value
+      - axell_ne_user_mute_dl_700_800_alarm_value
+      - axell_ne_user_mute_ul_alarm_value
+      - axell_ne_buit_in_test_dl_700_800_alarm_value
+      - axell_ne_buit_in_test_ul_alarm_value
+      - axell_ne_temperature_dl_700_800_alarm_value
+      - axell_ne_temperature_ul_alarm_value
+      - axell_ne_donor_power_too_low_dl_700_alarm_value
+      - axell_ne_donor_power_too_low_dl_800_alarm_value
+      - axell_ne_pamp_current_dl_700_alarm_value
+      - axell_ne_pamp_current_dl_800_alarm_value
+      - axell_ne_pamp_current_ul_alarm_value
+      - axell_ne_rssi_dl_700_alarm_value
+      - axell_ne_rssi_dl_800_alarm_value
+      - axell_ne_rssi_ul_alarm_value
+      - axell_ne_vswr_dl_700_800_alarm_value
+      - axell_ne_vswr_ul_alarm_value
+    alarms:
+      axell_ne_buit_in_test_dl_700_800_alarm_value:
+        attributes:
+          - axell_ne_buit_in_test_dl_700_800_alarm_value
+        mapper: '%{resources.mappers.gif_colours}'
+      axell_ne_buit_in_test_ul_alarm_value:
+        attributes:
+          - axell_ne_buit_in_test_ul_alarm_value
+        mapper: '%{resources.mappers.gif_colours}'
+      axell_ne_donor_power_too_low_dl_700_alarm_value:
+        attributes:
+          - axell_ne_donor_power_too_low_dl_700_alarm_value
+        mapper: '%{resources.mappers.gif_colours}'
+      axell_ne_donor_power_too_low_dl_800_alarm_value:
+        attributes:
+          - axell_ne_donor_power_too_low_dl_800_alarm_value
+        mapper: '%{resources.mappers.gif_colours}'
+      axell_ne_pamp_current_dl_700_alarm_value:
+        attributes:
+          - axell_ne_pamp_current_dl_700_alarm_value
+        mapper: '%{resources.mappers.gif_colours}'
+      axell_ne_pamp_current_dl_800_alarm_value:
+        attributes:
+          - axell_ne_pamp_current_dl_800_alarm_value
+        mapper: '%{resources.mappers.gif_colours}'
+      axell_ne_pamp_current_ul_alarm_value:
+        attributes:
+          - axell_ne_pamp_current_ul_alarm_value
+        mapper: '%{resources.mappers.gif_colours}'
+      axell_ne_rssi_dl_700_alarm_value:
+        attributes:
+          - axell_ne_rssi_dl_700_alarm_value
+        mapper: '%{resources.mappers.gif_colours}'
+      axell_ne_rssi_dl_800_alarm_value:
+        attributes:
+          - axell_ne_rssi_dl_800_alarm_value
+        mapper: '%{resources.mappers.gif_colours}'
+      axell_ne_rssi_ul_alarm_value:
+        attributes:
+          - axell_ne_rssi_ul_alarm_value
+        mapper: '%{resources.mappers.gif_colours}'
+      axell_ne_system_mute_dl_700_800_alarm_value:
+        attributes:
+          - axell_ne_system_mute_dl_700_800_alarm_value
+        mapper: '%{resources.mappers.gif_colours}'
+      axell_ne_system_mute_ul_alarm_value:
+        attributes:
+          - axell_ne_system_mute_ul_alarm_value
+        mapper: '%{resources.mappers.gif_colours}'
+      axell_ne_temperature_dl_700_800_alarm_value:
+        attributes:
+          - axell_ne_temperature_dl_700_800_alarm_value
+        mapper: '%{resources.mappers.gif_colours}'
+      axell_ne_temperature_ul_alarm_value:
+        attributes:
+          - axell_ne_temperature_ul_alarm_value
+        mapper: '%{resources.mappers.gif_colours}'
+      axell_ne_user_mute_dl_700_800_alarm_value:
+        attributes:
+          - axell_ne_user_mute_dl_700_800_alarm_value
+        mapper: '%{resources.mappers.gif_colours}'
+      axell_ne_user_mute_ul_alarm_value:
+        attributes:
+          - axell_ne_user_mute_ul_alarm_value
+        mapper: '%{resources.mappers.gif_colours}'
+      axell_ne_vswr_dl_700_800_alarm_value:
+        attributes:
+          - axell_ne_vswr_dl_700_800_alarm_value
+        mapper: '%{resources.mappers.gif_colours}'
+      axell_ne_vswr_ul_alarm_value:
+        attributes:
+          - axell_ne_vswr_ul_alarm_value
+        mapper: '%{resources.mappers.gif_colours}'
+    price:
+      value: 0
+      unit: USD
+    energy:
+      value: 0
+      unit: W
+  street:
+    name: Street
+    version: '[0.1,)'
+    reference: street
+    attributes:
+      - axell_cmu_status_alarm_value
+      - axell_cmu_alarm_module
+      - axell_cmu_alarm_description
+      - axell_cmu_info_name
+      - axell_cmu_info_log_level
+      - axell_cmu_info_sw_version
+      - axell_cmu_info_os_version
+      - axell_cmu_info_serial_number
+      - axell_cmu_info_gps_use_switch
+      - axell_cmu_info_gps_current_latitude
+      - axell_cmu_info_gps_current_longitude
+      - axell_cmu_info_alarm_threshold_imop
+      - axell_cmu_info_repeater_part_number
+      - axell_cmu_info_repeater_type
+      - axell_cmu_info_repeater_serial_number
+      - axell_cmu_info_repeater_aem
+      - axell_cmu_info_ack
+      - axell_cmu_comms_modem_communication
+      - axell_cmu_comms_modem_local_phone_number
+      - axell_cmu_comms_modem_remote_phone_number
+      - axell_cmu_comms_modem_connection_init_str
+      - axell_cmu_comms_modem_apn
+      - axell_cmu_comms_modem_username
+      - axell_cmu_comms_modem_password
+      - axell_cmu_comms_modem_inactivity_timeout
+      - axell_cmu_comms_modem_drop_modem
+      - axell_cmu_comms_modem_direct_cs_modem_ip
+      - axell_cmu_comms_modem_direct_cs_pc_ip
+      - axell_cmu_comms_modem_modem_ip_address
+      - axell_cmu_comms_snmp_trap_heartbeat_period
+      - axell_cmu_comms_snmp_trap_entreprise_id
+      - axell_cmu_comms_ip_config_local_ip_address
+      - axell_cmu_comms_ip_config_local_netmask
+      - axell_cmu_comms_ip_config_local_gateway
+      - axell_cmu_comms_ip_config_request_dhcp_address
+      - axell_cmu_comms_ip_config_renew_dhcp
+      - axell_cmu_comms_ip_config_dhcp_address
+      - axell_cmu_comms_aem_rid
+      - axell_cmu_comms_aem_site_uid_type
+      - axell_cmu_comms_aem_site_id
+      - axell_cmu_comms_aem_auto_replacement
+      - axell_cmu_comms_aem_primary_aem_ip
+      - axell_cmu_comms_aem_secondary_ip
+      - axell_cmu_comms_snmp_use_destination
+      - axell_cmu_comms_snmp_sending_delay
+      - axell_cmu_comms_snmp_read_community
+      - axell_cmu_comms_snmp_system_name
+      - axell_cmu_comms_snmp_system_location
+      - axell_cmu_comms_snmp_system_contact
+    price:
+      value: 0
+      unit: USD
+    energy:
+      value: 0
+      unit: W
+  system:
+    name: System
+    version: '[0.1,)'
+    reference: system
+    price:
+      value: 0
+      unit: USD
+    energy:
+      value: 0
+      unit: W
+attributes:
+  axell_cmu_alarm_description:
+    name: Axell CMU Alarm Description
+    description: Axell CMU Alarm Description.
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_cmu_alarms}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(),"Summary CMU Alarms")]/../../../fieldset/font/table/tbody/tr[2]/td[3]/font/text()
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: ""
+        properties: {}
+  axell_cmu_alarm_module:
+    name: Axell CMU Alarm Module
+    description: Axell CMU Alarm Module.
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_cmu_alarms}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(),"Summary CMU Alarms")]/../../../fieldset/font/table/tbody/tr[2]/td[2]/font/text()
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: ""
+        properties: {}
+  axell_cmu_comms_aem_auto_replacement:
+    name: Communication Configuration AEM Auto Replacement
+    description: Communication Configuration AEM Auto Replacement.
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_cmu_comms}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(),"AEM Configuration")]/../../fieldset/table/tbody/tr[4]/td[2]/select/option[@selected]/@value
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: ""
+        properties:
+          aem_auto_replacement:
+            enum:
+              - Disabled
+              - Enabled
+            inputType: dropdown
+            key: aem_auto_replacement
+            required: true
+            title: AEM Auto-Replacement
+            type: string
+  axell_cmu_comms_aem_primary_aem_ip:
+    name: Communication Configuration Primary AEM IP
+    description: Communication Configuration Primary AEM IP.
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_cmu_comms}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(),"AEM Configuration")]/../../fieldset/table/tbody/tr[5]/td[2]/input/@value
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: ""
+        properties: {}
+  axell_cmu_comms_aem_rid:
+    name: Communication Configuration AEM RID
+    description: Communication Configuration AEM RID.
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_cmu_comms}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(),"AEM Configuration")]/../../fieldset/table/tbody/tr[1]/td[2]/input/@value
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: ""
+        properties: {}
+  axell_cmu_comms_aem_secondary_ip:
+    name: Communication Configuration Secondary AEM IP
+    description: Communication Configuration Secondary AEM IP.
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_cmu_comms}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(),"AEM Configuration")]/../../fieldset/table/tbody/tr[6]/td[2]/input/@value
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: ""
+        properties: {}
+  axell_cmu_comms_aem_site_id:
+    name: Communication Configuration AEM Site ID
+    description: Communication Configuration AEM Site ID.
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_cmu_comms}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(),"AEM Configuration")]/../../fieldset/table/tbody/tr[3]/td[2]/input/@value
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: ""
+        properties: {}
+  axell_cmu_comms_aem_site_uid_type:
+    name: Communication Configuration AEM Site UID Type
+    description: Communication Configuration AEM Site UID Type.
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_cmu_comms}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(),"AEM Configuration")]/../../fieldset/table/tbody/tr[2]/td[2]/select/option[@selected]/text()
+    properties:
+      readWrite: RW
+      read:
+        type: String
+      write:
+        type: ""
+        properties:
+          uid_type:
+            enum:
+              - None
+              - LAN IP
+            inputType: dropdown
+            key: uid_type
+            required: true
+            title: Site UID Type
+            type: string
+  axell_cmu_comms_ip_config_dhcp_address:
+    name: Communication Configuration DHCP Address
+    description: Communication Configuration DHCP Address.
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_cmu_comms}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(),"IP Configuration")]/../../../td/fieldset/table/tbody/tr[6]/td[2]/input/@value
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: ""
+        properties: {}
+  axell_cmu_comms_ip_config_local_gateway:
+    name: Communication Configuration Local Gateway
+    description: Communication Configuration Local Gateway.
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_cmu_comms}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(),"IP Configuration")]/../../../td/fieldset/table/tbody/tr[3]/td[2]/input/@value
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: ""
+        properties: {}
+  axell_cmu_comms_ip_config_local_ip_address:
+    name: Communication Configuration Local IP Address
+    description: Communication Configuration Local IP Address.
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_cmu_comms}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(),"IP Configuration")]/../../../td/fieldset/table/tbody/tr[1]/td[2]/input/@value
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: ""
+        properties: {}
+  axell_cmu_comms_ip_config_local_netmask:
+    name: Communication Configuration Local Netmask
+    description: Communication Configuration Local Netmask.
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_cmu_comms}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(),"IP Configuration")]/../../../td/fieldset/table/tbody/tr[2]/td[2]/input/@value
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: ""
+        properties: {}
+  axell_cmu_comms_ip_config_renew_dhcp:
+    name: Communication Configuration Renew DHCP Every 15 Min
+    description: Communication Configuration Renew DHCP Every 15 Min.
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_cmu_comms}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(),"IP Configuration")]/../../../td/fieldset/table/tbody/tr[5]/td[2]/select/option[@selected]/text()
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: ""
+        properties: {}
+  axell_cmu_comms_ip_config_request_dhcp_address:
+    name: Communication Configuration Request DHCP Address
+    description: Communication Configuration Request DHCP Address.
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_cmu_comms}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(),"IP Configuration")]/../../../td/fieldset/table/tbody/tr[4]/td[2]/input/@value
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: ""
+        properties: {}
+  axell_cmu_comms_modem_apn:
+    name: Communication Configuration APN
+    description: Communication Configuration APN.
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_cmu_comms}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(),"Modem")]/../../tr[6]/td[2]/input/@value
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: ""
+        properties: {}
+  axell_cmu_comms_modem_communication:
+    name: Communication Configuration Modem Communication
+    description: Communication Configuration Modem Communication.
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_cmu_comms}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(),"Modem")]/../../tr[1]/td[2]/select/option[@selected]/text()
+    properties:
+      readWrite: RW
+      read:
+        type: String
+      write:
+        type: ""
+        properties:
+          modem_communication:
+            enum:
+              - Fixed IP
+              - IP Callback
+              - Always On
+              - Direct CS
+            inputType: dropdown
+            key: modem_communication
+            required: true
+            title: Modem Communication
+            type: string
+  axell_cmu_comms_modem_connection_init_str:
+    name: Communication Configuration Connection Init String
+    description: Communication Configuration Connection Init String.
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_cmu_comms}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(),"Modem")]/../../tr[5]/td[2]/input/@value
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: ""
+        properties: {}
+  axell_cmu_comms_modem_direct_cs_modem_ip:
+    name: Communication Configuration Direct CS Modem IP
+    description: Communication Configuration Direct CS Modem IP.
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_cmu_comms}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(),"Modem")]/../../tr[11]/td[2]/font/input/@value
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: ""
+        properties: {}
+  axell_cmu_comms_modem_direct_cs_pc_ip:
+    name: Communication Configuration Direct CS PC IP
+    description: Communication Configuration Direct CS PC IP.
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_cmu_comms}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(),"Modem")]/../../tr[12]/td[2]/font/input/@value
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: ""
+        properties: {}
+  axell_cmu_comms_modem_drop_modem:
+    name: Communication Configuration Drop Modem (mins)
+    description: Communication Configuration Drop Modem (mins).
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_cmu_comms}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(),"Modem")]/../../tr[10]/td[2]/input/@value
+    properties:
+      readWrite: R
+      read:
+        type: Int32
+        unit: mins
+      write:
+        type: ""
+        properties: {}
+  axell_cmu_comms_modem_inactivity_timeout:
+    name: Communication Configuration Inactivity Timeout
+    description: Communication Configuration Inactivity Timeout.
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_cmu_comms}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(),"Modem")]/../../tr[9]/td[2]/input/@value
+    properties:
+      readWrite: R
+      read:
+        type: Int32
+      write:
+        type: ""
+        properties: {}
+  axell_cmu_comms_modem_local_phone_number:
+    name: Communication Configuration Local Phone Number
+    description: Communication Configuration Local Phone Number.
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_cmu_comms}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(),"Modem")]/../../tr[2]/td[2]/input/@value
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: ""
+        properties: {}
+  axell_cmu_comms_modem_modem_ip_address:
+    name: Communication Configuration Modem IP Address
+    description: Communication Configuration Modem IP Address.
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_cmu_comms}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(),"Modem")]/../../tr[13]/td[2]/input/@value
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: ""
+        properties: {}
+  axell_cmu_comms_modem_password:
+    name: Communication Configuration Password
+    description: Communication Configuration Password.
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_cmu_comms}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(),"Modem")]/../../tr[8]/td[2]/input/@value
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: ""
+        properties: {}
+  axell_cmu_comms_modem_remote_phone_number:
+    name: Communication Configuration Remote Phone Number
+    description: Communication Configuration Remote Phone Number.
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_cmu_comms}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(),"Modem")]/../../tr[3]/td[2]/input/@value
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: ""
+        properties: {}
+  axell_cmu_comms_modem_username:
+    name: Communication Configuration Username
+    description: Communication Configuration Username.
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_cmu_comms}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(),"Modem")]/../../tr[7]/td[2]/input/@value
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: ""
+        properties: {}
+  axell_cmu_comms_snmp_read_community:
+    name: Communication Configuration SNMP Read Community
+    description: Communication Configuration SNMP Read Community.
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_cmu_comms}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(),"SNMP / SMS Configuration")]/../../fieldset/table/tbody/tr[3]/td[2]/input/@value
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: ""
+        properties: {}
+  axell_cmu_comms_snmp_sending_delay:
+    name: Communication Configuration SNMP/SMS Sending Delay TH
+    description: Communication Configuration SNMP/SMS Sending Delay TH.
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_cmu_comms}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(),"SNMP / SMS Configuration")]/../../fieldset/table/tbody/tr[2]/td[2]/input/@value
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: ""
+        properties: {}
+  axell_cmu_comms_snmp_system_contact:
+    name: Communication Configuration SNMP System Contact
+    description: Communication Configuration SNMP System Contact.
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_cmu_comms}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(),"SNMP / SMS Configuration")]/../../fieldset/table/tbody/tr[6]/td[2]/input/@value
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: ""
+        properties: {}
+  axell_cmu_comms_snmp_system_location:
+    name: Communication Configuration SNMP System Location
+    description: Communication Configuration SNMP System Location.
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_cmu_comms}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(),"SNMP / SMS Configuration")]/../../fieldset/table/tbody/tr[5]/td[2]/input/@value
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: ""
+        properties: {}
+  axell_cmu_comms_snmp_system_name:
+    name: Communication Configuration SNMP System Name
+    description: Communication Configuration SNMP System Name.
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_cmu_comms}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(),"SNMP / SMS Configuration")]/../../fieldset/table/tbody/tr[4]/td[2]/input/@value
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: ""
+        properties: {}
+  axell_cmu_comms_snmp_trap_entreprise_id:
+    name: Communication Configuration SNMP Entreprise ID
+    description: Communication Configuration SNMP Entreprise ID.
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_cmu_comms}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(),"SNMP Trap Configuration")]/../../fieldset/table/tbody/tr[2]/td[2]/select/option[@selected]/text()
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: ""
+        properties:
+          entreprise_id:
+            enum:
+              - Stadler
+              - Axell
+              - 2792
+              - VzW
+            inputType: dropdown
+            key: entreprise_id
+            required: true
+            title: Enterprise ID
+            type: string
+  axell_cmu_comms_snmp_trap_heartbeat_period:
+    name: Communication Configuration SNMP Heartbeat Period
+    description: Communication Configuration SNMP Heartbeat Period.
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_cmu_comms}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(),"SNMP Trap Configuration")]/../../fieldset/table/tbody/tr[1]/td[2]/select/option[@selected]/text()
+    properties:
+      readWrite: RW
+      read:
+        type: String
+      write:
+        type: ""
+        properties:
+          heartbeat_period:
+            enum:
+              - Never
+              - 1 min
+              - 2 min
+              - 3 min
+              - 4 min
+              - 5 min
+              - 6 min
+              - 7 min
+              - 8 min
+              - 9 min
+              - 10 min
+              - 11 min
+              - 12 min
+              - 13 min
+              - 14 min
+              - 15 min
+              - 16 min
+              - 17 min
+              - 18 min
+              - 19 min
+              - 20 min
+              - 21 min
+              - 22 min
+              - 23 min
+              - 24 min
+              - 25 min
+              - 26 min
+              - 27 min
+              - 28 min
+              - 29 min
+              - 30 min
+              - 31 min
+              - 32 min
+              - 33 min
+              - 34 min
+              - 35 min
+              - 36 min
+              - 37 min
+              - 38 min
+              - 39 min
+              - 40 min
+              - 41 min
+              - 42 min
+              - 43 min
+              - 44 min
+              - 45 min
+              - 46 min
+              - 47 min
+              - 48 min
+              - 49 min
+              - 50 min
+              - 51 min
+              - 52 min
+              - 53 min
+              - 54 min
+              - 55 min
+              - 56 min
+              - 57 min
+              - 58 min
+              - 59 min
+              - 1 hour
+              - 2 hours
+              - 5 hours
+              - 12 hours
+              - 24 hours
+            inputType: dropdown
+            key: heartbeat_period
+            required: true
+            title: Heartbeat Period
+            type: string
+  axell_cmu_comms_snmp_use_destination:
+    name: Communication Configuration SNMP/SMS Use Destination
+    description: Communication Configuration SNMP/SMS Use Destination.
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_cmu_comms}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(),"SNMP / SMS Configuration")]/../../fieldset/table/tbody/tr[1]/td[2]/select/option[@selected]/text()
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: ""
+        properties:
+          snmp_use_destination:
+            enum:
+              - None
+              - SMS
+              - SNMP
+            inputType: dropdown
+            key: snmp_use_destination
+            required: true
+            title: SNMP Use Destination
+            type: string
+  axell_cmu_external_alarms_config_1_active:
+    name: External Alarm Configuration Active 1
+    description: External Alarm Configuration Active 1.
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_cmu_ext_alarms}'
+      selector:
+        type: xpath
+        expression: //*[contains(@name,"IsActive1")] and @checked
+    properties:
+      readWrite: RW
+      read:
+        type: String
+      write:
+        type: ""
+        properties:
+          active:
+            inputType: checkbox
+            key: active
+            required: true
+            title: Active
+            type: boolean
+  axell_cmu_external_alarms_config_1_description:
+    name: External Alarm Configuration Description 1
+    description: External Alarm Configuration Description 1.
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_cmu_ext_alarms}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(),"External Alarms Configuration")]/../../../fieldset/font/table/tbody/tr[2]/td[5]/font/input/@value
+    properties:
+      readWrite: RW
+      read:
+        type: String
+      write:
+        type: ""
+        properties:
+          id_1_description:
+            key: id_1_description
+            placeholder: ""
+            required: false
+            title: ID 1 Description
+            type: string
+  axell_cmu_external_alarms_config_1_normal_mode:
+    name: External Alarm Configuration Normal Mode 1
+    description: External Alarm Configuration Normal Mode 1.
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_cmu_ext_alarms}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(),"External Alarms Configuration")]/../../../fieldset/font/table/tbody/tr[2]/td[2]/font/select/option[@selected]/text()
+    properties:
+      readWrite: RW
+      read:
+        type: String
+      write:
+        type: ""
+        properties:
+          config_1_normal_mode:
+            enum:
+              - High
+              - Low
+            inputType: dropdown
+            key: config_1_normal_mode
+            required: true
+            title: Config 1 Normal Mode
+            type: string
+  axell_cmu_external_alarms_config_1_severity:
+    name: External Alarm Configuration Severity 1
+    description: External Alarm Configuration Severity 1.
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_cmu_ext_alarms}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(),"External Alarms Configuration")]/../../../fieldset/font/table/tbody/tr[2]/td[3]/font/select/option[@selected]/text()
+    properties:
+      readWrite: RW
+      read:
+        type: String
+      write:
+        type: ""
+        properties:
+          config_1_severity:
+            enum:
+              - Minor
+              - Major
+              - Critical
+            inputType: dropdown
+            key: config_1_severity
+            required: true
+            title: Config 1 Severity
+            type: string
+  axell_cmu_external_alarms_config_2_active:
+    name: External Alarm Configuration Active 2
+    description: External Alarm Configuration Active 2.
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_cmu_ext_alarms}'
+      selector:
+        type: xpath
+        expression: //*[contains(@name,"IsActive2")] and @checked
+    properties:
+      readWrite: RW
+      read:
+        type: String
+      write:
+        type: ""
+        properties:
+          active:
+            inputType: checkbox
+            key: active
+            required: true
+            title: Active
+            type: boolean
+  axell_cmu_external_alarms_config_2_description:
+    name: External Alarm Configuration Description 2
+    description: External Alarm Configuration Description 2.
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_cmu_ext_alarms}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(),"External Alarms Configuration")]/../../../fieldset/font/table/tbody/tr[3]/td[5]/font/input/@value
+    properties:
+      readWrite: RW
+      read:
+        type: String
+      write:
+        type: ""
+        properties:
+          id_2_description:
+            key: id_2_description
+            placeholder: ""
+            required: false
+            title: ID 2 Description
+            type: string
+  axell_cmu_external_alarms_config_2_normal_mode:
+    name: External Alarm Configuration Normal Mode 2
+    description: External Alarm Configuration Normal Mode 2.
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_cmu_ext_alarms}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(),"External Alarms Configuration")]/../../../fieldset/font/table/tbody/tr[3]/td[2]/font/select/option[@selected]/text()
+    properties:
+      readWrite: RW
+      read:
+        type: String
+      write:
+        type: ""
+        properties:
+          config_2_normal_mode:
+            enum:
+              - High
+              - Low
+            inputType: dropdown
+            key: config_2_normal_mode
+            required: true
+            title: Config 2 Normal Mode
+            type: string
+  axell_cmu_external_alarms_config_2_severity:
+    name: External Alarm Configuration Severity 2
+    description: External Alarm Configuration Severity 2.
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_cmu_ext_alarms}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(),"External Alarms Configuration")]/../../../fieldset/font/table/tbody/tr[3]/td[3]/font/select/option[@selected]/text()
+    properties:
+      readWrite: RW
+      read:
+        type: String
+      write:
+        type: ""
+        properties:
+          config_2_severity:
+            enum:
+              - Minor
+              - Major
+              - Critical
+            inputType: dropdown
+            key: config_2_severity
+            required: true
+            title: Config 2 Severity
+            type: string
+  axell_cmu_external_alarms_config_3_active:
+    name: External Alarm Configuration Active 3
+    description: External Alarm Configuration Active 3.
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_cmu_ext_alarms}'
+      selector:
+        type: xpath
+        expression: //*[contains(@name,"IsActive3")] and @checked
+    properties:
+      readWrite: RW
+      read:
+        type: String
+      write:
+        type: ""
+        properties:
+          active:
+            inputType: checkbox
+            key: active
+            required: true
+            title: Active
+            type: boolean
+  axell_cmu_external_alarms_config_3_description:
+    name: External Alarm Configuration Description 3
+    description: External Alarm Configuration Description 3.
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_cmu_ext_alarms}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(),"External Alarms Configuration")]/../../../fieldset/font/table/tbody/tr[4]/td[5]/font/input/@value
+    properties:
+      readWrite: RW
+      read:
+        type: String
+      write:
+        type: ""
+        properties:
+          id_3_description:
+            key: id_3_description
+            placeholder: ""
+            required: false
+            title: ID 3 Description
+            type: string
+  axell_cmu_external_alarms_config_3_normal_mode:
+    name: External Alarm Configuration Normal Mode 3
+    description: External Alarm Configuration Normal Mode 3.
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_cmu_ext_alarms}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(),"External Alarms Configuration")]/../../../fieldset/font/table/tbody/tr[4]/td[2]/font/select/option[@selected]/text()
+    properties:
+      readWrite: RW
+      read:
+        type: String
+      write:
+        type: ""
+        properties:
+          config_3_normal_mode:
+            enum:
+              - High
+              - Low
+            inputType: dropdown
+            key: config_3_normal_mode
+            required: true
+            title: Config 3 Normal Mode
+            type: string
+  axell_cmu_external_alarms_config_3_severity:
+    name: External Alarm Configuration Severity 3
+    description: External Alarm Configuration Severity 3.
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_cmu_ext_alarms}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(),"External Alarms Configuration")]/../../../fieldset/font/table/tbody/tr[4]/td[3]/font/select/option[@selected]/text()
+    properties:
+      readWrite: RW
+      read:
+        type: String
+      write:
+        type: ""
+        properties:
+          config_3_severity:
+            enum:
+              - Minor
+              - Major
+              - Critical
+            inputType: dropdown
+            key: config_3_severity
+            required: true
+            title: Config 3 Severity
+            type: string
+  axell_cmu_external_alarms_config_4_active:
+    name: External Alarm Configuration Active 4
+    description: External Alarm Configuration Active 4.
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_cmu_ext_alarms}'
+      selector:
+        type: xpath
+        expression: //*[contains(@name,"IsActive4")] and @checked
+    properties:
+      readWrite: RW
+      read:
+        type: String
+      write:
+        type: ""
+        properties:
+          active:
+            inputType: checkbox
+            key: active
+            required: true
+            title: Active
+            type: boolean
+  axell_cmu_external_alarms_config_4_description:
+    name: External Alarm Configuration Description 4
+    description: External Alarm Configuration Description 4.
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_cmu_ext_alarms}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(),"External Alarms Configuration")]/../../../fieldset/font/table/tbody/tr[5]/td[5]/font/input/@value
+    properties:
+      readWrite: RW
+      read:
+        type: String
+      write:
+        type: ""
+        properties:
+          id_4_description:
+            key: id_4_description
+            placeholder: ""
+            required: false
+            title: ID 4 Description
+            type: string
+  axell_cmu_external_alarms_config_4_normal_mode:
+    name: External Alarm Configuration Normal Mode 4
+    description: External Alarm Configuration Normal Mode 4.
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_cmu_ext_alarms}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(),"External Alarms Configuration")]/../../../fieldset/font/table/tbody/tr[5]/td[2]/font/select/option[@selected]/text()
+    properties:
+      readWrite: RW
+      read:
+        type: String
+      write:
+        type: ""
+        properties:
+          config_4_normal_mode:
+            enum:
+              - High
+              - Low
+            inputType: dropdown
+            key: config_4_normal_mode
+            required: true
+            title: Config 4 Normal Mode
+            type: string
+  axell_cmu_external_alarms_config_4_severity:
+    name: External Alarm Configuration Severity 4
+    description: External Alarm Configuration Severity 4.
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_cmu_ext_alarms}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(),"External Alarms Configuration")]/../../../fieldset/font/table/tbody/tr[5]/td[3]/font/select/option[@selected]/text()
+    properties:
+      readWrite: RW
+      read:
+        type: String
+      write:
+        type: ""
+        properties:
+          config_4_severity:
+            enum:
+              - Minor
+              - Major
+              - Critical
+            inputType: dropdown
+            key: config_4_severity
+            required: true
+            title: Config 4 Severity
+            type: string
+  axell_cmu_external_alarms_config_5_active:
+    name: External Alarm Configuration Active 5
+    description: External Alarm Configuration Active 5.
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_cmu_ext_alarms}'
+      selector:
+        type: xpath
+        expression: //*[contains(@name,"IsActive5")] and @checked
+    properties:
+      readWrite: RW
+      read:
+        type: String
+      write:
+        type: ""
+        properties:
+          active:
+            inputType: checkbox
+            key: active
+            required: true
+            title: Active
+            type: boolean
+  axell_cmu_external_alarms_config_5_description:
+    name: External Alarm Configuration Description 5
+    description: External Alarm Configuration Description 5
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_cmu_ext_alarms}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(),"External Alarms Configuration")]/../../../fieldset/font/table/tbody/tr[6]/td[5]/font/input/@value
+    properties:
+      readWrite: RW
+      read:
+        type: String
+      write:
+        type: ""
+        properties:
+          id_5_description:
+            key: id_5_description
+            placeholder: ""
+            required: false
+            title: ID 5 Description
+            type: string
+  axell_cmu_external_alarms_config_5_normal_mode:
+    name: External Alarm Configuration Normal Mode 5
+    description: External Alarm Configuration Normal Mode 5.
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_cmu_ext_alarms}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(),"External Alarms Configuration")]/../../../fieldset/font/table/tbody/tr[6]/td[2]/font/select/option[@selected]/text()
+    properties:
+      readWrite: RW
+      read:
+        type: String
+      write:
+        type: ""
+        properties:
+          config_5_normal_mode:
+            enum:
+              - High
+              - Low
+            inputType: dropdown
+            key: config_5_normal_mode
+            required: true
+            title: Config 5 Normal Mode
+            type: string
+  axell_cmu_external_alarms_config_5_severity:
+    name: External Alarm Configuration Severity 5
+    description: External Alarm Configuration Severity 5.
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_cmu_ext_alarms}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(),"External Alarms Configuration")]/../../../fieldset/font/table/tbody/tr[6]/td[3]/font/select/option[@selected]/text()
+    properties:
+      readWrite: RW
+      read:
+        type: String
+      write:
+        type: ""
+        properties:
+          config_5_severity:
+            enum:
+              - Minor
+              - Major
+              - Critical
+            inputType: dropdown
+            key: config_5_severity
+            required: true
+            title: Config 5 Severity
+            type: string
+  axell_cmu_external_alarms_config_6_active:
+    name: External Alarm Configuration Active 6
+    description: External Alarm Configuration Active 6.
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_cmu_ext_alarms}'
+      selector:
+        type: xpath
+        expression: //*[contains(@name,"IsActive6")] and @checked
+    properties:
+      readWrite: RW
+      read:
+        type: String
+      write:
+        type: ""
+        properties:
+          active:
+            inputType: checkbox
+            key: active
+            required: true
+            title: Active
+            type: boolean
+  axell_cmu_external_alarms_config_6_description:
+    name: External Alarm Configuration Description 6
+    description: External Alarm Configuration Description 6.
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_cmu_ext_alarms}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(),"External Alarms Configuration")]/../../../fieldset/font/table/tbody/tr[7]/td[5]/font/input/@value
+    properties:
+      readWrite: RW
+      read:
+        type: String
+      write:
+        type: ""
+        properties:
+          id_6_description:
+            key: id_6_description
+            placeholder: ""
+            required: false
+            title: ID 6 Description
+            type: string
+  axell_cmu_external_alarms_config_6_normal_mode:
+    name: External Alarm Configuration Normal Mode 6
+    description: External Alarm Configuration Normal Mode 6.
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_cmu_ext_alarms}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(),"External Alarms Configuration")]/../../../fieldset/font/table/tbody/tr[7]/td[2]/font/select/option[@selected]/text()
+    properties:
+      readWrite: RW
+      read:
+        type: String
+      write:
+        type: ""
+        properties:
+          config_6_normal_mode:
+            enum:
+              - High
+              - Low
+            inputType: dropdown
+            key: config_6_normal_mode
+            required: true
+            title: Config 6 Normal Mode
+            type: string
+  axell_cmu_external_alarms_config_6_severity:
+    name: External Alarm Configuration Severity 6
+    description: External Alarm Configuration Severity 6.
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_cmu_ext_alarms}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(),"External Alarms Configuration")]/../../../fieldset/font/table/tbody/tr[7]/td[3]/font/select/option[@selected]/text()
+    properties:
+      readWrite: RW
+      read:
+        type: String
+      write:
+        type: ""
+        properties:
+          config_6_severity:
+            enum:
+              - Minor
+              - Major
+              - Critical
+            inputType: dropdown
+            key: config_6_severity
+            required: true
+            title: Config 6 Severity
+            type: string
+  axell_cmu_info_ack:
+    name: Axell CMU Info CMA Alarms Auto Acknowledgement
+    description: Axell CMU Info CMA Alarms Auto Acknowledgement.
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_cmu_info}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(),"Repeater Info")]/../../fieldset[2]/table/tbody/tr[1]/td[2]/input/@value
+    properties:
+      readWrite: RW
+      read:
+        type: String
+      write:
+        type: ""
+        properties:
+          cma_alarms_auto_acknowledgement:
+            inputType: checkbox
+            key: cma_alarms_auto_acknowledgement
+            required: true
+            title: CMA Alarms Auto Acknowledgement
+            type: boolean
+  axell_cmu_info_alarm_threshold_imop:
+    name: Axell CMU Info Alarm Threshold IMOP Time
+    description: Axell CMU Info Alarm Threshold IMOP Time.
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_cmu_info}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(),"IMOP")]/../../../tbody/tr/td[2]/input/@value
+    properties:
+      readWrite: RW
+      read:
+        type: Int32
+        unit: mins
+      write:
+        type: ""
+        properties:
+          alarm_threshold_imop_time:
+            inputType: number
+            key: alarm_threshold_imop_time
+            placeholder: ""
+            required: false
+            title: Alarm Threshold IMOP Time
+            type: number
+  axell_cmu_info_gps_current_latitude:
+    name: Axell CMU Info Current Latitude
+    description: Axell CMU Info Current Latitude.
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_cmu_info}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(),"Use GPS")]/../../../tbody/tr[2]/td[2]/input/@value
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: ""
+        properties: {}
+  axell_cmu_info_gps_current_longitude:
+    name: Axell CMU Info Current Longitude
+    description: Axell CMU Info Current Longitude.
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_cmu_info}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(),"Use GPS")]/../../../tbody/tr[3]/td[2]/input/@value
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: ""
+        properties: {}
+  axell_cmu_info_gps_use_switch:
+    name: Axell CMU Info Use GPS-Based Configuration Switch
+    description: Axell CMU Info Use GPS-Based Configuration Switch.
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_cmu_info}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(),"Use GPS")]/../../../tbody/tr[1]/td[2]/input[2]/@value
+    properties:
+      readWrite: RW
+      read:
+        type: String
+      write:
+        type: ""
+        properties:
+          gpsbased_configuration_switch:
+            inputType: checkbox
+            key: gpsbased_configuration_switch
+            required: true
+            title: GPS-based Configuration Switch
+            type: boolean
+  axell_cmu_info_log_level:
+    name: Axell CMU Info Log Level
+    description: Axell CMU Info Log Level.
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_cmu_info}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(),"CMU Name")]/../../../tbody/tr[2]/td[2]/select/option[@selected]/text()
+    properties:
+      readWrite: RW
+      read:
+        type: String
+      write:
+        type: ""
+        properties:
+          axell_cmu_log_level:
+            enum:
+              - Debug
+              - Error
+              - Info
+              - Warning
+            inputType: dropdown
+            key: axell_cmu_log_level
+            required: true
+            title: CMU Log Level
+            type: string
+  axell_cmu_info_name:
+    name: Axell Info CMU Name
+    description: Axell Info CMU Name.
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_cmu_info}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(),"CMU Name")]/../../../tbody/tr[1]/td[2]/input/@value
+    properties:
+      readWrite: RW
+      read:
+        type: String
+      write:
+        type: ""
+        properties:
+          axell_axell_cmu_name:
+            key: axell_axell_cmu_name
+            placeholder: ""
+            required: false
+            title: Axell CMU Name
+            type: string
+  axell_cmu_info_os_version:
+    name: Axell CMU Info OS Version
+    description: Axell CMU Info OS Version.
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_cmu_info}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(),"CMU Name")]/../../../tbody/tr[4]/td[2]/input/@value
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: ""
+        properties: {}
+  axell_cmu_info_repeater_aem:
+    name: Axell CMU Info AEM CB Version
+    description: Axell CMU Info AEM CB Version.
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_cmu_info}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(),"Repeater Info")]/../../fieldset[1]/table/tbody/tr[4]/td[2]/input/@value
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: ""
+        properties: {}
+  axell_cmu_info_repeater_part_number:
+    name: Axell CMU Info Repeater Part Number
+    description: Axell CMU Info Repeater Part Number.
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_cmu_info}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(),"Repeater Info")]/../../fieldset[1]/table/tbody/tr[1]/td[2]/input/@value
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: ""
+        properties: {}
+  axell_cmu_info_repeater_serial_number:
+    name: Axell CMU Info Repeater Serial Number
+    description: Axell CMU Info Repeater Serial Number.
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_cmu_info}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(),"Repeater Info")]/../../fieldset[1]/table/tbody/tr[3]/td[2]/input/@value
+    properties:
+      readWrite: R
+      read:
+        type: Int32
+      write:
+        type: ""
+        properties: {}
+  axell_cmu_info_repeater_type:
+    name: Axell CMU Info Repeater Type
+    description: Axell CMU Info Repeater Type.
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_cmu_info}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(),"Repeater Info")]/../../fieldset[1]/table/tbody/tr[2]/td[2]/input/@value
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: ""
+        properties: {}
+  axell_cmu_info_serial_number:
+    name: Axell CMU Info Serial Number
+    description: Axell CMU Info Serial Number.
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_cmu_info}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(),"CMU Name")]/../../../tbody/tr[5]/td[2]/input/@value
+    properties:
+      readWrite: R
+      read:
+        type: Int32
+      write:
+        type: ""
+        properties: {}
+  axell_cmu_info_sw_version:
+    name: Axell CMU Info SW Version
+    description: Axell CMU Info SW Version.
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_cmu_info}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(),"CMU Name")]/../../../tbody/tr[3]/td[2]/input/@value
+      extractor:
+        filters:
+          1: regexpReplace /^(\d+\.\d+)\.?.*$/ => $1
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: ""
+        properties: {}
+  axell_cmu_status_alarm_value:
+    name: Axell CMU Alarm Status
+    description: Axell CMU Alarm Status.
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: ""
+        properties: {}
+  axell_ne_build_version_dl:
+    name: Band Info Build Version DL
+    description: Band Info Build Version DL.
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_ne_band}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(),"Build Version")]/../../td[2]/input/@value
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  axell_ne_build_version_ul:
+    name: Band Info Build Version UL
+    description: Band Info Build Version UL
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_ne_band}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(),"Build Version")]/../../td[3]/input/@value
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  axell_ne_buit_in_test_dl_700_800_alarm_value:
+    name: Built In Test DL 700 800 Alarm Value
+    description: Built In Test DL 700 800 Alarm Value.
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  axell_ne_buit_in_test_ul_alarm_value:
+    name: Built In Test UL Alarm Value
+    description: Built In Test UL Alarm Value.
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  axell_ne_channels_700_band:
+    name: Band Info Channels for 700 Band
+    description: Band Info Channels for 700 Band
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_ne_band}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(),"Channels for 700 band:")]/../../td/select/option[@selected]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: Int32
+      write:
+        type: object
+        properties: {}
+  axell_ne_channels_800_band:
+    name: Band Info Channels for 800 Band
+    description: Band Info Channels for 800 Band
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_ne_band}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(),"Channels for 800 band:")]/../../td/select/option[@selected]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: Int32
+      write:
+        type: object
+        properties: {}
+  axell_ne_d_filters:
+    name: Band Info D Filters
+    description: Band Info D Filters
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_ne_band}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(),"D  filters:")]/../../td[2]/font/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  axell_ne_dl_output_threshold_delta_700:
+    name: DL Output Threshold Delta 700 Band
+    description: DL Output Threshold Delta 700 Band.
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_ne_fsw_700}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(),"Threshold Delta")]/../../td[4]/select/option[@selected]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: Int32
+      write:
+        type: object
+        properties: {}
+  axell_ne_dl_output_threshold_delta_800:
+    name: DL Output Threshold Delta 800 Band
+    description: DL Output Threshold Delta 800 Band.
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_ne_fsw_800}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(),"Threshold Delta")]/../../td[4]/select/option[@selected]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: Int32
+      write:
+        type: object
+        properties: {}
+  axell_ne_donor_power_too_low_dl_700_alarm_value:
+    name: Donor Power Too Low DL 700 Alarm Value
+    description: Donor Power Too Low DL 700 Alarm Value.
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  axell_ne_donor_power_too_low_dl_800_alarm_value:
+    name: Donor Power Too Low DL 800 Alarm Value
+    description: Donor Power Too Low DL 800 Alarm Value.
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  axell_ne_max_composite_dl_output_700_power:
+    name: Max Composite DL Output Power 700 Band
+    description: Max Composite DL Output Power 700 Band.
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_ne_fsw_700}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(),"Max Composite DL")]/../../td[2]/select/option[@selected][1]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: Int32
+        unit: dBm
+      write:
+        type: object
+        properties: {}
+  axell_ne_max_composite_dl_output_800_power:
+    name: Max Composite DL Output Power 800 Band
+    description: Max Composite DL Output Power 800 Band.
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_ne_fsw_800}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(),"Max Composite DL")]/../../td[2]/select/option[@selected][1]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: Int32
+        unit: dBm
+      write:
+        type: object
+        properties: {}
+  axell_ne_max_composite_ul_output_700_power:
+    name: Max Composite UL Output Power 700 Band
+    description: Max Composite UL Output Power 700 Band.
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_ne_fsw_700}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(),"Max Composite UL")]/../../td[2]/select/option[@selected]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: Int32
+        unit: dBm
+      write:
+        type: object
+        properties: {}
+  axell_ne_max_composite_ul_output_800_power:
+    name: Max Composite UL Output Power 800 Band
+    description: Max Composite UL Output Power 800 Band.
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_ne_fsw_800}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(),"Max Composite UL")]/../../td[2]/select/option[@selected]/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: Int32
+        unit: dBm
+      write:
+        type: object
+        properties: {}
+  axell_ne_meas_composite_dl_output_power_700:
+    name: Meas Composite DL Output Power 700 Band
+    description: Meas Composite DL Output Power 700 Band
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_ne_fsw_700}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(),"Meas. Composite DL Output Power")]/../../td[4]/input/@value
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: Int32
+      write:
+        type: object
+        properties: {}
+  axell_ne_meas_composite_dl_output_power_800:
+    name: Meas Composite DL Output Power 800 Band
+    description: Meas Composite DL Output Power 800 Band.
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_ne_fsw_800}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(),"Meas. Composite DL Output Power")]/../../td[4]/input/@value
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: Int32
+      write:
+        type: object
+        properties: {}
+  axell_ne_nbfm_filters:
+    name: Band Info NBFM Filters
+    description: Band Info NBFM Filters.
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_ne_band}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(),"NBFM  filters:")]/../../td[2]/font/text()
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  axell_ne_pamp_current_dl_700_alarm_value:
+    name: Pamp Current DL 700 Alarm Value
+    description: Pamp Current DL 700 Alarm Value.
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  axell_ne_pamp_current_dl_800_alarm_value:
+    name: Pamp Current DL 800 Alarm Value
+    description: Pamp Current DL 800 Alarm Value.
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  axell_ne_pamp_current_ul_alarm_value:
+    name: Pamp Current UL Alarm Value
+    description: Pamp Current UL Alarm Value.
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  axell_ne_rf_transmission_700_enable:
+    name: RF Transmission Enable 700 Band
+    description: RF Transmission Enable 700 Band.
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_ne_fsw_700}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(),"RF Transmission Enable")]/../../td/input[@type="checkbox"]
+      extractor:
+        filters:
+          1: regexpExtract /.*(checked).*/ => $1
+          2: |
+            switch
+            "%{1}" == "checked" : "On"
+            default: "Off"
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  axell_ne_rf_transmission_800_enable:
+    name: RF Transmission Enable 800 Band
+    description: RF Transmission Enable 800 Band.
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_ne_fsw_800}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(),"RF Transmission Enable")]/../../td/input[@type="checkbox"]
+      extractor:
+        filters:
+          1: regexpExtract /.*(checked).*/ => $1
+          2: |
+            switch
+            "%{1}" == "checked" : "On"
+            default: "Off"
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  axell_ne_rssi_dl_700_alarm_value:
+    name: RSSI DL 700 Alarm Value
+    description: RSSI DL 700 Alarm Value.
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  axell_ne_rssi_dl_800_alarm_value:
+    name: RSSI DL 800 Alarm Value
+    description: RSSI DL 800 Alarm Value.
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  axell_ne_rssi_ul_alarm_value:
+    name: RSSI UL Alarm Value
+    description: RSSI UL Alarm Value.
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  axell_ne_serial_number_dl:
+    name: Band Info Serial Number DL
+    description: Band Info Serial Number DL.
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_ne_band}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(),"Serial Number")]/../../td[2]/input/@value
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  axell_ne_serial_number_ul:
+    name: Band Info Serial Number UL
+    description: Band Info Serial Number UL.
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_ne_band}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(),"Serial Number")]/../../td[3]/input/@value
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  axell_ne_shutdown_mechanism_700_enable:
+    name: Shutdown Mechanism Enable 700 Band
+    description: Shutdown Mechanism Enable 700 Band.
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_ne_fsw_700}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(),"Shut Down Mechanism")]/../../td/input[@type="checkbox"]
+      extractor:
+        filters:
+          1: regexpExtract /.*(checked).*/ => $1
+          2: |
+            switch
+            "%{1}" == "checked" : "On"
+            default: "Off"
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  axell_ne_shutdown_mechanism_800_enable:
+    name: Shutdown Mechanism Enable 800 Band
+    description: Shutdown Mechanism Enable 800 Band
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_ne_fsw_800}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(),"Shut Down Mechanism")]/../../td/input[@type="checkbox"]
+      extractor:
+        filters:
+          1: regexpExtract /.*(checked).*/ => $1
+          2: |
+            switch
+            "%{1}" == "checked" : "On"
+            default: "Off"
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  axell_ne_system_mute_dl_700_800_alarm_value:
+    name: System Mute DL 700 800 Alarm Value
+    description: System Mute DL 700 800 Alarm Value.
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  axell_ne_system_mute_ul_alarm_value:
+    name: System Mute UL Alarm Value
+    description: System Mute UL Alarm Value.
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  axell_ne_temperature_celcius_700:
+    name: Temperature Celcius 700 Band
+    description: Temperature Celcius 700 Band.
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_ne_fsw_700}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(),"Temperature")]/../../td[5]/input/@value
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  axell_ne_temperature_celcius_800:
+    name: Temperature Celcius 800 Band
+    description: Temperature Celcius 800 Band.
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_ne_fsw_800}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(),"Temperature")]/../../td[5]/input/@value
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  axell_ne_temperature_dl_700_800_alarm_value:
+    name: Temperature DL 700 800 Alarm Value
+    description: Temperature DL 700 800 Alarm Value.
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  axell_ne_temperature_farenh_700:
+    name: Temperature Fahrenheit 700 Band
+    description: Temperature Fahrenheit 700 Band.
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_ne_fsw_700}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(),"Temperature")]/../../td[4]/input/@value
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  axell_ne_temperature_farenh_800:
+    name: Temperature Fahrenheit 800 Band
+    description: Temperature Fahrenheit 800 Band.
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_ne_fsw_800}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(),"Temperature")]/../../td[4]/input/@value
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  axell_ne_temperature_ul_alarm_value:
+    name: Temperature UL Alarm Value
+    description: Temperature UL Alarm Value.
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  axell_ne_user_mute_dl_700_800_alarm_value:
+    name: User Mute DL 700 800 Alarm Value
+    description: User Mute DL 700 800 Alarm Value.
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  axell_ne_user_mute_ul_alarm_value:
+    name: User Mute UL Alarm Value
+    description: User Mute UL Alarm Value.
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  axell_ne_vswr_dl_700_800_alarm_value:
+    name: VSWR DL 700 800 Alarm Value
+    description: VSWR DL 700 800 Alarm Value.
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  axell_ne_vswr_ul_alarm_value:
+    name: VSWR UL Alarm Value
+    description: VSWR UL Alarm Value.
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+resources:
+  auths:
+    upgraded-http:
+      http:
+        httpUri: false
+        actions:
+          login:
+            dataEngine: '%{engines.upgraded-http}'
+            dataSource: '%{resources.http.requests.login}'
+            selector:
+              type: cookie
+              expression: sid1885392
+            extractor: {}
+            dataSink: '%{resources.globals.auth.sessionId}'
+          logout:
+            dataEngine: '%{engines.upgraded-http}'
+            dataSource: '%{resources.http.requests.logout}'
+            selector:
+              type: cookie
+            extractor: {}
+  mappers:
+    gif_colours:
+      keyType: String
+      valueType: String
+      map:
+        /img/green-led.gif: Normal
+        /img/red-led.gif: Critical
+        /img/yellow-led.gif: Major
+  globals:
+    auth:
+      sessionId: 0
+    reg:
+      ip: ${registration.form.properties.ip}
+      password: ${registration.vault.properties.password}
+      port: ${registration.form.properties.port}
+      url: http://${registration.form.properties.ip}:${registration.form.properties.port}
+      username: ${registration.vault.properties.username}
+  http:
+    requests:
+      get_cmu_alarms:
+        uri: ${resources.globals.reg.url}/htmlcontroller/htmlmain
+        responseContentType: text/html
+        query:
+          category: Alarms
+          ccdid: "1"
+          treenode: cmu
+        responses:
+          success:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: "200"
+          failure:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: ^(?!200)
+      get_cmu_comms:
+        uri: ${resources.globals.reg.url}/htmlcontroller/htmlmain
+        responseContentType: text/html
+        query:
+          category: Conf
+          ccdid: "1"
+          treenode: cmu
+        responses:
+          success:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: "200"
+          failure:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: ^(?!200)
+      get_cmu_ext_alarms:
+        uri: ${resources.globals.reg.url}/htmlcontroller/htmlmain
+        responseContentType: text/html
+        query:
+          category: Ext
+          ccdid: "1"
+          treenode: cmu
+        responses:
+          success:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: "200"
+          failure:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: ^(?!200)
+      get_cmu_info:
+        uri: ${resources.globals.reg.url}/htmlcontroller/htmlmain
+        responseContentType: text/html
+        query:
+          category: Info
+          ccdid: "1"
+          treenode: cmu
+        responses:
+          success:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: "200"
+          failure:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: ^(?!200)
+      get_ne_alarms:
+        uri: ${resources.globals.reg.url}/htmlcontroller/htmlmain
+        responseContentType: text/html
+        query:
+          category: Alarm
+          neid: "3"
+          pn: DMBR_48
+          treenode: ne
+        responses:
+          success:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: "200"
+          failure:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: ^(?!200)
+      get_ne_band:
+        uri: ${resources.globals.reg.url}/htmlcontroller/htmlmain
+        responseContentType: text/html
+        query:
+          category: Conf
+          neid: "3"
+          pn: DMBR_48
+          treenode: ne
+        responses:
+          success:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: "200"
+          failure:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: ^(?!200)
+      get_ne_fsw_700:
+        uri: ${resources.globals.reg.url}/htmlcontroller/htmlmain
+        responseContentType: text/html
+        query:
+          category: FSW
+          neid: "3"
+          path: A
+          pn: DMBR_48
+          treenode: ne
+        responses:
+          success:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: "200"
+          failure:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: ^(?!200)
+      get_ne_fsw_800:
+        uri: ${resources.globals.reg.url}/htmlcontroller/htmlmain
+        responseContentType: text/html
+        query:
+          category: FSW
+          neid: "3"
+          path: B
+          pn: DMBR_48
+          treenode: ne
+        responses:
+          success:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: "200"
+          failure:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: ^(?!200)
+      get_tree:
+        uri: ${resources.globals.reg.url}/htmlcontroller/htmlmain
+        responseContentType: text/html
+        query:
+          category: Alarms
+          treenode: root
+        responses:
+          success:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: "200"
+          failure:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: ^(?!200)
+      login:
+        method: POST
+        uri: ${resources.globals.reg.url}/htmlcontroller/htmlmain
+        requestContentType: application/x-www-form-urlencoded
+        responseContentType: text/html
+        query:
+          treenode: login
+        body:
+          password: ${resources.globals.reg.password}
+          submit: null
+          treenode: login
+          userid: ${resources.globals.reg.username}
+        responses:
+          success:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: "200"
+          failure:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: ^(?!200)
+      logout:
+        uri: ${resources.globals.reg.url}/
+        responseContentType: text/html
+        responses:
+          success:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: "200"
+          failure:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: ^(?!200)

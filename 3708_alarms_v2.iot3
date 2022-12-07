@@ -1,0 +1,628 @@
+iot3: 2.0.0
+info:
+  name: Axell 3708 Alarms
+  oem: Axell
+  model: "3708"
+  versions:
+    - "6.4"
+  description: 3708 Axell [Alarms Only]
+  author: Kiara L'Herpiniere <support@qeleo.com>
+  stage: alpha
+  revision: 7
+  labels:
+    - Axell
+    - "3780"
+    - Alarms
+    - auto upgraded to v2
+  created: "2021-04-22"
+  updated: "2022-12-07"
+registration:
+  vaultId: vault_id
+  fingerprint:
+    - ip
+    - port
+    - vault_id
+  vault:
+    properties:
+      password:
+        key: password
+        placeholder: Password
+        required: true
+        title: Password
+        type: string
+      username:
+        key: username
+        placeholder: Username
+        required: true
+        title: Username
+        type: string
+    required:
+      - username
+      - password
+  form:
+    properties:
+      ip:
+        key: ip
+        placeholder: IP Address
+        required: true
+        title: IP
+        type: string
+      port:
+        inputType: number
+        key: port
+        maximum: 65535
+        minimum: 1
+        placeholder: Port
+        required: true
+        title: Port
+        type: number
+      vault_id:
+        key: vault_id
+        pattern: ^(cu\w{6})(-av\w{6})$
+        placeholder: Vault ID
+        required: true
+        title: Vault ID
+        type: string
+    required:
+      - ip
+      - port
+      - vault_id
+engines:
+  tunnel:
+    ssh:
+      supported: false
+    http:
+      supported: true
+  upgraded-http:
+    schedule: '@always'
+    auth: '%{resources.auths.upgraded-http}'
+    type: HTTP
+    options:
+      tls:
+        minVersion: "1.0"
+topology:
+  rootType: street
+  wrapperType: system
+  verify:
+    - dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_cmu_info}'
+      selector:
+        type: xpath
+        expression: //*[contains(text(),"CMU Name")]/../../../tbody/tr[4]/td[2]/input/@value
+      extractor:
+        filters:
+          1: regexpReplace /(?:^\d+\_\d+_\d+|^\d+\.\d+.\d+)/ => $0
+      match: ^6.6
+  nodes: true
+  discovery:
+    dataEngine: '%{engines.upgraded-http}'
+    dataSource: '%{resources.http.requests.get_tree}'
+    type: http
+    selectors:
+      nodes:
+        dataEngine: '%{engines.upgraded-http}'
+        selector:
+          type: xpath
+          expression: //table[@id="cmu"]//tr/td[last()]/a/text()
+    flatten:
+      type:
+        transform: ${topology.discovery.selectors.nodes}
+        filters:
+          1: toLower
+          2: |
+            switch
+            "%{1}" ~= ".*street.*" : "street"
+            default: "axell"
+      topology:
+        transform: ${topology.discovery.selectors.nodes}
+        filters:
+          1: toLower
+          2: |
+            switch
+            "%{1}" ~= ".*street.*" : "street"
+            default: "axell"
+          3: |
+            switch
+            "%{2}" == "street" : "'system' -> '555 E STREET NW'"
+            default: "'system' -> '555 E STREET NW' -> '[%{0}]"
+      version:
+        transform: "0.1"
+types:
+  axell:
+    name: Axell
+    version: '[0.1,)'
+    reference: axell
+    attributes:
+      - axell_ne_system_mute_dl_700_800_alarm_value
+      - axell_ne_system_mute_ul_alarm_value
+      - axell_ne_user_mute_dl_700_800_alarm_value
+      - axell_ne_user_mute_ul_alarm_value
+      - axell_ne_buit_in_test_dl_700_800_alarm_value
+      - axell_ne_buit_in_test_ul_alarm_value
+      - axell_ne_temperature_dl_700_800_alarm_value
+      - axell_ne_temperature_ul_alarm_value
+      - axell_ne_donor_power_too_low_dl_700_alarm_value
+      - axell_ne_donor_power_too_low_dl_800_alarm_value
+      - axell_ne_pamp_current_dl_700_alarm_value
+      - axell_ne_pamp_current_dl_800_alarm_value
+      - axell_ne_pamp_current_ul_alarm_value
+      - axell_ne_rssi_dl_700_alarm_value
+      - axell_ne_rssi_dl_800_alarm_value
+      - axell_ne_rssi_ul_alarm_value
+      - axell_ne_vswr_dl_700_800_alarm_value
+      - axell_ne_vswr_ul_alarm_value
+    alarms:
+      axell_ne_buit_in_test_dl_700_800_alarm_value:
+        attributes:
+          - axell_ne_buit_in_test_dl_700_800_alarm_value
+        mapper: '%{resources.mappers.gif_colours}'
+      axell_ne_buit_in_test_ul_alarm_value:
+        attributes:
+          - axell_ne_buit_in_test_ul_alarm_value
+        mapper: '%{resources.mappers.gif_colours}'
+      axell_ne_donor_power_too_low_dl_700_alarm_value:
+        attributes:
+          - axell_ne_donor_power_too_low_dl_700_alarm_value
+        mapper: '%{resources.mappers.gif_colours}'
+      axell_ne_donor_power_too_low_dl_800_alarm_value:
+        attributes:
+          - axell_ne_donor_power_too_low_dl_800_alarm_value
+        mapper: '%{resources.mappers.gif_colours}'
+      axell_ne_pamp_current_dl_700_alarm_value:
+        attributes:
+          - axell_ne_pamp_current_dl_700_alarm_value
+        mapper: '%{resources.mappers.gif_colours}'
+      axell_ne_pamp_current_dl_800_alarm_value:
+        attributes:
+          - axell_ne_pamp_current_dl_800_alarm_value
+        mapper: '%{resources.mappers.gif_colours}'
+      axell_ne_pamp_current_ul_alarm_value:
+        attributes:
+          - axell_ne_pamp_current_ul_alarm_value
+        mapper: '%{resources.mappers.gif_colours}'
+      axell_ne_rssi_dl_700_alarm_value:
+        attributes:
+          - axell_ne_rssi_dl_700_alarm_value
+        mapper: '%{resources.mappers.gif_colours}'
+      axell_ne_rssi_dl_800_alarm_value:
+        attributes:
+          - axell_ne_rssi_dl_800_alarm_value
+        mapper: '%{resources.mappers.gif_colours}'
+      axell_ne_rssi_ul_alarm_value:
+        attributes:
+          - axell_ne_rssi_ul_alarm_value
+        mapper: '%{resources.mappers.gif_colours}'
+      axell_ne_system_mute_dl_700_800_alarm_value:
+        attributes:
+          - axell_ne_system_mute_dl_700_800_alarm_value
+        mapper: '%{resources.mappers.gif_colours}'
+      axell_ne_system_mute_ul_alarm_value:
+        attributes:
+          - axell_ne_system_mute_ul_alarm_value
+        mapper: '%{resources.mappers.gif_colours}'
+      axell_ne_temperature_dl_700_800_alarm_value:
+        attributes:
+          - axell_ne_temperature_dl_700_800_alarm_value
+        mapper: '%{resources.mappers.gif_colours}'
+      axell_ne_temperature_ul_alarm_value:
+        attributes:
+          - axell_ne_temperature_ul_alarm_value
+        mapper: '%{resources.mappers.gif_colours}'
+      axell_ne_user_mute_dl_700_800_alarm_value:
+        attributes:
+          - axell_ne_user_mute_dl_700_800_alarm_value
+        mapper: '%{resources.mappers.gif_colours}'
+      axell_ne_user_mute_ul_alarm_value:
+        attributes:
+          - axell_ne_user_mute_ul_alarm_value
+        mapper: '%{resources.mappers.gif_colours}'
+      axell_ne_vswr_dl_700_800_alarm_value:
+        attributes:
+          - axell_ne_vswr_dl_700_800_alarm_value
+        mapper: '%{resources.mappers.gif_colours}'
+      axell_ne_vswr_ul_alarm_value:
+        attributes:
+          - axell_ne_vswr_ul_alarm_value
+        mapper: '%{resources.mappers.gif_colours}'
+    price:
+      value: 0
+      unit: USD
+    energy:
+      value: 0
+      unit: W
+  street:
+    name: Street
+    version: '[0.1,)'
+    reference: street
+    price:
+      value: 0
+      unit: USD
+    energy:
+      value: 0
+      unit: W
+  system:
+    name: System
+    version: '[0.1,)'
+    reference: system
+    price:
+      value: 0
+      unit: USD
+    energy:
+      value: 0
+      unit: W
+attributes:
+  axell_ne_buit_in_test_dl_700_800_alarm_value:
+    name: Built In Test DL 700 800 Alarm Value
+    description: Built In Test DL 700 800 Alarm Value.
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  axell_ne_buit_in_test_ul_alarm_value:
+    name: Built In Test UL Alarm Value
+    description: Built In Test UL Alarm Value.
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  axell_ne_donor_power_too_low_dl_700_alarm_value:
+    name: Donor Power Too Low DL 700 Alarm Value
+    description: Donor Power Too Low DL 700 Alarm Value.
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  axell_ne_donor_power_too_low_dl_800_alarm_value:
+    name: Donor Power Too Low DL 800 Alarm Value
+    description: Donor Power Too Low DL 800 Alarm Value.
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  axell_ne_pamp_current_dl_700_alarm_value:
+    name: Pamp Current DL 700 Alarm Value
+    description: Pamp Current DL 700 Alarm Value.
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  axell_ne_pamp_current_dl_800_alarm_value:
+    name: Pamp Current DL 800 Alarm Value
+    description: Pamp Current DL 800 Alarm Value.
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+      write:
+        type: object
+        properties: {}
+  axell_ne_pamp_current_ul_alarm_value:
+    name: Pamp Current UL Alarm Value
+    description: Pamp Current UL Alarm Value.
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  axell_ne_rssi_dl_700_alarm_value:
+    name: RSSI DL 700 Alarm Value
+    description: RSSI DL 700 Alarm Value.
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  axell_ne_rssi_dl_800_alarm_value:
+    name: RSSI DL 800 Alarm Value
+    description: RSSI DL 800 Alarm Value.
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  axell_ne_rssi_ul_alarm_value:
+    name: RSSI UL Alarm Value
+    description: RSSI UL Alarm Value.
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  axell_ne_system_mute_dl_700_800_alarm_value:
+    name: System Mute DL 700 800 Alarm Value
+    description: System Mute DL 700 800 Alarm Value.
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  axell_ne_system_mute_ul_alarm_value:
+    name: System Mute UL Alarm Value
+    description: System Mute UL Alarm Value.
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  axell_ne_temperature_dl_700_800_alarm_value:
+    name: Temperature DL 700 800 Alarm Value
+    description: Temperature DL 700 800 Alarm Value.
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  axell_ne_temperature_ul_alarm_value:
+    name: Temperature UL Alarm Value
+    description: Temperature UL Alarm Value.
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  axell_ne_user_mute_dl_700_800_alarm_value:
+    name: User Mute DL 700 800 Alarm Value
+    description: User Mute DL 700 800 Alarm Value.
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  axell_ne_user_mute_ul_alarm_value:
+    name: User Mute UL Alarm Value
+    description: User Mute UL Alarm Value.
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  axell_ne_vswr_dl_700_800_alarm_value:
+    name: VSWR DL 700 800 Alarm Value
+    description: VSWR DL 700 800 Alarm Value.
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  axell_ne_vswr_ul_alarm_value:
+    name: VSWR UL Alarm Value
+    description: VSWR UL Alarm Value.
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+resources:
+  auths:
+    upgraded-http:
+      http:
+        httpUri: false
+        actions:
+          login:
+            dataEngine: '%{engines.upgraded-http}'
+            dataSource: '%{resources.http.requests.login}'
+            selector:
+              type: cookie
+              expression: sid1885392
+            extractor: {}
+            dataSink: '%{resources.globals.auth.sessionId}'
+          logout:
+            dataEngine: '%{engines.upgraded-http}'
+            dataSource: '%{resources.http.requests.logout}'
+            selector:
+              type: cookie
+            extractor: {}
+  mappers:
+    gif_colours:
+      keyType: String
+      valueType: String
+      map:
+        /img/green-led.gif: Normal
+        /img/red-led.gif: Critical
+        /img/yellow-led.gif: Major
+  globals:
+    auth:
+      sessionId: 0
+    reg:
+      ip: ${registration.form.properties.ip}
+      password: ${registration.vault.properties.password}
+      port: ${registration.form.properties.port}
+      url: http://${registration.form.properties.ip}:${registration.form.properties.port}
+      username: ${registration.vault.properties.username}
+  http:
+    requests:
+      get_cmu_info:
+        uri: ${resources.globals.reg.url}/htmlcontroller/htmlmain
+        responseContentType: text/html
+        query:
+          category: Info
+          ccdid: "1"
+          treenode: cmu
+        responses:
+          success:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: "200"
+          failure:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: ^(?!200)
+      get_ne_alarms:
+        uri: ${resources.globals.reg.url}/htmlcontroller/htmlmain
+        responseContentType: text/html
+        query:
+          category: Alarm
+          neid: "3"
+          pn: DMBR_48
+          treenode: ne
+        responses:
+          success:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: "200"
+          failure:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: ^(?!200)
+      get_tree:
+        uri: ${resources.globals.reg.url}/htmlcontroller/htmlmain
+        responseContentType: text/html
+        query:
+          category: Alarms
+          treenode: root
+        responses:
+          success:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: "200"
+          failure:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: ^(?!200)
+      login:
+        method: POST
+        uri: ${resources.globals.reg.url}/htmlcontroller/htmlmain
+        requestContentType: application/x-www-form-urlencoded
+        responseContentType: text/html
+        query:
+          treenode: login
+        body:
+          password: ${resources.globals.reg.password}
+          submit: null
+          treenode: login
+          userid: ${resources.globals.reg.username}
+        responses:
+          success:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: "200"
+          failure:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: ^(?!200)
+      logout:
+        uri: ${resources.globals.reg.url}/
+        responseContentType: text/html
+        responses:
+          success:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: "200"
+          failure:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: ^(?!200)
