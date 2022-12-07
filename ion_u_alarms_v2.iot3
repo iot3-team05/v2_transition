@@ -1,0 +1,809 @@
+iot3: 2.0.0
+info:
+  name: CommScope ION-U Alarms
+  oem: CommScope
+  model: ION-U
+  versions:
+    - "1.95"
+  description: CommScope ION-U [Alarms Only]
+  author: deep.desai@qeleo.com
+  stage: alpha
+  revision: 4
+  labels:
+    - 'Topology: version needs to be hard coded, xpath to be refined'
+    - JSON -> XML trouble with making xpath for topology
+    - only seen a few alarms
+    - auto upgraded to v2
+  created: "2021-08-23"
+  updated: "2022-12-07"
+registration:
+  vaultId: vault_id
+  fingerprint:
+    - ip
+    - port
+    - vault_id
+  vault:
+    properties:
+      password:
+        key: password
+        placeholder: Password
+        required: true
+        title: Password
+        type: string
+      username:
+        key: username
+        placeholder: Username
+        required: true
+        title: Username
+        type: string
+    required:
+      - username
+      - password
+  form:
+    properties:
+      ip:
+        key: ip
+        placeholder: IP Address
+        required: true
+        title: IP
+        type: string
+      port:
+        inputType: number
+        key: port
+        maximum: 65535
+        minimum: 1
+        placeholder: Port
+        required: true
+        title: Port
+        type: number
+      vault_id:
+        key: vault_id
+        pattern: ^(cu\w{6})(-av\w{6})$
+        placeholder: Vault ID
+        required: true
+        title: Vault ID
+        type: string
+    required:
+      - ip
+      - port
+      - vault_id
+engines:
+  tunnel:
+    ssh:
+      supported: false
+    http:
+      supported: true
+  upgraded-http:
+    schedule: '@always'
+    auth: '%{resources.auths.upgraded-http}'
+    type: HTTP
+    options:
+      tls:
+        minVersion: "1.0"
+topology:
+  rootType: smhw
+  verify:
+    - dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: xpath
+        expression: ""
+      match: ""
+  nodes: true
+  discovery:
+    dataEngine: '%{engines.upgraded-http}'
+    dataSource: '%{resources.http.requests.get_tree}'
+    type: http
+    selectors:
+      nodes:
+        dataEngine: '%{engines.upgraded-http}'
+        selector:
+          type: xpath
+          expression: //classes[text() ="isDevice"]/..
+    flatten:
+      type:
+        filters:
+          1: xpath //type/text()
+          2: use %{1}
+          3: "switch\n\"%{2}\" ~= \"^rmc.*\" : \"smhw\"\n\"%{2}\" ~= \"^ifc.*\" : \"ifc\"\n\"%{2}\" ~= \".*poi.*\" : \"poi\"                  \n\"%{2}\" ~= \"^src.*\" : \"src\"\n\"%{2}\" ~= \".*matrix.*\" : \"smtx\"              \n\"%{2}\" ~= \".*split.*\" : \"osplt\"              \n\"%{2}\" ~= \"^zone.*\" : \"zcmb\"                \n\"%{2}\" ~= \"^pdu.*\" : \"pdu\"\n\"%{2}\" ~= \".*otrx.*\" : \"otrx\"                \n\"%{2}\" ~= \"^remote.*\" : \"ru\"                    \ndefault:\"\"\n"
+      topology:
+        transform: ${topology.discovery.selectors.nodes}
+        filters:
+          1: xpath //fqdn/text()
+          2: use %{1}
+          3: regexpExtract /(\.rack\d+)/ => $1
+          4: use %{3}
+          5: regexpReplace /(.rack)/ => ''
+          6: use %{1}
+          7: regexpExtract /(\.subrack\d+)/ => $1
+          8: use %{7}
+          9: regexpReplace /(.subrack)/ => ''
+          10: use %{1}
+          11: regexpExtract /(slot\d+)/ => $1
+          12: use %{11}
+          13: regexpReplace /(slot)/ => ''
+          14: use %{1}
+          15: regexpExtract /(ru-\d+)/ => $1
+          16: use %{15}
+          17: regexpReplace /(ru-)/ => ''
+          18: use %{0}
+          19: xpath //type/text()
+          20: use %{19}
+          21: "switch\n\"%{20}\" ~= \"^rmc.*\" : \"smhw\"\n\"%{20}\" ~= \"^ifc.*\" : \"ifc\"\n\"%{20}\" ~= \".*poi.*\" : \"poi\"                  \n\"%{20}\" ~= \"^src.*\" : \"src\"\n\"%{20}\" ~= \".*matrix.*\" : \"smtx\"              \n\"%{20}\" ~= \".*split.*\" : \"osplt\"              \n\"%{20}\" ~= \"^zone.*\" : \"zcmb\"                \n\"%{20}\" ~= \"^pdu.*\" : \"pdu\"\n\"%{20}\" ~= \".*otrx.*\" : \"otrx\"                \n\"%{20}\" ~= \"^remote.*\" : \"ru\"                    \ndefault:\"\"\n"
+          22: "switch\n\"%{21}\" == \"smhw\" : \"'system' -> 'smhw'\" \n\"%{21}\" == \"ifc\" : \"'system' -> 'rack [%{5}]' -> 'subrack [%{9}]' -> 'ifc [%{13}]'\"\n\"%{21}\" == \"poi\" : \"'system' -> 'rack [%{5}]' -> 'subrack [%{9}]' -> 'poi [%{13}]'\"\n\"%{21}\" == \"src\" : \"'system' -> 'rack [%{5}]' -> 'subrack [%{9}]' -> 'src [%{13}]'\"\n\"%{21}\" == \"smtx\" : \"'system' -> 'rack [%{5}]' -> 'subrack [%{9}]' -> 'smtx [%{13}]'\"\n\"%{21}\" == \"osplt\" : \"'system' -> 'rack [%{5}]' -> 'subrack [%{9}]' -> 'osplt [%{13}]'\"\n\"%{21}\" == \"zcmb\" : \"'system' -> 'rack [%{5}]' -> 'subrack [%{9}]' -> 'zcmb [%{13}]'\"\n\"%{21}\" == \"pdu\" : \"'system' -> 'rack [%{5}]' -> 'subrack [%{9}]' -> 'pdu [%{13}]'\"\n\"%{21}\" == \"otrx\" : \"'system' -> 'rack [%{5}]' -> 'subrack [%{9}]' -> 'otrx [%{13}]'\"\n\"%{21}\" == \"ru\" : \"'system' -> 'rack [%{5}]' -> 'subrack [%{9}]' -> 'otrx [%{13}]' -> 'ru [%{17}]'\"\ndefaults: \"'smhw\"\n"
+      version:
+        transform: ${topology.discovery.selectors.nodes}
+        filters:
+          1: xpath //version/text()
+          2: regexpExtract /^\d{1}+[.]+\d{2}/ => $1
+      loco:
+        transform: ${topology.discovery.selectors.nodes}
+        filters:
+          1: xpath //fqdn/text()
+      rack:
+        transform: ${topology.discovery.selectors.nodes}
+        filters:
+          1: xpath //fqdn/text()
+          2: use %{1}
+          3: regexpExtract /(\.rack\d+)/ => $1
+          4: use %{3}
+          5: regexpReplace /(.rack)/ => ''
+      ruNum:
+        transform: ${topology.discovery.selectors.nodes}
+        filters:
+          1: xpath //fqdn/text()
+          2: use %{1}
+          3: regexpExtract /(ru-\d+)/ => $1
+          4: use %{3}
+          5: regexpReplace /(ru-)/ => ''
+      slot:
+        transform: ${topology.discovery.selectors.nodes}
+        filters:
+          1: xpath //fqdn/text()
+          2: use %{1}
+          3: regexpExtract /(slot\d+)/ => $1
+          4: use %{3}
+          5: regexpReplace /(slot)/ => ''
+      subrack:
+        transform: ${topology.discovery.selectors.nodes}
+        filters:
+          1: xpath //fqdn/text()
+          2: use %{1}
+          3: regexpExtract /(\.subrack\d+)/ => $1
+          4: use %{3}
+          5: regexpReplace /(.subrack)/ => ''
+types:
+  ifc:
+    name: IFC
+    version: '[1.3,)'
+    reference: ifc
+    price:
+      value: 0
+      unit: USD
+    energy:
+      value: 0
+      unit: W
+  osplt:
+    name: OSPLT
+    version: '[1.0,)'
+    reference: osplt
+    price:
+      value: 0
+      unit: USD
+    energy:
+      value: 0
+      unit: W
+  otrx:
+    name: OTRX
+    version: '[1.2,)'
+    reference: otrx
+    price:
+      value: 0
+      unit: USD
+    energy:
+      value: 0
+      unit: W
+  pdu:
+    name: PDU
+    version: '[1.2,)'
+    reference: pdu
+    attributes:
+      - pdu_active_alarm_psu_2_missing
+      - pdu_active_alarm_psu_4_missing
+      - pdu_active_alarm_psu_5_missing
+    alarms:
+      pdu_active_alarm_psu_2_missing:
+        attributes:
+          - pdu_active_alarm_psu_2_missing
+        mapper: '%{resources.mappers.alarms}'
+      pdu_active_alarm_psu_4_missing:
+        attributes:
+          - pdu_active_alarm_psu_4_missing
+        mapper: '%{resources.mappers.alarms}'
+      pdu_active_alarm_psu_5_missing:
+        attributes:
+          - pdu_active_alarm_psu_5_missing
+        mapper: '%{resources.mappers.alarms}'
+    price:
+      value: 0
+      unit: USD
+    energy:
+      value: 0
+      unit: W
+  poi:
+    name: POI
+    version: '[1.12,)'
+    reference: poi
+    attributes:
+      - poi_active_alarm_internal_data_inconsistency
+    alarms:
+      poi_active_alarm_internal_data_inconsistency:
+        attributes:
+          - poi_active_alarm_internal_data_inconsistency
+        mapper: '%{resources.mappers.alarms}'
+    price:
+      value: 0
+      unit: USD
+    energy:
+      value: 0
+      unit: W
+  ru:
+    name: RU
+    version: '[1.0,)'
+    reference: ru
+    price:
+      value: 0
+      unit: USD
+    energy:
+      value: 0
+      unit: W
+  smhw:
+    name: Site Manager
+    version: '[1.0,)'
+    reference: smhw
+    price:
+      value: 0
+      unit: USD
+    energy:
+      value: 0
+      unit: W
+  smtx:
+    name: SMTX
+    version: '[1.0,)'
+    reference: smtx
+    price:
+      value: 0
+      unit: USD
+    energy:
+      value: 0
+      unit: W
+  src:
+    name: SRC
+    version: '[1.2,)'
+    reference: src
+    price:
+      value: 0
+      unit: USD
+    energy:
+      value: 0
+      unit: W
+  zcmb:
+    name: ZCMB
+    version: '[1.0,)'
+    reference: zcmb
+    price:
+      value: 0
+      unit: USD
+    energy:
+      value: 0
+      unit: W
+attributes:
+  pdu_active_alarm_psu_2_missing:
+    name: PSU 2 Missing
+    description: PSU 2 Missing
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression:''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  pdu_active_alarm_psu_4_missing:
+    name: PSU 4 Missing
+    description: PSU 4 Missing
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression:''
+        extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  pdu_active_alarm_psu_5_missing:
+    name: PSU 5 Missing
+    description: PSU 5 Missing
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  poi_active_alarm_internal_data_inconsistency:
+    name: Internal Data Inconsistency
+    description: Internal Data Inconsistency
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+resources:
+  auths:
+    upgraded-http:
+      http:
+        httpUri: false
+        actions:
+          login:
+            dataEngine: '%{engines.upgraded-http}'
+            dataSource: '%{resources.http.requests.login}'
+            selector:
+              type: cookie
+              expression: SESS
+            dataSink: '%{resources.globals.auth.sessionID}'
+          logout:
+            dataEngine: '%{engines.upgraded-http}'
+            dataSource: '%{resources.http.requests.logout}'
+            extractor: {}
+            dataSink: '%{resources.globals.auth.sessionID}'
+  functions:
+    timestamp:
+      filters:
+        1: timestamp
+  mappers:
+    alarms:
+      keyType: String
+      valueType: String
+      map:
+        Critical: Critical
+        Major: Severe
+        Normal: Normal
+        default: Normal
+  globals:
+    auth:
+      sessionID: 0
+    reg:
+      ip: ${registration.form.properties.ip}
+      password: ${registration.vault.properties.password}
+      port: ${registration.form.properties.port}
+      url: http://${registration.form.properties.ip}:${registration.form.properties.port}
+      username: ${registration.vault.properties.username}
+  http:
+    requests:
+      get_alarms:
+        method: POST
+        uri: ${resources.globals.reg.url}/batch
+        requestContentType: application/json
+        cookies:
+          SESS: ${resources.globals.auth.sessionID}
+        body:
+          iot3:json-data: '{"x" : {"alarms":[{"a":"get","ttl":10,"id":726079,"p":{"sortColumn":"timestamp","sortDirection":"DESC","filterbyColumn":"","filterValues":[]}}]}}'
+        responses:
+          success:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: "200"
+          failure:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: ^(?!200)
+      get_att:
+        method: POST
+        uri: ${resources.globals.reg.url}/batch
+        requestContentType: application/json
+        cookies:
+          SESS: ${resources.globals.auth.sessionID}
+        body:
+          ${topology.discovery.flatten.loco}:
+            ipoi:
+              - a: getAttenuation
+                id: 639117
+                p:
+                  PL1:
+                    - BTS 1 DL IN
+                    - BTS 1 DL DPLX
+                    - BTS 2 DL IN
+                    - BTS 2 DL DPLX
+                    - INT REF PT
+                    - INT REF PT
+                  PL2:
+                    - INT REF PT
+                    - INT REF PT
+                    - INT REF PT
+                    - INT REF PT
+                    - DAS 1 DL OUT
+                    - DAS 2 DL OUT
+                  attenuationType: DL
+                  ipoiName: ipoilpus
+                ttl: 10
+              - a: getGeneratorData
+                id: 250001
+                p:
+                  PL1:
+                    - BTS 1 DL IN
+                    - BTS 1 DL DPLX
+                    - BTS 2 DL IN
+                    - BTS 2 DL DPLX
+                  PL2:
+                    - INT REF PT
+                    - INT REF PT
+                    - INT REF PT
+                    - INT REF PT
+                  attenuationType: DL
+                ttl: 10
+              - a: getAttenuation
+                id: 62448
+                p:
+                  PL1:
+                    - BTS 1 UL OUT
+                    - BTS 1 UL DPLX
+                    - BTS 2 UL OUT
+                    - BTS 2 UL DPLX
+                    - INT REF PT
+                    - INT REF PT
+                  PL2:
+                    - INT REF PT
+                    - INT REF PT
+                    - INT REF PT
+                    - INT REF PT
+                    - DAS 1 UL IN
+                    - DAS 2 UL IN
+                  attenuationType: UL
+                  ipoiName: ipoilpus
+                ttl: 10
+              - a: getPathStatus
+                id: 717903
+                p:
+                  pLabel1:
+                    - BTS 1 DL IN
+                    - BTS 1 UL OUT
+                    - BTS 1 UL/DL (DL)
+                    - BTS 1 UL/DL (UL)
+                    - BTS 2 DL IN
+                    - BTS 2 UL OUT
+                    - BTS 2 UL/DL (DL)
+                    - BTS 2 UL/DL (UL)
+                    - DAS 1 DL OUT
+                    - DAS 1 UL IN
+                    - DAS 2 DL OUT
+                    - DAS 2 UL IN
+                ttl: 10
+              - a: getSVGPower
+                id: 778606
+                p:
+                  direction: DL
+                  portLabels:
+                    - BTS 1 DL DPLX
+                    - BTS 1 DL IN
+                    - BTS 1 UL DPLX
+                    - BTS 1 UL OUT
+                    - BTS 2 DL DPLX
+                    - BTS 2 DL IN
+                    - BTS 2 UL DPLX
+                    - BTS 2 UL OUT
+                    - DAS 1 DL OUT
+                    - DAS 1 UL IN
+                    - DAS 2 DL OUT
+                    - DAS 2 UL IN
+                ttl: 10
+              - a: getThresholdData
+                id: 894041
+                p:
+                  PL1:
+                    - BTS 1 DL DPLX
+                    - BTS 1 DL IN
+                    - BTS 2 DL DPLX
+                    - BTS 2 DL IN
+                    - DAS 1 DL OUT
+                    - DAS 2 DL OUT
+                  PL2:
+                    - INT REF PT
+                    - INT REF PT
+                    - INT REF PT
+                    - INT REF PT
+                    - INT REF PT
+                    - INT REF PT
+                ttl: 10
+        responses:
+          success:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: "200"
+          failure:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: ^(?!200)
+      get_info:
+        method: POST
+        uri: ${resources.globals.reg.url}/batch
+        requestContentType: application/json
+        cookies:
+          SESS: ${resources.globals.auth.sessionID}
+        body:
+          ${topology.discovery.flatten.loco}:
+            device:
+              - a: moduleInfo
+                id: 276246
+                p: {}
+                ttl: 10
+        responses:
+          success:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: "200"
+          failure:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: ^(?!200)
+      get_rf:
+        method: POST
+        uri: ${resources.globals.reg.url}/batch
+        requestContentType: application/json
+        cookies:
+          SESS: ${resources.globals.auth.sessionID}
+        body:
+          ${topology.discovery.flatten.loco}:
+            rfparameters:
+              - content:
+                  checksum: e2784ed5
+                  deviceType: ZC 8X8
+                  schematicPath: ../../assets/img/svg/rfdiagrams/zcmb_8x8.svg
+                id: 876687
+                status: 200
+              - content:
+                  checksum: 2cdfcec6
+                  result:
+                    apex:
+                      label: Port
+                    data:
+                      - colValues:
+                          - error: 0
+                            issue: 0
+                            label: Status
+                            oldValue: 1
+                            portAvailable: 1
+                            portStatus: 1
+                        displayLabel: ZONE DL 1;ZONE UL 1
+                        uniqueLabel: ZONE DL 1
+                      - colValues:
+                          - error: 0
+                            issue: 0
+                            label: Status
+                            oldValue: 1
+                            portAvailable: 1
+                            portStatus: 1
+                        displayLabel: ZONE DL 2;ZONE UL 2
+                        uniqueLabel: ZONE DL 2
+                      - colValues:
+                          - error: 0
+                            issue: 0
+                            label: Status
+                            oldValue: 1
+                            portAvailable: 1
+                            portStatus: 1
+                        displayLabel: ZONE DL 3;ZONE UL 3
+                        uniqueLabel: ZONE DL 3
+                      - colValues:
+                          - error: 0
+                            issue: 0
+                            label: Status
+                            oldValue: 1
+                            portAvailable: 1
+                            portStatus: 1
+                        displayLabel: ZONE DL 4;ZONE UL 4
+                        uniqueLabel: ZONE DL 4
+                      - colValues:
+                          - error: 0
+                            issue: 0
+                            label: Status
+                            oldValue: 0
+                            portAvailable: 1
+                            portStatus: 0
+                        displayLabel: ZONE DL 5;ZONE UL 5
+                        uniqueLabel: ZONE DL 5
+                      - colValues:
+                          - error: 0
+                            issue: 0
+                            label: Status
+                            oldValue: 0
+                            portAvailable: 1
+                            portStatus: 0
+                        displayLabel: ZONE DL 6;ZONE UL 6
+                        uniqueLabel: ZONE DL 6
+                      - colValues:
+                          - error: 0
+                            issue: 0
+                            label: Status
+                            oldValue: 0
+                            portAvailable: 1
+                            portStatus: 0
+                        displayLabel: ZONE DL 7;ZONE UL 7
+                        uniqueLabel: ZONE DL 7
+                      - colValues:
+                          - error: 0
+                            issue: 0
+                            label: Status
+                            oldValue: 0
+                            portAvailable: 1
+                            portStatus: 0
+                        displayLabel: ZONE DL 8;ZONE UL 8
+                        uniqueLabel: ZONE DL 8
+                    meta:
+                      cols: 1
+                      rows: 8
+                    response:
+                      error:
+                        error_code: 401
+                        has_error: 0
+                id: 733463
+                status: 200
+              - content:
+                  checksum: 0800fd55
+                  result:
+                    apex:
+                      label: Port
+                    data:
+                      - colValues:
+                          - error: 0
+                            issue: 0
+                            label: Status
+                            oldValue: 1
+                            portAvailable: 1
+                            portStatus: 1
+                        displayLabel: OTRX DL 1;OTRX UL 1
+                        uniqueLabel: OTRX DL 1
+                      - colValues:
+                          - error: 0
+                            issue: 0
+                            label: Status
+                            oldValue: 0
+                            portAvailable: 1
+                            portStatus: 0
+                        displayLabel: OTRX DL 2;OTRX UL 2
+                        uniqueLabel: OTRX DL 2
+                      - colValues:
+                          - error: 0
+                            issue: 0
+                            label: Status
+                            oldValue: 0
+                            portAvailable: 1
+                            portStatus: 0
+                        displayLabel: OTRX DL 3;OTRX UL 3
+                        uniqueLabel: OTRX DL 3
+                      - colValues:
+                          - error: 0
+                            issue: 0
+                            label: Status
+                            oldValue: 0
+                            portAvailable: 1
+                            portStatus: 0
+                        displayLabel: OTRX DL 4;OTRX UL 4
+                        uniqueLabel: OTRX DL 4
+                      - colValues:
+                          - error: 0
+                            issue: 0
+                            label: Status
+                            oldValue: 0
+                            portAvailable: 1
+                            portStatus: 0
+                        displayLabel: OTRX DL 5;OTRX UL 5
+                        uniqueLabel: OTRX DL 5
+                      - colValues:
+                          - error: 0
+                            issue: 0
+                            label: Status
+                            oldValue: 0
+                            portAvailable: 1
+                            portStatus: 0
+                        displayLabel: OTRX DL 6;OTRX UL 6
+                        uniqueLabel: OTRX DL 6
+                      - colValues:
+                          - error: 0
+                            issue: 0
+                            label: Status
+                            oldValue: 0
+                            portAvailable: 1
+                            portStatus: 0
+                        displayLabel: OTRX DL 7;OTRX UL 7
+                        uniqueLabel: OTRX DL 7
+                      - colValues:
+                          - error: 0
+                            issue: 0
+                            label: Status
+                            oldValue: 0
+                            portAvailable: 1
+                            portStatus: 0
+                        displayLabel: OTRX DL 8;OTRX UL 8
+                        uniqueLabel: OTRX DL 8
+                    meta:
+                      cols: 1
+                      rows: 8
+                    response:
+                      error:
+                        error_code: 401
+                        has_error: 0
+                id: 425708
+                status: 200
+        responses:
+          success:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: "200"
+          failure:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: ^(?!200)
+      get_tree:
+        method: POST
+        uri: ${resources.globals.reg.url}/batch
+        requestContentType: application/json
+        cookies:
+          SESS: ${resources.globals.auth.sessionID}
+        body:
+          iot3:json-data: '{"x" : {"ion":[{"a":"getNotificationsCount","ttl":10,"id":570957,"p":{}}],"setup":[{"a":"getSystemstate","ttl":10,"id":754093,"p":{"disableStateUpdate":0}}],"tree":[{"a":"get","ttl":10,"id":252452,"p":{}}],"alarms":[{"a":"get","ttl":10,"id":28791,"p":{"sortColumn":"timestamp","sortDirection":"DESC","filterbyColumn":"","filterValues":[]}}]}}'
+        responses:
+          success:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: "200"
+          failure:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: ^(?!200)
+      login:
+        method: POST
+        uri: ${resources.globals.reg.url}/batch
+        requestContentType: application/json
+        body:
+          iot3:json-data: '{"x" : {"login":[{"a":"login","ttl":10,"id":463623,"p":{"login":"${resources.globals.reg.username}","password":"${resources.globals.reg.password}","expire":!{template.filters.functions.timestamp}}}]}}'
+        responses:
+          success:
+            - dataSource: '%{response.body}'
+              type: gjson
+              expression: success
+              match: "true"
+          failure:
+            - dataSource: '%{response.body}'
+              expression: status
+              match: "401"
+      logout:
+        method: POST
+        uri: ${resources.globals.reg.url}/batch
+        requestContentType: application/json
+        body:
+          iot3:json-data: '{"x" : {"login":[{"a":"logout","ttl":10,"id":407473,"p":{}}]}}'
+        responses:
+          success:
+            - dataSource: '%{response.body}'
+              type: gjson
+              expression: success
+              match: "true"
+          failure:
+            - dataSource: '%{response.body}'
+              expression: ""
+              match: ""
