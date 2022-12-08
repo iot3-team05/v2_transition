@@ -1,0 +1,1829 @@
+iot3: 2.0.0
+info:
+  name: Commscope Ion B Alarms
+  oem: Commscope
+  model: Ion B
+  versions:
+    - "4.1"
+    - "5.3"
+  description: Commscope Ion B [Alarms Only]
+  author: bhagyashree.bothra@qeleo.com
+  stage: alpha
+  revision: 2
+  labels:
+    - version checks
+    - calls say Ion M but it's actually Ion B
+    - Alarms
+    - auto upgraded to v2
+  created: "2021-05-09"
+  updated: "2022-12-07"
+registration:
+  vaultId: vault_id
+  fingerprint:
+    - ip
+    - port
+    - vault_id
+  vault:
+    properties:
+      password:
+        key: password
+        placeholder: Password
+        required: true
+        title: Password
+        type: string
+      username:
+        key: username
+        placeholder: Username
+        required: true
+        title: Username
+        type: string
+    required:
+      - username
+      - password
+  form:
+    properties:
+      ip:
+        description: The IP address of the device.
+        key: ip
+        placeholder: IP Address
+        required: true
+        title: IP
+        type: string
+      port:
+        description: The port number of the device.
+        inputType: number
+        key: port
+        maximum: 65535
+        minimum: 1
+        placeholder: Port
+        required: true
+        title: Port
+        type: number
+      vault_id:
+        key: vault_id
+        pattern: ^(cu\w{6})(-av\w{6})$
+        placeholder: Vault ID
+        required: true
+        title: Vault ID
+        type: string
+    required:
+      - ip
+      - port
+      - vault_id
+engines:
+  tunnel:
+    ssh:
+      supported: false
+    http:
+      supported: true
+  upgraded-http:
+    schedule: '@always'
+    auth: '%{resources.auths.upgraded-http}'
+    type: HTTP
+    options:
+      tls:
+        minVersion: "1.0"
+topology:
+  rootType: mc
+  nodes: true
+  discovery:
+    dataEngine: '%{engines.upgraded-http}'
+    dataSource: '%{resources.http.requests.get_tree}'
+    type: http
+    expression: {}
+    selectors:
+      nodes:
+        dataEngine: '%{engines.upgraded-http}'
+        selector:
+          type: regexp
+          expression: /((?<=['])(?!ION|Master).+(?=[']))/g
+    flatten:
+      type:
+        transform: ${topology.discovery.selectors.nodes}
+        filters:
+          1: regexpExtract /^([A-Z]+)/ => $1
+          2: |
+            switch
+            "%{1}" ~= "TSUN" : "tsun"
+            "%{1}" ~= "TFAH" : "tfah"
+            "%{1}" ~= "TFLN" : "tfln"
+            "%{1}" ~= "TPRN" : "tprn"
+            "%{1}" ~= "TPOI" : "tpoi"
+            default: ""
+      topology:
+        transform: ${topology.discovery.selectors.nodes}
+        filters:
+          1: regexpExtract /(.+(?=[][,][]))/ => $1
+          2: |
+            switch
+            "%{1}" ~= "TSUN.*" : "tsun"
+            "%{1}" ~= "TFAH.*" : "tfah"
+            "%{1}" ~= "TFLN.*" : "tfln"
+            "%{1}" ~= "TPRN.*" : "tprn"
+            "%{1}" ~= "TPOI.*" : "tpoi"
+            default: ""
+          3: use %{1}
+          4: regexpExtract /(\d+$|\d+[.]\d+[.]\d+|\d+[.]\d+)/ => $1
+          5: regexpExtract /^(\d+)/ => $1
+          6: use %{4}
+          7: regexpExtract /((?<=\.)\d+(?=\.))/ => $1
+          8: use %{4}
+          9: regexpExtract /(\d+)$/ => $1
+          10: |
+            switch
+            "%{2}" == "tprn" : "'MC' -> 'TPRN [%{5}]'"
+            "%{2}" == "tfln" : "'MC' -> 'TPRN [%{5}]' -> 'TFLN [%{9}]'"
+            "%{2}" == "tfah" : "'MC' -> 'TPRN [%{5}]' -> 'TFLN [%{7}]' -> 'TFAH [%{9}]'"
+            "%{2}" == "tsun" : "'MC' -> 'TPRN [%{5}]' -> 'TSUN [%{9}]'"
+            "%{2}" == "tpoi" : "'MC' -> 'TPRN [%{5}]' -> 'TPOI [%{9}]'"
+            default: "MC"
+      version:
+        transform: "0.1"
+      addr:
+        transform: ${topology.discovery.selectors.nodes}
+        filters:
+          1: regexpExtract /((?<=addr[=])\d+(?=[&]))/ => $1
+      gui_str:
+        transform: ${topology.discovery.selectors.nodes}
+        filters:
+          1: regexpExtract /((?<=gui[_]str[=]).+(?=[&]))/ => $1
+      unit_str:
+        transform: ${topology.discovery.selectors.nodes}
+        filters:
+          1: regexpExtract /((?<=unit[_]str[=])[a-zA-Z0-9\.]*)/ => $1
+types:
+  mc:
+    name: Master Controller
+    version: '[5.30,)'
+    reference: mc
+    attributes:
+      - general_rs485_bus_error_alarm
+      - communication_error_add_1_alarm
+      - communication_error_add_2_alarm
+      - communication_error_add_3_alarm
+      - communication_error_add_4_alarm
+      - communication_error_add_5_alarm
+      - communication_error_add_6_alarm
+      - communication_error_add_7_alarm
+      - communication_error_add_8_alarm
+      - communication_error_add_9_alarm
+      - communication_error_add_10_alarm
+      - communication_error_add_11_alarm
+      - communication_error_add_12_alarm
+      - communication_error_add_13_alarm
+      - communication_error_add_14_alarm
+    alarms:
+      communication_error_add_1_alarm:
+        attributes:
+          - communication_error_add_1_alarm
+        mapper: '%{resources.mappers.alarm_severity}'
+      communication_error_add_2_alarm:
+        attributes:
+          - communication_error_add_2_alarm
+        mapper: '%{resources.mappers.alarm_severity}'
+      communication_error_add_3_alarm:
+        attributes:
+          - communication_error_add_3_alarm
+        mapper: '%{resources.mappers.alarm_severity}'
+      communication_error_add_4_alarm:
+        attributes:
+          - communication_error_add_4_alarm
+        mapper: '%{resources.mappers.alarm_severity}'
+      communication_error_add_5_alarm:
+        attributes:
+          - communication_error_add_5_alarm
+        mapper: '%{resources.mappers.alarm_severity}'
+      communication_error_add_6_alarm:
+        attributes:
+          - communication_error_add_6_alarm
+        mapper: '%{resources.mappers.alarm_severity}'
+      communication_error_add_7_alarm:
+        attributes:
+          - communication_error_add_7_alarm
+        mapper: '%{resources.mappers.alarm_severity}'
+      communication_error_add_8_alarm:
+        attributes:
+          - communication_error_add_8_alarm
+        mapper: '%{resources.mappers.alarm_severity}'
+      communication_error_add_9_alarm:
+        attributes:
+          - communication_error_add_9_alarm
+        mapper: '%{resources.mappers.alarm_severity}'
+      communication_error_add_10_alarm:
+        attributes:
+          - communication_error_add_10_alarm
+        mapper: '%{resources.mappers.alarm_severity}'
+      communication_error_add_11_alarm:
+        attributes:
+          - communication_error_add_11_alarm
+        mapper: '%{resources.mappers.alarm_severity}'
+      communication_error_add_12_alarm:
+        attributes:
+          - communication_error_add_12_alarm
+        mapper: '%{resources.mappers.alarm_severity}'
+      communication_error_add_13_alarm:
+        attributes:
+          - communication_error_add_13_alarm
+        mapper: '%{resources.mappers.alarm_severity}'
+      communication_error_add_14_alarm:
+        attributes:
+          - communication_error_add_14_alarm
+        mapper: '%{resources.mappers.alarm_severity}'
+      general_rs485_bus_error_alarm:
+        attributes:
+          - general_rs485_bus_error_alarm
+        mapper: '%{resources.mappers.alarm_severity}'
+    price:
+      value: 0
+      unit: USD
+    energy:
+      value: 0
+      unit: W
+  tfah:
+    name: TFAH
+    version: '[0.1,)'
+    reference: tfah
+    attributes:
+      - dl_optical_power_fail_alarm
+      - agc_out_of_range_alarm
+      - dl_cell_850_band_alarm
+      - external_1_alarm
+      - external_2_alarm
+      - tfah_power_supply_alarm
+      - tfah_temperature_alarm
+      - dl_pcs_1900_band_alarm
+      - sensor_fail_alarm
+    alarms:
+      agc_out_of_range_alarm:
+        attributes:
+          - agc_out_of_range_alarm
+        mapper: '%{resources.mappers.alarm_severity}'
+      dl_cell_850_band_alarm:
+        attributes:
+          - dl_cell_850_band_alarm
+        mapper: '%{resources.mappers.alarm_severity}'
+      dl_optical_power_fail_alarm:
+        attributes:
+          - dl_optical_power_fail_alarm
+        mapper: '%{resources.mappers.alarm_severity}'
+      dl_pcs_1900_band_alarm:
+        attributes:
+          - dl_pcs_1900_band_alarm
+        mapper: '%{resources.mappers.alarm_severity}'
+      external_1_alarm:
+        attributes:
+          - external_1_alarm
+        mapper: '%{resources.mappers.alarm_severity}'
+      external_2_alarm:
+        attributes:
+          - external_2_alarm
+        mapper: '%{resources.mappers.alarm_severity}'
+      sensor_fail_alarm:
+        attributes:
+          - sensor_fail_alarm
+        mapper: '%{resources.mappers.alarm_severity}'
+      tfah_power_supply_alarm:
+        attributes:
+          - tfah_power_supply_alarm
+        mapper: '%{resources.mappers.alarm_severity}'
+      tfah_temperature_alarm:
+        attributes:
+          - tfah_temperature_alarm
+        mapper: '%{resources.mappers.alarm_severity}'
+    price:
+      value: 0
+      unit: USD
+    energy:
+      value: 0
+      unit: W
+  tfln:
+    name: TFLN
+    version: '[0.9,)'
+    reference: tfln
+    attributes:
+      - dl_laser_alarm
+      - tfln_temperature_alarm
+      - board_failure_alarm
+      - dl_rf_alarm
+      - ul_rf_alarm
+      - rx1_optical_power_fail_alarm
+      - rx1_agc_out_of_range_alarm
+      - rx2_optical_power_fail_alarm
+      - rx2_agc_out_of_range_alarm
+      - rx3_optical_power_fail_alarm
+      - rx3_agc_out_of_range_alarm
+      - rx4_optical_power_fail_alarm
+      - rx4_agc_out_of_range_alarm
+    alarms:
+      board_failure_alarm:
+        attributes:
+          - board_failure_alarm
+        mapper: '%{resources.mappers.alarm_severity}'
+      dl_laser_alarm:
+        attributes:
+          - dl_laser_alarm
+        mapper: '%{resources.mappers.alarm_severity}'
+      dl_rf_alarm:
+        attributes:
+          - dl_rf_alarm
+        mapper: '%{resources.mappers.alarm_severity}'
+      rx1_agc_out_of_range_alarm:
+        attributes:
+          - rx1_agc_out_of_range_alarm
+        mapper: '%{resources.mappers.alarm_severity}'
+      rx1_optical_power_fail_alarm:
+        attributes:
+          - rx1_optical_power_fail_alarm
+        mapper: '%{resources.mappers.alarm_severity}'
+      rx2_agc_out_of_range_alarm:
+        attributes:
+          - rx2_agc_out_of_range_alarm
+        mapper: '%{resources.mappers.alarm_severity}'
+      rx2_optical_power_fail_alarm:
+        attributes:
+          - rx2_optical_power_fail_alarm
+        mapper: '%{resources.mappers.alarm_severity}'
+      rx3_agc_out_of_range_alarm:
+        attributes:
+          - rx3_agc_out_of_range_alarm
+        mapper: '%{resources.mappers.alarm_severity}'
+      rx3_optical_power_fail_alarm:
+        attributes:
+          - rx3_optical_power_fail_alarm
+        mapper: '%{resources.mappers.alarm_severity}'
+      rx4_agc_out_of_range_alarm:
+        attributes:
+          - rx4_agc_out_of_range_alarm
+        mapper: '%{resources.mappers.alarm_severity}'
+      rx4_optical_power_fail_alarm:
+        attributes:
+          - rx4_optical_power_fail_alarm
+        mapper: '%{resources.mappers.alarm_severity}'
+      tfln_temperature_alarm:
+        attributes:
+          - tfln_temperature_alarm
+        mapper: '%{resources.mappers.alarm_severity}'
+      ul_rf_alarm:
+        attributes:
+          - ul_rf_alarm
+        mapper: '%{resources.mappers.alarm_severity}'
+    price:
+      value: 0
+      unit: USD
+    energy:
+      value: 0
+      unit: W
+  tpoi:
+    name: TPOI
+    version: '[0.1,)'
+    reference: tpoi
+    attributes:
+      - tpoi_temperature_alarm
+      - tpoi_power_supply_alarm
+      - vcc_alarm
+      - dl_mimo_ch1_rf_alarm
+      - dl_mimo_ch2_rf_alarm
+      - ul_mimo_ch1_rf_alarm
+      - ul_mimo_ch2_rf_alarm
+      - overdrive_alc_limiting_700_com_alarm
+      - over_power_700_com_alarm
+      - ul_pcs_1900e_band_alarm
+      - ul_aws_band_alarm
+      - ul_cell_850_band_alarm
+      - overdrive_alc_limiting_pcs_1900e_alarm
+      - overdrive_alc_limiting_aws_alarm
+      - overdrive_alc_limiting_cell_850_alarm
+      - over_power_pcs_1900e_alarm
+      - over_power_aws_alarm
+      - over_power_cell_850_alarm
+      - rf_low_signal_pcs_1900e_alarm
+      - rf_low_signal_aws_alarm
+      - rf_low_signal_cell_850_alarm
+    alarms:
+      dl_mimo_ch1_rf_alarm:
+        attributes:
+          - dl_mimo_ch1_rf_alarm
+        mapper: '%{resources.mappers.alarm_severity}'
+      dl_mimo_ch2_rf_alarm:
+        attributes:
+          - dl_mimo_ch2_rf_alarm
+        mapper: '%{resources.mappers.alarm_severity}'
+      over_power_700_com_alarm:
+        attributes:
+          - over_power_700_com_alarm
+        mapper: '%{resources.mappers.alarm_severity}'
+      over_power_aws_alarm:
+        attributes:
+          - over_power_aws_alarm
+        mapper: '%{resources.mappers.alarm_severity}'
+      over_power_cell_850_alarm:
+        attributes:
+          - over_power_cell_850_alarm
+        mapper: '%{resources.mappers.alarm_severity}'
+      over_power_pcs_1900e_alarm:
+        attributes:
+          - over_power_pcs_1900e_alarm
+        mapper: '%{resources.mappers.alarm_severity}'
+      overdrive_alc_limiting_700_com_alarm:
+        attributes:
+          - overdrive_alc_limiting_700_com_alarm
+        mapper: '%{resources.mappers.alarm_severity}'
+      overdrive_alc_limiting_aws_alarm:
+        attributes:
+          - overdrive_alc_limiting_aws_alarm
+        mapper: '%{resources.mappers.alarm_severity}'
+      overdrive_alc_limiting_cell_850_alarm:
+        attributes:
+          - overdrive_alc_limiting_cell_850_alarm
+        mapper: '%{resources.mappers.alarm_severity}'
+      overdrive_alc_limiting_pcs_1900e_alarm:
+        attributes:
+          - overdrive_alc_limiting_pcs_1900e_alarm
+        mapper: '%{resources.mappers.alarm_severity}'
+      rf_low_signal_aws_alarm:
+        attributes:
+          - rf_low_signal_aws_alarm
+        mapper: '%{resources.mappers.alarm_severity}'
+      rf_low_signal_cell_850_alarm:
+        attributes:
+          - rf_low_signal_cell_850_alarm
+        mapper: '%{resources.mappers.alarm_severity}'
+      rf_low_signal_pcs_1900e_alarm:
+        attributes:
+          - rf_low_signal_pcs_1900e_alarm
+        mapper: '%{resources.mappers.alarm_severity}'
+      tpoi_power_supply_alarm:
+        attributes:
+          - tpoi_power_supply_alarm
+        mapper: '%{resources.mappers.alarm_severity}'
+      tpoi_temperature_alarm:
+        attributes:
+          - tpoi_temperature_alarm
+        mapper: '%{resources.mappers.alarm_severity}'
+      ul_aws_band_alarm:
+        attributes:
+          - ul_aws_band_alarm
+        mapper: '%{resources.mappers.alarm_severity}'
+      ul_cell_850_band_alarm:
+        attributes:
+          - ul_cell_850_band_alarm
+        mapper: '%{resources.mappers.alarm_severity}'
+      ul_mimo_ch1_rf_alarm:
+        attributes:
+          - ul_mimo_ch1_rf_alarm
+        mapper: '%{resources.mappers.alarm_severity}'
+      ul_mimo_ch2_rf_alarm:
+        attributes:
+          - ul_mimo_ch2_rf_alarm
+        mapper: '%{resources.mappers.alarm_severity}'
+      ul_pcs_1900e_band_alarm:
+        attributes:
+          - ul_pcs_1900e_band_alarm
+        mapper: '%{resources.mappers.alarm_severity}'
+      vcc_alarm:
+        attributes:
+          - vcc_alarm
+        mapper: '%{resources.mappers.alarm_severity}'
+    price:
+      value: 0
+      unit: USD
+    energy:
+      value: 0
+      unit: W
+  tprn:
+    name: TPRN
+    version: '[0.9,)'
+    reference: tprn
+    attributes:
+      - tprn_temperature_alarm
+      - i2c_bus_alarm
+      - tprn_power_supply_alarm
+      - general_slot_1_alarm
+      - general_slot_2_alarm
+      - general_slot_3_alarm
+      - general_slot_4_alarm
+      - general_slot_5_alarm
+      - general_slot_6_alarm
+      - general_slot_7_alarm
+      - general_slot_8_alarm
+      - general_slot_9_alarm
+      - general_slot_10_alarm
+      - general_slot_11_alarm
+      - general_slot_12_alarm
+      - aux_input_nr_0_alarm
+      - aux_input_nr_1_alarm
+      - aux_input_nr_2_alarm
+      - aux_input_nr_3_alarm
+    alarms:
+      aux_input_nr_0_alarm:
+        attributes:
+          - aux_input_nr_0_alarm
+        mapper: '%{resources.mappers.alarm_severity}'
+      aux_input_nr_1_alarm:
+        attributes:
+          - aux_input_nr_1_alarm
+        mapper: '%{resources.mappers.alarm_severity}'
+      aux_input_nr_2_alarm:
+        attributes:
+          - aux_input_nr_2_alarm
+        mapper: '%{resources.mappers.alarm_severity}'
+      aux_input_nr_3_alarm:
+        attributes:
+          - aux_input_nr_3_alarm
+        mapper: '%{resources.mappers.alarm_severity}'
+      general_slot_1_alarm:
+        attributes:
+          - general_slot_1_alarm
+        mapper: '%{resources.mappers.alarm_severity}'
+      general_slot_2_alarm:
+        attributes:
+          - general_slot_2_alarm
+        mapper: '%{resources.mappers.alarm_severity}'
+      general_slot_3_alarm:
+        attributes:
+          - general_slot_3_alarm
+        mapper: '%{resources.mappers.alarm_severity}'
+      general_slot_4_alarm:
+        attributes:
+          - general_slot_4_alarm
+        mapper: '%{resources.mappers.alarm_severity}'
+      general_slot_5_alarm:
+        attributes:
+          - general_slot_5_alarm
+        mapper: '%{resources.mappers.alarm_severity}'
+      general_slot_6_alarm:
+        attributes:
+          - general_slot_6_alarm
+        mapper: '%{resources.mappers.alarm_severity}'
+      general_slot_7_alarm:
+        attributes:
+          - general_slot_7_alarm
+        mapper: '%{resources.mappers.alarm_severity}'
+      general_slot_8_alarm:
+        attributes:
+          - general_slot_8_alarm
+        mapper: '%{resources.mappers.alarm_severity}'
+      general_slot_9_alarm:
+        attributes:
+          - general_slot_9_alarm
+        mapper: '%{resources.mappers.alarm_severity}'
+      general_slot_10_alarm:
+        attributes:
+          - general_slot_10_alarm
+        mapper: '%{resources.mappers.alarm_severity}'
+      general_slot_11_alarm:
+        attributes:
+          - general_slot_11_alarm
+        mapper: '%{resources.mappers.alarm_severity}'
+      general_slot_12_alarm:
+        attributes:
+          - general_slot_12_alarm
+        mapper: '%{resources.mappers.alarm_severity}'
+      i2c_bus_alarm:
+        attributes:
+          - i2c_bus_alarm
+        mapper: '%{resources.mappers.alarm_severity}'
+      tprn_power_supply_alarm:
+        attributes:
+          - tprn_power_supply_alarm
+        mapper: '%{resources.mappers.alarm_severity}'
+      tprn_temperature_alarm:
+        attributes:
+          - tprn_temperature_alarm
+        mapper: '%{resources.mappers.alarm_severity}'
+    price:
+      value: 0
+      unit: USD
+    energy:
+      value: 0
+      unit: W
+  tsun:
+    name: TSUN
+    version: '[0.3,)'
+    reference: tsun
+    attributes:
+      - cpu_fault_alarm
+      - internal_bus_alarm
+    alarms:
+      cpu_fault_alarm:
+        attributes:
+          - cpu_fault_alarm
+        mapper: '%{resources.mappers.alarm_severity}'
+      internal_bus_alarm:
+        attributes:
+          - internal_bus_alarm
+        mapper: '%{resources.mappers.alarm_severity}'
+    price:
+      value: 0
+      unit: USD
+    energy:
+      value: 0
+      unit: W
+attributes:
+  agc_out_of_range_alarm:
+    name: AGC Out Of Range Alarm
+    description: AGC Out Of Range Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  aux_input_nr_0_alarm:
+    name: Aux Input Nr 0 Alarm
+    description: Aux Input Nr 0 Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  aux_input_nr_1_alarm:
+    name: Aux Input Nr 1 Alarm
+    description: Aux Input Nr 1 Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  aux_input_nr_2_alarm:
+    name: Aux Input Nr 2 Alarm
+    description: Aux Input Nr 2 Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  aux_input_nr_3_alarm:
+    name: Aux Input Nr 3 Alarm
+    description: Aux Input Nr 3 Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  board_failure_alarm:
+    name: Board Failure Alarm
+    description: Board Failure Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  communication_error_add_1_alarm:
+    name: Communication Error Add 1 Alarm
+    description: Communication Error Add 1 Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor:
+    properties:
+      readWrite: R
+      read:
+        type: String
+  communication_error_add_2_alarm:
+    name: Communication Error Add 2 Alarm
+    description: Communication Error Add 2 Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor:
+    properties:
+      readWrite: R
+      read:
+        type: String
+  communication_error_add_3_alarm:
+    name: Communication Error Add 3 Alarm
+    description: Communication Error Add 3 Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor:
+    properties:
+      readWrite: R
+      read:
+        type: String
+  communication_error_add_4_alarm:
+    name: Communication Error Add 4 Alarm
+    description: Communication Error Add 4 Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor:
+    properties:
+      readWrite: R
+      read:
+        type: String
+  communication_error_add_5_alarm:
+    name: Communication Error Add 5 Alarm
+    description: Communication Error Add 5 Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor:
+    properties:
+      readWrite: R
+      read:
+        type: String
+  communication_error_add_6_alarm:
+    name: Communication Error Add 6 Alarm
+    description: Communication Error Add 6 Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor:
+    properties:
+      readWrite: R
+      read:
+        type: String
+  communication_error_add_7_alarm:
+    name: Communication Error Add 7 Alarm
+    description: Communication Error Add 7 Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor:
+    properties:
+      readWrite: R
+      read:
+        type: String
+  communication_error_add_8_alarm:
+    name: Communication Error Add 8 Alarm
+    description: Communication Error Add 8 Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor:
+    properties:
+      readWrite: R
+      read:
+        type: String
+  communication_error_add_9_alarm:
+    name: Communication Error Add 9 Alarm
+    description: Communication Error Add 9 Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor:
+    properties:
+      readWrite: R
+      read:
+        type: String
+  communication_error_add_10_alarm:
+    name: Communication Error Add 10 Alarm
+    description: Communication Error Add 10 Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor:
+    properties:
+      readWrite: R
+      read:
+        type: String
+  communication_error_add_11_alarm:
+    name: Communication Error Add 11 Alarm
+    description: Communication Error Add 11 Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor:
+    properties:
+      readWrite: R
+      read:
+        type: String
+  communication_error_add_12_alarm:
+    name: Communication Error Add 12 Alarm
+    description: Communication Error Add 12 Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor:
+    properties:
+      readWrite: R
+      read:
+        type: String
+  communication_error_add_13_alarm:
+    name: Communication Error Add 13 Alarm
+    description: Communication Error Add 13 Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor:
+    properties:
+      readWrite: R
+      read:
+        type: String
+  communication_error_add_14_alarm:
+    name: Communication Error Add 14 Alarm
+    description: Communication Error Add 14 Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor:
+    properties:
+      readWrite: R
+      read:
+        type: String
+  cpu_fault_alarm:
+    name: CPU Fault Alarm
+    description: CPU Fault Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  dl_cell_850_band_alarm:
+    name: DL Cell 850 Band Alarm
+    description: DL Cell 850 Band Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  dl_laser_alarm:
+    name: DL Laser Alarm
+    description: DL Laser Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  dl_mimo_ch1_rf_alarm:
+    name: DL MIMO CH1 RF Alarm
+    description: DL MIMO CH1 RF Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  dl_mimo_ch2_rf_alarm:
+    name: DL MIMO CH2 RF Alarm
+    description: DL MIMO CH2 RF Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  dl_optical_power_fail_alarm:
+    name: DL Optical Power Fail Alarm
+    description: DL Optical Power Fail Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  dl_pcs_1900_band_alarm:
+    name: DL PCS 1900 Band Alarm
+    description: DL PCS 1900 Band Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  dl_rf_alarm:
+    name: DL RF Alarm
+    description: DL RF Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  external_1_alarm:
+    name: External 1 Alarm
+    description: External 1 Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  external_2_alarm:
+    name: External 2 Alarm
+    description: External 2 Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  general_rs485_bus_error_alarm:
+    name: General Rs485 Bus Error Alarm
+    description: General Rs485 Bus Error Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  general_slot_1_alarm:
+    name: General Slot 1 Alarm
+    description: General Slot 1 Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor:
+    properties:
+      readWrite: R
+      read:
+        type: String
+  general_slot_2_alarm:
+    name: General Slot 2 Alarm
+    description: General Slot 2 Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor:
+    properties:
+      readWrite: R
+      read:
+        type: String
+  general_slot_3_alarm:
+    name: General Slot 3 Alarm
+    description: General Slot 3 Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor:
+    properties:
+      readWrite: R
+      read:
+        type: String
+  general_slot_4_alarm:
+    name: General Slot 4 Alarm
+    description: General Slot 4 Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor:
+        filters:
+    properties:
+      readWrite: R
+      read:
+        type: String
+  general_slot_5_alarm:
+    name: General Slot 5 Alarm
+    description: General Slot 5 Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor:
+    properties:
+      readWrite: R
+      read:
+        type: String
+  general_slot_6_alarm:
+    name: General Slot 6 Alarm
+    description: General Slot 6 Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor:
+    properties:
+      readWrite: R
+      read:
+        type: String
+  general_slot_7_alarm:
+    name: General Slot 7 Alarm
+    description: General Slot 7 Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor:
+        filters:
+    properties:
+      readWrite: R
+      read:
+        type: String
+  general_slot_8_alarm:
+    name: General Slot 8 Alarm
+    description: General Slot 8 Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor:
+    properties:
+      readWrite: R
+      read:
+        type: String
+  general_slot_9_alarm:
+    name: General Slot 9 Alarm
+    description: General Slot 9 Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor:
+    properties:
+      readWrite: R
+      read:
+        type: String
+  general_slot_10_alarm:
+    name: General Slot 10 Alarm
+    description: General Slot 10 Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor:
+    properties:
+      readWrite: R
+      read:
+        type: String
+  general_slot_11_alarm:
+    name: General Slot 11 Alarm
+    description: General Slot 11 Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor:
+    properties:
+      readWrite: R
+      read:
+        type: String
+  general_slot_12_alarm:
+    name: General Slot 12 Alarm
+    description: General Slot 12 Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor:
+    properties:
+      readWrite: R
+      read:
+        type: String
+  i2c_bus_alarm:
+    name: I2c Bus Alarm
+    description: I2c Bus Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  internal_bus_alarm:
+    name: Internal Bus Alarm
+    description: Internal Bus Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  over_power_700_com_alarm:
+    name: Over Power 700 Com Alarm
+    description: Over Power 700 Com Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  over_power_aws_alarm:
+    name: Over Power AWS Alarm
+    description: Over Power AWS Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  over_power_cell_850_alarm:
+    name: Over Power CELL 850 Alarm
+    description: Over Power CELL 850 Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  over_power_pcs_1900e_alarm:
+    name: Over Power PCS 1900E Alarm
+    description: Over Power PCS 1900E Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  overdrive_alc_limiting_700_com_alarm:
+    name: Overdrive ALC Limiting 700 Com Alarm
+    description: Overdrive ALC Limiting 700 Com Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  overdrive_alc_limiting_aws_alarm:
+    name: Overdrive/ALC Limiting AWS Alarm
+    description: Overdrive/ALC Limiting AWS Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  overdrive_alc_limiting_cell_850_alarm:
+    name: Overdrive/ALC Limiting CELL 850 Alarm
+    description: Overdrive/ALC Limiting CELL 850 Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  overdrive_alc_limiting_pcs_1900e_alarm:
+    name: Overdrive/ALC Limiting PCS 1900E Alarm
+    description: Overdrive/ALC Limiting PCS 1900E Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  rf_low_signal_aws_alarm:
+    name: RF Low Signal AWS Alarm
+    description: RF Low Signal AWS Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  rf_low_signal_cell_850_alarm:
+    name: RF Low Signal CELL 850 Alarm
+    description: RF Low Signal CELL 850 Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  rf_low_signal_pcs_1900e_alarm:
+    name: RF Low Signal PCS 1900E Alarm
+    description: RF Low Signal PCS 1900E Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  rx1_agc_out_of_range_alarm:
+    name: RX1 AGC Out Of Range Alarm
+    description: RX1 AGC Out Of Range Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  rx1_optical_power_fail_alarm:
+    name: RX1 Optical Power Fail Alarm
+    description: RX1 Optical Power Fail Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  rx2_agc_out_of_range_alarm:
+    name: RX2 AGC Out Of Range Alarm
+    description: RX2 AGC Out Of Range Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  rx2_optical_power_fail_alarm:
+    name: RX2 Optical Power Fail Alarm
+    description: RX2 Optical Power Fail Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  rx3_agc_out_of_range_alarm:
+    name: RX3 AGC Out Of Range Alarm
+    description: RX3 AGC Out Of Range Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  rx3_optical_power_fail_alarm:
+    name: RX3 Optical Power Fail Alarm
+    description: RX3 Optical Power Fail Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  rx4_agc_out_of_range_alarm:
+    name: RX4 AGC Out Of Range Alarm
+    description: RX4 AGC Out Of Range Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  rx4_optical_power_fail_alarm:
+    name: RX4 Optical Power Fail Alarm
+    description: RX4 Optical Power Fail Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  sensor_fail_alarm:
+    name: Sensor Fail Alarm
+    description: Sensor Fail Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  tfah_power_supply_alarm:
+    name: Power Supply Alarm
+    description: Power Supply Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  tfah_temperature_alarm:
+    name: Temperature Alarm
+    description: Temperature Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  tfln_temperature_alarm:
+    name: Temperature Alarm
+    description: Temperature Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  tpoi_power_supply_alarm:
+    name: Power Supply Alarm
+    description: Power Supply Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  tpoi_temperature_alarm:
+    name: Temperature Alarm
+    description: Temperature Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  tprn_power_supply_alarm:
+    name: Power Supply Alarm
+    description: Power Supply Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  tprn_temperature_alarm:
+    name: Temperature Alarm
+    description: Temperature Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  ul_aws_band_alarm:
+    name: UL AWS Band Alarm
+    description: UL AWS Band Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  ul_cell_850_band_alarm:
+    name: UL CELL 850 Band Alarm
+    description: UL CELL 850 Band Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  ul_mimo_ch1_rf_alarm:
+    name: UL MIMO CH1 RF Alarm
+    description: UL MIMO CH1 RF Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  ul_mimo_ch2_rf_alarm:
+    name: UL MIMO CH2 RF Alarm
+    description: UL MIMO CH2 RF Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  ul_pcs_1900e_band_alarm:
+    name: UL PCS 1900E Band Alarm
+    description: UL PCS 1900E Band Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  ul_rf_alarm:
+    name: UL RF Alarm
+    description: UL RF Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  vcc_alarm:
+    name: Vcc Alarm
+    description: Vcc Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+resources:
+  auths:
+    upgraded-http:
+      http:
+        httpUri: false
+        actions:
+          login:
+            dataEngine: '%{engines.upgraded-http}'
+            dataSource: '%{resources.http.requests.login}'
+            selector:
+              type: cookie
+              expression: JSESSIONID
+            dataSink: '%{resources.globals.auth.sessionId}'
+          logout:
+            dataEngine: '%{engines.upgraded-http}'
+            dataSource: '%{resources.http.requests.logout}'
+            selector:
+              type: cookie
+              expression: JSESSIONID
+            dataSink: '%{resources.globals.auth.sessionId}'
+  mappers:
+    alarm_severity:
+      keyType: String
+      valueType: String
+      map:
+        sevCritical: Critical
+        sevMajor: Severe
+        sevMinor: Severe
+        sevWarning: Warning
+  globals:
+    auth:
+      sessionId: 0
+    reg:
+      ip: ${registration.form.properties.ip}
+      password: ${registration.vault.properties.password}
+      port: ${registration.form.properties.port}
+      url: http://${registration.form.properties.ip}:${registration.form.properties.port}
+      username: ${registration.vault.properties.username}
+  http:
+    requests:
+      get_alarm:
+        uri: ${resources.globals.reg.url}/ION-M_V5.30.0/mmr/actalarms.jsp
+        responseContentType: text/html
+        responses:
+          success:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: "200"
+          failure:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: ^(?!200)
+      get_tree:
+        uri: ${resources.globals.reg.url}/ION-M_V5.30.0/tigratree/1orgItems.js
+        responseContentType: text/javascript
+        responses:
+          success:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: "200"
+          failure:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: ^(?!200)
+      login:
+        method: POST
+        uri: ${resources.globals.reg.url}/ION-M_V5.30.0/index.jsp
+        requestContentType: application/x-www-form-urlencoded
+        responseContentType: text/html
+        body:
+          login: login
+          loginTimeDiff: -330
+          loginname: ${resources.globals.reg.username}
+          loginpwrd: ${resources.globals.reg.password}
+        responses:
+          success:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: "200"
+          failure:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: ^(?!200)
+      logout:
+        method: POST
+        uri: ${resources.globals.reg.url}/ION-M_V5.30.0/logout.jsp
+        requestContentType: application/x-www-form-urlencoded
+        responseContentType: text/html
+        body:
+          logout: logout
+        responses:
+          success:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: "200"
+          failure:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: ^(?!200)
