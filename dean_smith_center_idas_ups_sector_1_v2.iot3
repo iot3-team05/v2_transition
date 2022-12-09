@@ -1,0 +1,3525 @@
+iot3: 2.0.0
+info:
+  name: Vertiv
+  oem: Vertiv
+  model: GXT4-1500RT120
+  versions:
+    - "1.30"
+  author: deep.desai@qeleo.com
+  stage: alpha
+  revision: 2
+  labels:
+    - Vertiv
+    - GXT4-1500RT120
+    - auto upgraded to v2
+  created: "2022-06-28"
+  updated: "2022-12-09"
+  documentation:
+    description: Vertiv GXT4-1500RT120
+registration:
+  fingerprint:
+    - ip
+    - port
+  form:
+    properties:
+      ip:
+        key: ip
+        placeholder: IP Address
+        required: true
+        title: IP
+        type: string
+      port:
+        inputType: number
+        key: port
+        maximum: 65535
+        minimum: 1
+        placeholder: Port
+        required: true
+        title: Port
+        type: number
+    required:
+      - ip
+      - port
+engines:
+  tunnel:
+    ssh:
+      supported: false
+    http:
+      supported: true
+  upgraded-http:
+    schedule: '@always'
+    type: HTTP
+    options:
+      tls:
+        minVersion: "1.0"
+topology:
+  rootType: vertiv
+  verify:
+    - dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: ""
+      match: ""
+  nodes: false
+types:
+  vertiv:
+    name: Vertiv
+    version: '[0.1,)'
+    reference: vertiv
+    attributes:
+      - input_system_input_rms_l1_n
+      - input_system_input_rms_current_l1
+      - input_system_input_frequency
+      - input_system_input_max_voltage_l1_n
+      - input_system_input_min_voltage_l1_n
+      - input_system_input_nominal_voltage
+      - input_system_input_nominal_current
+      - input_system_input_nominal_frequency
+      - bypass_input_voltage_rms_l1_n
+      - bypass_input_rms_current
+      - bypass_input_frequency
+      - bypass_nominal_voltage
+      - battery_ups_battery_status
+      - battery_time_remaining
+      - battery_percentage_charge
+      - battery_charge_status
+      - battery_dc_bus_voltage
+      - battery_dc_bus_nominal_voltage
+      - battery_cabinet_type
+      - battery_rating
+      - battery_number_of_ebc_installed
+      - battery_charge_compensating
+      - battery_charger_state
+      - battery_nominal_battery_capacity
+      - battery_discharge_time
+      - battery_float_voltage
+      - battery_test_result
+      - battery_automatic_battery_test
+      - output_system_output_voltage_rms_l1_n
+      - output_system_output_rms_current_l1
+      - output_system_output_frequency
+      - output_system_output_max_voltage_l1_n
+      - output_system_output_min_voltage_l1_n
+      - output_system_output_power
+      - output_system_output_pct_power
+      - output_system_output_apparent_power
+      - output_system_output_nominal_voltage
+      - output_output_apparent_power_rating
+      - output_system_output_nominal_frequency
+      - output_ups_output_source
+      - output_power_factor_correction
+      - output_nominal_power_factor
+      - outlet_group_1_identifier
+      - outlet_group_2_identifier
+      - eco_mode_status
+      - system_status
+      - system_manufacturer
+      - system_model_number
+      - system_firmware_version
+      - system_serial_number
+      - system_manufacture_date
+      - system_input_black_out_count
+      - system_input_brown_out_count
+      - system_inverter_on_off_state
+      - system_inlet_air_temperature
+      - system_shutdown_reason
+      - system_dc_converter_status
+      - system_ups_topology
+      - system_bypass_inverter_input_config
+      - configuration_system_model_number
+      - remote_authentication_configured_authentication_type
+      - life_operating_status
+      - life_connection_media
+      - life_enable_date_and_time
+      - gate_http_transport_result
+      - gate_http_transport_error_value
+      - gate_http_transport_reply_time
+      - gate_connection_result
+      - gate_bridge_state
+      - gate_error_count
+      - advanced_device_state
+      - advanced_connection_status
+      - advanced_call_type
+      - advanced_scheduled_call_delay_time
+      - advanced_heartbeat_status
+      - advanced_date_and_time_of_last_call
+      - connectivity_test_result
+      - diagnostics_communication_status
+      - diagnostics_communication_error_count
+      - diagnostics_last_communications_error
+      - diagnostics_monitored_device_rule_file_information
+      - diagnostics_remote_services_operating_status
+      - managed_device_connection_state
+      - managed_device_fdm_version
+      - managed_device_product_sequence_id
+      - mstp_interface
+      - internal_network_number
+      - messaging_test_type
+      - messaging_test_from_address
+      - messaging_test_to_address
+      - messaging_test_server_address
+      - messaging_test_server_port
+      - messaging_test_connection
+      - messaging_test_authentication
+      - messaging_test_username
+      - messaging_test_state
+      - messaging_test_results
+      - snmp_v3_engine_id
+      - system_commu_status
+      - support_agent_date_and_time
+      - support_agent_model
+      - support_agent_app_firmware_version
+      - support_agent_app_firmware_label
+      - support_agent_boot_firmware_version
+      - support_agent_boot_firmware_label
+      - support_agent_serial_number
+      - support_agent_manufacture_date
+      - support_agent_hardware_version
+      - support_gdd_version
+      - support_fdm_version
+      - support_product_sequence_id
+      - support_device_assigned_label
+      - active_networking_ethernet_mac
+      - active_networking_ipv4_address
+      - active_networking_ipv4_default_gateway
+      - active_networking_ipv4_primary_dns_server
+      - active_networking_ipv4_secondary_dns_server
+      - active_networking_last_dhcp_bootp_address
+      - active_networking_last_dhcp_lease
+      - active_networking_ipv6_global_address
+      - active_networking_ipv6_slaac_address
+      - active_networking_ipv6_link_local_address
+      - active_networking_ipv6_default_gateway
+      - active_networking_ipv6_primary_dns_server
+      - active_networking_ipv6_secondary_dns_server
+      - active_networking_last_dhcpv6_address
+      - active_networking_last_dhcpv6_lease
+      - firmware_update_current_firmware_version
+      - firmware_update_current_firmware_label
+      - firmware_update_current_firmware_date
+      - firmware_update_alternate_firmware_version
+      - firmware_update_alternate_firmware_label
+      - firmware_update_alternate_firmware_date
+      - input_undervoltage_alarm
+      - input_overvoltage_alarm
+      - bypass_not_available_alarm
+      - battery_self_test_alarm
+      - battery_low_alarm
+      - battery_under_voltage_alarm
+      - battery_over_voltage_alarm
+      - battery_test_failed_alarm
+      - replace_battery_alarm
+      - output_overload_alarm
+      - output_undervoltage_alarm
+      - output_overvoltage_alarm
+      - system_output_off_alarm
+      - ups_output_on_bypass_alarm
+      - battery_discharging_alarm
+      - system_input_power_problem_alarm
+      - equipment_over_temperature_alarm
+      - input_frequency_deviation_alarm
+      - shutdown_pending_alarm
+      - unspecified_general_event_alarm
+      - parallel_comm_warning_alarm
+      - loss_of_redundancy_alarm
+      - charger_failure_alarm
+      - rectifier_failure_alarm
+      - inverter_failure_alarm
+      - maintenance_bypass_breaker_closed_alarm
+      - system_fan_failure_alarm
+      - emergency_power_off_latched_alarm
+      - input_wiring_fault_alarm
+      - dc_to_dc_converter_fault_alarm
+      - system_restart_required_alarm
+      - life_device_identity_changed_alarm
+      - rs_485_port_conflict_alarm
+      - duplicate_velocity_protocol_mstp_node_id_alarm
+      - duplicate_bacnet_mstp_node_id_alarm
+      - unconfigured_system_name_alarm
+    alarms:
+      battery_discharging_alarm:
+        attributes:
+          - battery_discharging_alarm
+        mapper: '%{resources.mappers.alarm_severity}'
+      battery_low_alarm:
+        attributes:
+          - battery_low_alarm
+        mapper: '%{resources.mappers.alarm_severity}'
+      battery_over_voltage_alarm:
+        attributes:
+          - battery_over_voltage_alarm
+        mapper: '%{resources.mappers.alarm_severity}'
+      battery_self_test_alarm:
+        attributes:
+          - battery_self_test_alarm
+        mapper: '%{resources.mappers.alarm_severity}'
+      battery_test_failed_alarm:
+        attributes:
+          - battery_test_failed_alarm
+        mapper: '%{resources.mappers.alarm_severity}'
+      battery_under_voltage_alarm:
+        attributes:
+          - battery_under_voltage_alarm
+        mapper: '%{resources.mappers.alarm_severity}'
+      bypass_not_available_alarm:
+        attributes:
+          - bypass_not_available_alarm
+        mapper: '%{resources.mappers.alarm_severity}'
+      charger_failure_alarm:
+        attributes:
+          - charger_failure_alarm
+        mapper: '%{resources.mappers.alarm_severity}'
+      dc_to_dc_converter_fault_alarm:
+        attributes:
+          - dc_to_dc_converter_fault_alarm
+        mapper: '%{resources.mappers.alarm_severity}'
+      duplicate_bacnet_mstp_node_id_alarm:
+        attributes:
+          - duplicate_bacnet_mstp_node_id_alarm
+        mapper: '%{resources.mappers.alarm_severity}'
+      duplicate_velocity_protocol_mstp_node_id_alarm:
+        attributes:
+          - duplicate_velocity_protocol_mstp_node_id_alarm
+        mapper: '%{resources.mappers.alarm_severity}'
+      emergency_power_off_latched_alarm:
+        attributes:
+          - emergency_power_off_latched_alarm
+        mapper: '%{resources.mappers.alarm_severity}'
+      equipment_over_temperature_alarm:
+        attributes:
+          - equipment_over_temperature_alarm
+        mapper: '%{resources.mappers.alarm_severity}'
+      input_frequency_deviation_alarm:
+        attributes:
+          - input_frequency_deviation_alarm
+        mapper: '%{resources.mappers.alarm_severity}'
+      input_overvoltage_alarm:
+        attributes:
+          - input_overvoltage_alarm
+        mapper: '%{resources.mappers.alarm_severity}'
+      input_undervoltage_alarm:
+        attributes:
+          - input_undervoltage_alarm
+        mapper: '%{resources.mappers.alarm_severity}'
+      input_wiring_fault_alarm:
+        attributes:
+          - input_wiring_fault_alarm
+        mapper: '%{resources.mappers.alarm_severity}'
+      inverter_failure_alarm:
+        attributes:
+          - inverter_failure_alarm
+        mapper: '%{resources.mappers.alarm_severity}'
+      life_device_identity_changed_alarm:
+        attributes:
+          - life_device_identity_changed_alarm
+        mapper: '%{resources.mappers.alarm_severity}'
+      loss_of_redundancy_alarm:
+        attributes:
+          - loss_of_redundancy_alarm
+        mapper: '%{resources.mappers.alarm_severity}'
+      maintenance_bypass_breaker_closed_alarm:
+        attributes:
+          - maintenance_bypass_breaker_closed_alarm
+        mapper: '%{resources.mappers.alarm_severity}'
+      output_overload_alarm:
+        attributes:
+          - output_overload_alarm
+        mapper: '%{resources.mappers.alarm_severity}'
+      output_overvoltage_alarm:
+        attributes:
+          - output_overvoltage_alarm
+        mapper: '%{resources.mappers.alarm_severity}'
+      output_undervoltage_alarm:
+        attributes:
+          - output_undervoltage_alarm
+        mapper: '%{resources.mappers.alarm_severity}'
+      parallel_comm_warning_alarm:
+        attributes:
+          - parallel_comm_warning_alarm
+        mapper: '%{resources.mappers.alarm_severity}'
+      rectifier_failure_alarm:
+        attributes:
+          - rectifier_failure_alarm
+        mapper: '%{resources.mappers.alarm_severity}'
+      replace_battery_alarm:
+        attributes:
+          - replace_battery_alarm
+        mapper: '%{resources.mappers.alarm_severity}'
+      rs_485_port_conflict_alarm:
+        attributes:
+          - rs_485_port_conflict_alarm
+        mapper: '%{resources.mappers.alarm_severity}'
+      shutdown_pending_alarm:
+        attributes:
+          - shutdown_pending_alarm
+        mapper: '%{resources.mappers.alarm_severity}'
+      system_fan_failure_alarm:
+        attributes:
+          - system_fan_failure_alarm
+        mapper: '%{resources.mappers.alarm_severity}'
+      system_input_power_problem_alarm:
+        attributes:
+          - system_input_power_problem_alarm
+        mapper: '%{resources.mappers.alarm_severity}'
+      system_output_off_alarm:
+        attributes:
+          - system_output_off_alarm
+        mapper: '%{resources.mappers.alarm_severity}'
+      system_restart_required_alarm:
+        attributes:
+          - system_restart_required_alarm
+        mapper: '%{resources.mappers.alarm_severity}'
+      unconfigured_system_name_alarm:
+        attributes:
+          - unconfigured_system_name_alarm
+        mapper: '%{resources.mappers.alarm_severity}'
+      unspecified_general_event_alarm:
+        attributes:
+          - unspecified_general_event_alarm
+        mapper: '%{resources.mappers.alarm_severity}'
+      ups_output_on_bypass_alarm:
+        attributes:
+          - ups_output_on_bypass_alarm
+        mapper: '%{resources.mappers.alarm_severity}'
+    price:
+      value: 0
+      unit: USD
+    energy:
+      value: 0
+      unit: W
+attributes:
+  active_networking_ethernet_mac:
+    name: Active Networking Ethernet MAC
+    description: Active Networking Ethernet MAC
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_commu_active_networking}'
+      selector:
+        type: regexp
+        expression: (?<=val6156_0=").*?(?=")
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  active_networking_ipv4_address:
+    name: Active Networking IPv4 Address
+    description: Active Networking IPv4 Address
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_commu_active_networking}'
+      selector:
+        type: regexp
+        expression: (?<=val6157_0=").*?(?=")
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  active_networking_ipv4_default_gateway:
+    name: Active Networking IPv4 Default Gateway
+    description: Active Networking IPv4 Default Gateway
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_commu_active_networking}'
+      selector:
+        type: regexp
+        expression: (?<=val6158_0=").*?(?=")
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  active_networking_ipv4_primary_dns_server:
+    name: Active Networking IPv4 Primary DNS Server
+    description: Active Networking IPv4 Primary DNS Server
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_commu_active_networking}'
+      selector:
+        type: regexp
+        expression: (?<=val6159_0=").*?(?=")
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  active_networking_ipv4_secondary_dns_server:
+    name: Active Networking IPv4 Secondary DNS Server
+    description: Active Networking IPv4 Secondary DNS Server
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_commu_active_networking}'
+      selector:
+        type: regexp
+        expression: (?<=val6160_0=").*?(?=")
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  active_networking_ipv6_default_gateway:
+    name: Active Networking IPv6 Default Gateway
+    description: Active Networking IPv6 Default Gateway
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_commu_active_networking}'
+      selector:
+        type: regexp
+        expression: (?<=val6166_0=").*?(?=")
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  active_networking_ipv6_global_address:
+    name: Active Networking IPv6 Global Address
+    description: Active Networking IPv6 Global Address
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_commu_active_networking}'
+      selector:
+        type: regexp
+        expression: (?<=val6163_0=").*?(?=")
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  active_networking_ipv6_link_local_address:
+    name: Active Networking IPv6 Link Local Address
+    description: Active Networking IPv6 Link Local Address
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_commu_active_networking}'
+      selector:
+        type: regexp
+        expression: (?<=val6165_0=").*?(?=")
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  active_networking_ipv6_primary_dns_server:
+    name: Active Networking IPv6 Primary DNS Server
+    description: Active Networking IPv6 Primary DNS Server
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_commu_active_networking}'
+      selector:
+        type: regexp
+        expression: (?<=val6167_0=").*?(?=")
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  active_networking_ipv6_secondary_dns_server:
+    name: Active Networking IPv6 Secondary DNS Server
+    description: Active Networking IPv6 Secondary DNS Server
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_commu_active_networking}'
+      selector:
+        type: regexp
+        expression: (?<=val6168_0=").*?(?=")
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  active_networking_ipv6_slaac_address:
+    name: Active Networking IPv6 SLAAC Address
+    description: Active Networking IPv6 SLAAC Address
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_commu_active_networking}'
+      selector:
+        type: regexp
+        expression: (?<=val6164_0=").*?(?=")
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  active_networking_last_dhcp_bootp_address:
+    name: Active Networking Last DHCP/BOOTP Address
+    description: Active Networking Last DHCP/BOOTP Address
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_commu_active_networking}'
+      selector:
+        type: regexp
+        expression: (?<=val6161_0=").*?(?=")
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  active_networking_last_dhcp_lease:
+    name: Active Networking Last DHCP Lease
+    description: Active Networking Last DHCP Lease
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_commu_active_networking}'
+      selector:
+        type: regexp
+        expression: (?<=val6162_0=").*?(?=")
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+        unit: sec
+  active_networking_last_dhcpv6_address:
+    name: Active Networking Last DHCPv6 Address
+    description: Active Networking Last DHCPv6 Address
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_commu_active_networking}'
+      selector:
+        type: regexp
+        expression: (?<=val6169_0=").*?(?=")
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  active_networking_last_dhcpv6_lease:
+    name: Active Networking Last DHCPv6 Lease
+    description: Active Networking Last DHCPv6 Lease
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_commu_active_networking}'
+      selector:
+        type: regexp
+        expression: (?<=val6170_0=").*?(?=")
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+        unit: sec
+  advanced_call_type:
+    name: Advanced Call Type
+    description: Advanced Call Type
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_commu_advanced}'
+      selector:
+        type: regexp
+        expression: (?<=val222_0=").*?(?=")
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  advanced_connection_status:
+    name: Advanced Connection Status
+    description: Advanced Connection Status
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_commu_advanced}'
+      selector:
+        type: regexp
+        expression: (?<=val221_0=").*?(?=")
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  advanced_date_and_time_of_last_call:
+    name: Advanced Date and Time (UTC) of Last Call
+    description: Advanced Date and Time (UTC) of Last Call
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_commu_advanced}'
+      selector:
+        type: regexp
+        expression: (?<=val173_0=").*?(?=")
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  advanced_device_state:
+    name: Advanced Device State
+    description: Advanced Device State
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_commu_advanced}'
+      selector:
+        type: regexp
+        expression: (?<=val220_0=").*?(?=")
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  advanced_heartbeat_status:
+    name: Advanced Heartbeat Status
+    description: Advanced Heartbeat Status
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_commu_advanced}'
+      selector:
+        type: regexp
+        expression: (?<=val223_0=").*?(?=")
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  advanced_scheduled_call_delay_time:
+    name: Advanced Scheduled Call Delay Time
+    description: Advanced Scheduled Call Delay Time
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_commu_advanced}'
+      selector:
+        type: regexp
+        expression: (?<=val176_0=").*?(?=")
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+        unit: min
+  battery_automatic_battery_test:
+    name: Battery Automatic Battery Test
+    description: Battery Automatic Battery Test
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_battery}'
+      selector:
+        type: regexp
+        expression: (?<=val5803_0=").*?(?=")
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  battery_cabinet_type:
+    name: Battery Cabinet Type
+    description: Battery Cabinet Type
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_battery}'
+      selector:
+        type: regexp
+        expression: (?<=val6183_0=").*?(?=")
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  battery_charge_compensating:
+    name: Battery Charge Compensating
+    description: Battery Charge Compensating
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_battery}'
+      selector:
+        type: regexp
+        expression: (?<=val6190_0=").*?(?=")
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  battery_charge_status:
+    name: Battery Charge Status
+    description: Battery Charge Status
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_battery}'
+      selector:
+        type: regexp
+        expression: (?<=val5799_0=").*?(?=")
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  battery_charger_state:
+    name: Battery Charger State
+    description: Battery Charger State
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_battery}'
+      selector:
+        type: regexp
+        expression: (?<=val6192_0=").*?(?=")
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  battery_dc_bus_nominal_voltage:
+    name: Battery DC Bus Nominal Voltage
+    description: Battery DC Bus Nominal Voltage
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_battery}'
+      selector:
+        type: regexp
+        expression: (?<=val6189_0=").*?(?=")
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+        unit: VDC
+  battery_dc_bus_voltage:
+    name: Battery DC Bus Voltage
+    description: Battery DC Bus Voltage
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_battery}'
+      selector:
+        type: regexp
+        expression: (?<=val4148_0=").*?(?=")
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+        unit: VDC
+  battery_discharge_time:
+    name: Battery Discharge Time
+    description: Battery Discharge Time
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_battery}'
+      selector:
+        type: regexp
+        expression: (?<=val4151_0=").*?(?=")
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+        unit: min
+  battery_discharging_alarm:
+    name: Battery Discharging Alarm
+    description: Battery Discharging Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  battery_float_voltage:
+    name: Battery Float Voltage
+    description: Battery Float Voltage
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_battery}'
+      selector:
+        type: regexp
+        expression: (?<=val5988_0=").*?(?=")
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+        unit: VDC
+  battery_low_alarm:
+    name: Battery Low Alarm
+    description: Battery Low Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  battery_nominal_battery_capacity:
+    name: Battery Nominal Battery Capacity
+    description: Battery Nominal Battery Capacity
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_battery}'
+      selector:
+        type: regexp
+        expression: (?<=val6195_0=").*?(?=")
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+        unit: min
+  battery_number_of_ebc_installed:
+    name: Battery Number of EBC Installed
+    description: Battery Number of EBC Installed
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_battery}'
+      selector:
+        type: regexp
+        expression: (?<=val5800_0=").*?(?=")
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  battery_over_voltage_alarm:
+    name: Battery Over Voltage Alarm
+    description: Battery Over Voltage Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  battery_percentage_charge:
+    name: Battery Percentage Charge
+    description: Battery Percentage Charge
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_battery}'
+      selector:
+        type: regexp
+        expression: (?<=val4153_0=").*?(?=")
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+        unit: '%'
+  battery_rating:
+    name: Battery Rating
+    description: Battery Rating
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_battery}'
+      selector:
+        type: regexp
+        expression: (?<=val4898_0=").*?(?=")
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+        unit: AH
+  battery_self_test_alarm:
+    name: Battery Self Test Alarm
+    description: Battery Self Test Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  battery_test_failed_alarm:
+    name: Battery Test Failed Alarm
+    description: Battery Test Failed Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  battery_test_result:
+    name: Battery Test Result
+    description: Battery Test Result
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_battery}'
+      selector:
+        type: regexp
+        expression: (?<=val6181_0=").*?(?=")
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  battery_time_remaining:
+    name: Battery Time Remaining
+    description: Battery Time Remaining
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_battery}'
+      selector:
+        type: regexp
+        expression: (?<=val4150_0=").*?(?=")
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+        unit: min
+  battery_under_voltage_alarm:
+    name: Battery Under Voltage Alarm
+    description: Battery Under Voltage Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  battery_ups_battery_status:
+    name: Battery UPS Battery Status
+    description: Battery UPS Battery Status
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_battery}'
+      selector:
+        type: regexp
+        expression: (?<=val4871_0=").*?(?=")
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  bypass_input_frequency:
+    name: Bypass Input Frequency
+    description: Bypass Input Frequency
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_bypass}'
+      selector:
+        type: regexp
+        expression: (?<=val4131_0=").*?(?=")
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+        unit: Hz
+  bypass_input_rms_current:
+    name: Bypass Input RMS Current
+    description: Bypass Input RMS Current
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_bypass}'
+      selector:
+        type: regexp
+        expression: (?<=val5570_0=").*?(?=")
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+        unit: AAC
+  bypass_input_voltage_rms_l1_n:
+    name: Bypass Input Voltage RMS L1-N
+    description: Bypass Input Voltage RMS L1-N
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_bypass}'
+      selector:
+        type: regexp
+        expression: (?<=val4128_0=").*?(?=")
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+        unit: VAC
+  bypass_nominal_voltage:
+    name: Bypass Nominal Voltage
+    description: Bypass Nominal Voltage
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_bypass}'
+      selector:
+        type: regexp
+        expression: (?<=val4259_0=").*?(?=")
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+        unit: VAC
+  bypass_not_available_alarm:
+    name: Bypass Not Available Alarm
+    description: Bypass Not Available Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  charger_failure_alarm:
+    name: Charger Failure Alarm
+    description: Charger Failure Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  configuration_system_model_number:
+    name: Configuration System Model Number
+    description: Configuration System Model Number
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_commu_config}'
+      selector:
+        type: regexp
+        expression: (?<=val4240_0=").*?(?=")
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  connectivity_test_result:
+    name: Connectivity Test Result
+    description: Connectivity Test Result
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_commu_connectivity}'
+      selector:
+        type: regexp
+        expression: (?<=val434_0=").*?(?=")
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  dc_to_dc_converter_fault_alarm:
+    name: DC to DC Converter Fault Alarm
+    description: DC to DC Converter Fault Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  diagnostics_communication_error_count:
+    name: Diagnostics Communication Error Count
+    description: Diagnostics Communication Error Count
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_commu_diagnostics}'
+      selector:
+        type: regexp
+        expression: (?<=val433_0=").*?(?=")
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  diagnostics_communication_status:
+    name: Diagnostics Communication status
+    description: Diagnostics Communication status
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_commu_diagnostics}'
+      selector:
+        type: regexp
+        expression: (?<=val432_0=").*?(?=")
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  diagnostics_last_communications_error:
+    name: Diagnostics Last communications error
+    description: Diagnostics Last communications error
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_commu_diagnostics}'
+      selector:
+        type: regexp
+        expression: (?<=val417_0=").*?(?=")
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  diagnostics_monitored_device_rule_file_information:
+    name: Diagnostics Monitored Device Rule File Information
+    description: Diagnostics Monitored Device Rule File Information
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_commu_diagnostics}'
+      selector:
+        type: regexp
+        expression: (?<=val435_0=").*?(?=")
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  diagnostics_remote_services_operating_status:
+    name: Diagnostics Remote Services Operating Status
+    description: Diagnostics Remote Services Operating Status
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_commu_diagnostics}'
+      selector:
+        type: regexp
+        expression: (?<=val436_0=").*?(?=")
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  duplicate_bacnet_mstp_node_id_alarm:
+    name: Duplicate BACnet MSTP Node ID Alarm
+    description: Duplicate BACnet MSTP Node ID Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  duplicate_velocity_protocol_mstp_node_id_alarm:
+    name: Duplicate Velocity Protocol MSTP Node ID Alarm
+    description: Duplicate Velocity Protocol MSTP Node ID Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  eco_mode_status:
+    name: ECO Mode Status
+    description: ECO Mode Status
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_eco_mode}'
+      selector:
+        type: regexp
+        expression: (?<=val6198_0=").*?(?=")
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  emergency_power_off_latched_alarm:
+    name: Emergency Power Off Latched Alarm
+    description: Emergency Power Off Latched Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  equipment_over_temperature_alarm:
+    name: Equipment Over Temperature Alarm
+    description: Equipment Over Temperature Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  firmware_update_alternate_firmware_date:
+    name: Firmware Update Alternate Firmware Date
+    description: Firmware Update Alternate Firmware Date
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_commu_firmware_update}'
+      selector:
+        type: regexp
+        expression: (?<=val262_0=").*?(?=")
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  firmware_update_alternate_firmware_label:
+    name: Firmware Update Alternate Firmware Label
+    description: Firmware Update Alternate Firmware Label
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_commu_firmware_update}'
+      selector:
+        type: regexp
+        expression: (?<=val261_0=").*?(?=")
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  firmware_update_alternate_firmware_version:
+    name: Firmware Update Alternate Firmware Version
+    description: Firmware Update Alternate Firmware Version
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_commu_firmware_update}'
+      selector:
+        type: regexp
+        expression: (?<=val260_0=").*?(?=")
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  firmware_update_current_firmware_date:
+    name: Firmware Update Current Firmware Date
+    description: Firmware Update Current Firmware Date
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_commu_firmware_update}'
+      selector:
+        type: regexp
+        expression: (?<=val259_0=").*?(?=")
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  firmware_update_current_firmware_label:
+    name: Firmware Update Current Firmware Label
+    description: Firmware Update Current Firmware Label
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_commu_firmware_update}'
+      selector:
+        type: regexp
+        expression: (?<=val258_0=").*?(?=")
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  firmware_update_current_firmware_version:
+    name: Firmware Update Current Firmware Version
+    description: Firmware Update Current Firmware Version
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_commu_firmware_update}'
+      selector:
+        type: regexp
+        expression: (?<=val257_0=").*?(?=")
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  gate_bridge_state:
+    name: Gate Bridge State
+    description: Gate Bridge State
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_commu_gate}'
+      selector:
+        type: regexp
+        expression: (?<=val217_0=").*?(?=")
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  gate_connection_result:
+    name: Gate Connection Result
+    description: Gate Connection Result
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_commu_gate}'
+      selector:
+        type: regexp
+        expression: (?<=val216_0=").*?(?=")
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  gate_error_count:
+    name: Gate Error Count
+    description: Gate Error Count
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_commu_gate}'
+      selector:
+        type: regexp
+        expression: (?<=val218_0=").*?(?=")
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  gate_http_transport_error_value:
+    name: Gate HTTP Transport Error Value
+    description: Gate HTTP Transport Error Value
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_commu_gate}'
+      selector:
+        type: regexp
+        expression: (?<=val214_0=").*?(?=")
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  gate_http_transport_reply_time:
+    name: Gate HTTP Transport Reply Time
+    description: Gate HTTP Transport Reply Time
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_commu_gate}'
+      selector:
+        type: regexp
+        expression: (?<=val215_0=").*?(?=")
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+        unit: ms
+  gate_http_transport_result:
+    name: Gate HTTP Transport Result
+    description: Gate HTTP Transport Result
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_commu_gate}'
+      selector:
+        type: regexp
+        expression: (?<=val213_0=").*?(?=")
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  input_frequency_deviation_alarm:
+    name: Input Frequency Deviation Alarm
+    description: Input Frequency Deviation Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  input_overvoltage_alarm:
+    name: Input Overvoltage Alarm
+    description: Input Overvoltage Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  input_system_input_frequency:
+    name: Input System Input Frequency
+    description: Input System Input Frequency
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_input}'
+      selector:
+        type: regexp
+        expression: (?<=val4105_0=").*?(?=")
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+        unit: Hz
+  input_system_input_max_voltage_l1_n:
+    name: Input System Input Max Voltage L1-N
+    description: Input System Input Max Voltage L1-N
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_input}'
+      selector:
+        type: regexp
+        expression: (?<=val4106_0=").*?(?=")
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+        unit: VAC
+  input_system_input_min_voltage_l1_n:
+    name: Input System Input Min Voltage L1-N
+    description: Input System Input Min Voltage L1-N
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_input}'
+      selector:
+        type: regexp
+        expression: (?<=val4107_0=").*?(?=")
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+        unit: VAC
+  input_system_input_nominal_current:
+    name: Input System Input Nominal Current
+    description: Input System Input Nominal Current
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_input}'
+      selector:
+        type: regexp
+        expression: (?<=val4104_0=").*?(?=")
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+        unit: AAC
+  input_system_input_nominal_frequency:
+    name: Input System Input Nominal Frequency
+    description: Input System Input Nominal Frequency
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_input}'
+      selector:
+        type: regexp
+        expression: (?<=val4103_0=").*?(?=")
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+        unit: Hz
+  input_system_input_nominal_voltage:
+    name: Input System Input Nominal Voltage
+    description: Input System Input Nominal Voltage
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_input}'
+      selector:
+        type: regexp
+        expression: (?<=val4102_0=").*?(?=")
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+        unit: VAC
+  input_system_input_rms_current_l1:
+    name: Input System Input RMS Current L1
+    description: Input System Input RMS Current L1
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_input}'
+      selector:
+        type: regexp
+        expression: (?<=val4113_0=").*?(?=")
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+        unit: AAC
+  input_system_input_rms_l1_n:
+    name: Input System Input RMS L1-N
+    description: Input System Input RMS L1-N
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_input}'
+      selector:
+        type: regexp
+        expression: (?<=val4096_0=").*?(?=")
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+        unit: VAC
+  input_undervoltage_alarm:
+    name: Input Undervoltage Alarm
+    description: Input Undervoltage Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  input_wiring_fault_alarm:
+    name: Input Wiring Fault Alarm
+    description: Input Wiring Fault Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  internal_network_number:
+    name: Internal Network Number
+    description: Internal Network Number
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_commu_managed_device}'
+      selector:
+        type: regexp
+        expression: (?<=val155_0=").*?(?=")
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  inverter_failure_alarm:
+    name: Inverter Failure Alarm
+    description: Inverter Failure Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  life_connection_media:
+    name: LIFE Connection Media
+    description: LIFE Connection Media
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_commu_life}'
+      selector:
+        type: regexp
+        expression: (?<=val170_0=").*?(?=")
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  life_device_identity_changed_alarm:
+    name: LIFE device identity changed Alarm
+    description: LIFE device identity changed Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  life_enable_date_and_time:
+    name: LIFE Enable Date and Time
+    description: LIFE Enable Date and Time
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_commu_life}'
+      selector:
+        type: regexp
+        expression: (?<=val171_0=").*?(?=")
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  life_operating_status:
+    name: LIFE (TM) Operating Status
+    description: LIFE (TM) Operating Status
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_commu_life}'
+      selector:
+        type: regexp
+        expression: (?<=val271_0=").*?(?=")
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  loss_of_redundancy_alarm:
+    name: Loss of Redundancy Alarm
+    description: Loss of Redundancy Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  maintenance_bypass_breaker_closed_alarm:
+    name: Maintenance Bypass Breaker Closed Alarm
+    description: Maintenance Bypass Breaker Closed Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  managed_device_connection_state:
+    name: Managed Device Connection State
+    description: Managed Device Connection State
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_commu_managed_device}'
+      selector:
+        type: regexp
+        expression: (?<=val199_0=").*?(?=")
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  managed_device_fdm_version:
+    name: Managed Device FDM Version
+    description: Managed Device FDM Version
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_commu_managed_device}'
+      selector:
+        type: regexp
+        expression: (?<=val200_0=").*?(?=")
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  managed_device_product_sequence_id:
+    name: Managed Device Product Sequence ID
+    description: Managed Device Product Sequence ID
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_commu_managed_device}'
+      selector:
+        type: regexp
+        expression: (?<=val201_0=").*?(?=")
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  messaging_test_authentication:
+    name: Messaging Test Authentication
+    description: Messaging Test Authentication
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_commu_messaging_test}'
+      selector:
+        type: regexp
+        expression: (?<=val231_0=").*?(?=")
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  messaging_test_connection:
+    name: Messaging Test Connection
+    description: Messaging Test Connection
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_commu_messaging_test}'
+      selector:
+        type: regexp
+        expression: (?<=val190_0=").*?(?=")
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  messaging_test_from_address:
+    name: Messaging Test From Address
+    description: Messaging Test From Address
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_commu_messaging_test}'
+      selector:
+        type: regexp
+        expression: (?<=val185_0=").*?(?=")
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  messaging_test_results:
+    name: Messaging Test Results
+    description: Messaging Test Results
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_commu_messaging_test}'
+      selector:
+        type: regexp
+        expression: (?<=val135_0=").*?(?=")
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  messaging_test_server_address:
+    name: Messaging Test Server Address
+    description: Messaging Test Server Address
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_commu_messaging_test}'
+      selector:
+        type: regexp
+        expression: (?<=val187_0=").*?(?=")
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  messaging_test_server_port:
+    name: Messaging Test Server Port
+    description: Messaging Test Server Port
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_commu_messaging_test}'
+      selector:
+        type: regexp
+        expression: (?<=val189_0=").*?(?=")
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  messaging_test_state:
+    name: Messaging Test State
+    description: Messaging Test State
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_commu_messaging_test}'
+      selector:
+        type: regexp
+        expression: (?<=val234_0=").*?(?=")
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  messaging_test_to_address:
+    name: Messaging Test To Address
+    description: Messaging Test To Address
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_commu_messaging_test}'
+      selector:
+        type: regexp
+        expression: (?<=val186_0=").*?(?=")
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  messaging_test_type:
+    name: Messaging Test Type
+    description: Messaging Test Type
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_commu_messaging_test}'
+      selector:
+        type: regexp
+        expression: (?<=val180_0=").*?(?=")
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  messaging_test_username:
+    name: Messaging Test Username
+    description: Messaging Test Username
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_commu_messaging_test}'
+      selector:
+        type: regexp
+        expression: (?<=val232_0=").*?(?=")
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  mstp_interface:
+    name: MSTP Interface
+    description: MSTP Interface
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_commu_managed_device}'
+      selector:
+        type: regexp
+        expression: (?<=val28_0=").*?(?=")
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  outlet_group_1_identifier:
+    name: Outlet Group 1 Identifier
+    description: Outlet Group 1 Identifier
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_outlet_group_1}'
+      selector:
+        type: regexp
+        expression: (?<=val4510_0=").*?(?=")
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  outlet_group_2_identifier:
+    name: Outlet Group 2 Identifier
+    description: Outlet Group 2 Identifier
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_outlet_group_2}'
+      selector:
+        type: regexp
+        expression: (?<=val4510_0=").*?(?=")
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  output_nominal_power_factor:
+    name: Output Nominal Power Factor
+    description: Output Nominal Power Factor
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_output}'
+      selector:
+        type: regexp
+        expression: (?<=val5812_0=").*?(?=")
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  output_output_apparent_power_rating:
+    name: Output Apparent Power Rating
+    description: Output Apparent Power Rating
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_output}'
+      selector:
+        type: regexp
+        expression: (?<=val4264_0=").*?(?=")
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+        unit: VA
+  output_overload_alarm:
+    name: Output Overload Alarm
+    description: Output Overload Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  output_overvoltage_alarm:
+    name: Output Overvoltage Alarm
+    description: Output Overvoltage Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  output_power_factor_correction:
+    name: Output Power Factor Correction
+    description: Output Power Factor Correction
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_output}'
+      selector:
+        type: regexp
+        expression: (?<=val6196_0=").*?(?=")
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  output_system_output_apparent_power:
+    name: Output System Output Apparent Power
+    description: Output System Output Apparent Power
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_output}'
+      selector:
+        type: regexp
+        expression: (?<=val4209_0=").*?(?=")
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+        unit: VA
+  output_system_output_frequency:
+    name: Output System Output Frequency
+    description: Output System Output Frequency
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_output}'
+      selector:
+        type: regexp
+        expression: (?<=val4207_0=").*?(?=")
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+        unit: Hz
+  output_system_output_max_voltage_l1_n:
+    name: Output System Output Max Voltage L1-N
+    description: Output System Output Max Voltage L1-N
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_output}'
+      selector:
+        type: regexp
+        expression: (?<=val6184_0=").*?(?=")
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+        unit: VAC
+  output_system_output_min_voltage_l1_n:
+    name: Output System Output Min Voltage L1-N
+    description: Output System Output Min Voltage L1-N
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_output}'
+      selector:
+        type: regexp
+        expression: (?<=val6185_0=").*?(?=")
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+        unit: VAC
+  output_system_output_nominal_frequency:
+    name: Output System Output Nominal Frequency
+    description: Output System Output Nominal Frequency
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_output}'
+      selector:
+        type: regexp
+        expression: (?<=val4261_0=").*?(?=")
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+        unit: Hz
+  output_system_output_nominal_voltage:
+    name: Output System Output Nominal Voltage
+    description: Output System Output Nominal Voltage
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_output}'
+      selector:
+        type: regexp
+        expression: (?<=val4260_0=").*?(?=")
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+        unit: VAC
+  output_system_output_pct_power:
+    name: Output System Output Pct Power
+    description: Output System Output Pct Power
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_output}'
+      selector:
+        type: regexp
+        expression: (?<=val5861_0=").*?(?=")
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+        unit: '%'
+  output_system_output_power:
+    name: Output System Output Power
+    description: Output System Output Power
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_output}'
+      selector:
+        type: regexp
+        expression: (?<=val4208_0=").*?(?=")
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+        unit: W
+  output_system_output_rms_current_l1:
+    name: Output System Output RMS Current L1
+    description: Output System Output RMS Current L1
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_output}'
+      selector:
+        type: regexp
+        expression: (?<=val4204_0=").*?(?=")
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+        unit: A AC
+  output_system_output_voltage_rms_l1_n:
+    name: Output System Output Voltage RMS L1-N
+    description: Output System Output Voltage RMS L1-N
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_output}'
+      selector:
+        type: regexp
+        expression: (?<=val4385_0=").*?(?=")
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+        unit: VAC
+  output_undervoltage_alarm:
+    name: Output Undervoltage Alarm
+    description: Output Undervoltage Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  output_ups_output_source:
+    name: Output UPS Output Source
+    description: Output UPS Output Source
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_output}'
+      selector:
+        type: regexp
+        expression: (?<=val4872_0=").*?(?=")
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  parallel_comm_warning_alarm:
+    name: Parallel Comm Warning Alarm
+    description: Parallel Comm Warning Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  rectifier_failure_alarm:
+    name: Rectifier Failure Alarm
+    description: Rectifier Failure Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  remote_authentication_configured_authentication_type:
+    name: Remote Authentication Configured Authentication Type
+    description: Remote Authentication Configured Authentication Type
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_commu_remote_auth}'
+      selector:
+        type: regexp
+        expression: (?<=val377_0=").*?(?=")
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  replace_battery_alarm:
+    name: Replace Battery Alarm
+    description: Replace Battery Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  rs_485_port_conflict_alarm:
+    name: RS 485 Port Conflict Alarm
+    description: RS 485 Port Conflict Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  shutdown_pending_alarm:
+    name: Shutdown Pending Alarm
+    description: Shutdown Pending Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  snmp_v3_engine_id:
+    name: SNMP v3 Engine ID
+    description: SNMP v3 Engine ID
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_commu_snmp}'
+      selector:
+        type: regexp
+        expression: (?<=val160_0=").*?(?=")
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  support_agent_app_firmware_label:
+    name: Support Agent App Firmware Label
+    description: Support Agent App Firmware Label
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_commu_support}'
+      selector:
+        type: regexp
+        expression: (?<=val98_0=").*?(?=")
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  support_agent_app_firmware_version:
+    name: Support Agent App Firmware Version
+    description: Support Agent App Firmware Version
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_commu_support}'
+      selector:
+        type: regexp
+        expression: (?<=val95_0=").*?(?=")
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  support_agent_boot_firmware_label:
+    name: Support Agent Boot Firmware Label
+    description: Support Agent Boot Firmware Label
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_commu_support}'
+      selector:
+        type: regexp
+        expression: (?<=val102_0=").*?(?=")
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  support_agent_boot_firmware_version:
+    name: Support Agent Boot Firmware Version
+    description: Support Agent Boot Firmware Version
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_commu_support}'
+      selector:
+        type: regexp
+        expression: (?<=val101_0=").*?(?=")
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  support_agent_date_and_time:
+    name: Support Agent Date and Time
+    description: Support Agent Date and Time
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_commu_support}'
+      selector:
+        type: regexp
+        expression: (?<=val16_0=").*?(?=")
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  support_agent_hardware_version:
+    name: Support Agent Hardware Version
+    description: Support Agent Hardware Version
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_commu_support}'
+      selector:
+        type: regexp
+        expression: (?<=val133_0=").*?(?=")
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  support_agent_manufacture_date:
+    name: Support Agent Manufacture Date
+    description: Support Agent Manufacture Date
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_commu_support}'
+      selector:
+        type: regexp
+        expression: (?<=val131_0=").*?(?=")
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  support_agent_model:
+    name: Support Agent Model
+    description: Support Agent Model
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_commu_support}'
+      selector:
+        type: regexp
+        expression: (?<=val94_0=").*?(?=")
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  support_agent_serial_number:
+    name: Support Agent Serial Number
+    description: Support Agent Serial Number
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_commu_support}'
+      selector:
+        type: regexp
+        expression: (?<=val130_0=").*?(?=")
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  support_device_assigned_label:
+    name: Support Device-Assigned Label
+    description: Support Device-Assigned Label
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_commu_support}'
+      selector:
+        type: regexp
+        expression: (?<=val238_0=").*?(?=")
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  support_fdm_version:
+    name: Support FDM Version
+    description: Support FDM Version
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_commu_support}'
+      selector:
+        type: regexp
+        expression: (?<=val194_0=").*?(?=")
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  support_gdd_version:
+    name: Support GDD Version
+    description: Support GDD Version
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_commu_support}'
+      selector:
+        type: regexp
+        expression: (?<=val47_0=").*?(?=")
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  support_product_sequence_id:
+    name: Support Product Sequence ID
+    description: Support Product Sequence ID
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_commu_support}'
+      selector:
+        type: regexp
+        expression: (?<=val161_0=").*?(?=")
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  system_bypass_inverter_input_config:
+    name: System Bypass/Inverter Input Config
+    description: System Bypass/Inverter Input Config
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_system}'
+      selector:
+        type: regexp
+        expression: (?<=val6224_0=").*?(?=")
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  system_commu_status:
+    name: System Communication Status
+    description: System Communication Status
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_commu_status}'
+      selector:
+        type: regexp
+        expression: (?<=val4123_0=").*?(?=")
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  system_dc_converter_status:
+    name: System DC Converter Status
+    description: System DC Converter Status
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_system}'
+      selector:
+        type: regexp
+        expression: (?<=val6003_0=").*?(?=")
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  system_fan_failure_alarm:
+    name: System Fan Failure Alarm
+    description: System Fan Failure Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  system_firmware_version:
+    name: System Firmware Version
+    description: System Firmware Version
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_system}'
+      selector:
+        type: regexp
+        expression: (?<=val4335_0=").*?(?=")
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  system_inlet_air_temperature:
+    name: System Inlet Air Temperature
+    description: System Inlet Air Temperature
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_system}'
+      selector:
+        type: regexp
+        expression: (?<=val4291_0=").*?(?=")
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+        unit: °F
+  system_input_black_out_count:
+    name: System Input Black Out Count
+    description: System Input Black Out Count
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_system}'
+      selector:
+        type: regexp
+        expression: (?<=val4120_0=").*?(?=")
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  system_input_brown_out_count:
+    name: System Input Brown Out Count
+    description: System Input Brown Out Count
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_system}'
+      selector:
+        type: regexp
+        expression: (?<=val4119_0=").*?(?=")
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  system_input_power_problem_alarm:
+    name: System Input Power Problem Alarm
+    description: System Input Power Problem Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  system_inverter_on_off_state:
+    name: System Inverter On/Off State
+    description: System Inverter On/Off State
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_system}'
+      selector:
+        type: regexp
+        expression: (?<=val4746_0=").*?(?=")
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  system_manufacture_date:
+    name: System Manufacture Date
+    description: System Manufacture Date
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_system}'
+      selector:
+        type: regexp
+        expression: (?<=val6215_0=").*?(?=")
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  system_manufacturer:
+    name: System Manufacturer
+    description: System Manufacturer
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_system}'
+      selector:
+        type: regexp
+        expression: (?<=val4333_0=").*?(?=")
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  system_model_number:
+    name: System Model Number
+    description: System Model Number
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_system}'
+      selector:
+        type: regexp
+        expression: (?<=val4240_0=").*?(?=")
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  system_output_off_alarm:
+    name: System Output Off Alarm
+    description: System Output Off Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  system_restart_required_alarm:
+    name: System Restart Required Alarm
+    description: System Restart Required Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  system_serial_number:
+    name: System Serial Number
+    description: System Serial Number
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_system}'
+      selector:
+        type: regexp
+        expression: (?<=val4244_0=").*?(?=")
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  system_shutdown_reason:
+    name: System Shutdown Reason
+    description: System Shutdown Reason
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_system}'
+      selector:
+        type: regexp
+        expression: (?<=val6197_0=").*?(?=")
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  system_status:
+    name: System Status
+    description: System Status
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_system}'
+      selector:
+        type: regexp
+        expression: (?<=val4123_0=").*?(?=")
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  system_ups_topology:
+    name: System UPS Topology
+    description: System UPS Topology
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_system}'
+      selector:
+        type: regexp
+        expression: (?<=val6199_0=").*?(?=")
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  unconfigured_system_name_alarm:
+    name: Unconfigured System Name Alarm
+    description: Unconfigured System Name Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  unspecified_general_event_alarm:
+    name: Unspecified General Event Alarm
+    description: Unspecified General Event Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  ups_output_on_bypass_alarm:
+    name: UPS Output on Bypass Alarm
+    description: UPS Output on Bypass Alarm
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+resources:
+  mappers:
+    alarm_severity:
+      keyType: String
+      valueType: String
+      map:
+        "0": Normal
+        "19": Active
+        "395": Warning
+  globals:
+    reg:
+      ip: ${registration.form.properties.ip}
+      port: ${registration.form.properties.port}
+      url: http://${registration.form.properties.ip}:${registration.form.properties.port}
+  http:
+    requests:
+      get_battery:
+        uri: ${resources.globals.reg.url}/httpGetSet/httpGet.htm
+        responseContentType: text/html
+        query:
+          devId: "0"
+          num5802: vel~pnt~5802~0~0
+          val4148_0: vel~pnt~4148~0~0
+          val4150_0: vel~pnt~4150~0~0
+          val4151_0: vel~pnt~4151~0~0
+          val4153_0: vel~pnt~4153~0~0
+          val4162: vel~pnt~4162~0
+          val4323: vel~pnt~4323~0
+          val4741: vel~pnt~4741~0
+          val4871_0: vel~pnt~4871~0~0
+          val4898_0: vel~pnt~4898~0~0
+          val5799_0: vel~pnt~5799~0~0
+          val5800_0: vel~pnt~5800~0~0
+          val5803_0: vel~pnt~5803~0~0
+          val5874: vel~pnt~5874~0
+          val5988_0: vel~pnt~5988~0~0
+          val6180: vel~pnt~6180~0
+          val6181_0: vel~pnt~6181~0~0
+          val6182: vel~pnt~6182~0
+          val6183_0: vel~pnt~6183~0~0
+          val6189_0: vel~pnt~6189~0~0
+          val6190_0: vel~pnt~6190~0~0
+          val6192_0: vel~pnt~6192~0~0
+          val6195_0: vel~pnt~6195~0~0
+        responses:
+          success:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: "200"
+          failure:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: ^(?!200)
+      get_bypass:
+        uri: ${resources.globals.reg.url}/httpGetSet/httpGet.htm
+        responseContentType: text/html
+        query:
+          devId: "0"
+          val4128_0: vel~pnt~4128~0~0
+          val4131_0: vel~pnt~4131~0~0
+          val4135: vel~pnt~4135~0
+          val4259_0: vel~pnt~4259~0~0
+          val5570_0: vel~pnt~5570~0~0
+        responses:
+          success:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: "200"
+          failure:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: ^(?!200)
+      get_commu_active_networking:
+        uri: ${resources.globals.reg.url}/httpGetSet/httpGet.htm
+        responseContentType: text/html
+        query:
+          devId: "4"
+          val6156_0: vel~pnt~6156~0~0
+          val6157_0: vel~pnt~6157~0~0
+          val6158_0: vel~pnt~6158~0~0
+          val6159_0: vel~pnt~6159~0~0
+          val6160_0: vel~pnt~6160~0~0
+          val6161_0: vel~pnt~6161~0~0
+          val6162_0: vel~pnt~6162~0~0
+          val6163_0: vel~pnt~6163~0~0
+          val6164_0: vel~pnt~6164~0~0
+          val6165_0: vel~pnt~6165~0~0
+          val6166_0: vel~pnt~6166~0~0
+          val6167_0: vel~pnt~6167~0~0
+          val6168_0: vel~pnt~6168~0~0
+          val6169_0: vel~pnt~6169~0~0
+          val6170_0: vel~pnt~6170~0~0
+        responses:
+          success:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: "200"
+          failure:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: ^(?!200)
+      get_commu_advanced:
+        uri: ${resources.globals.reg.url}/httpGetSet/httpGet.htm
+        responseContentType: text/html
+        query:
+          chkbx228: \{0\}vel~pnt~228~0
+          devId: "4"
+          val173_0: vel~pnt~173~0~0
+          val176_0: vel~pnt~176~0~0
+          val220_0: vel~pnt~220~0~0
+          val221_0: vel~pnt~221~0~0
+          val222_0: vel~pnt~222~0~0
+          val223_0: vel~pnt~223~0~0
+        responses:
+          success:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: "200"
+          failure:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: ^(?!200)
+      get_commu_config:
+        uri: ${resources.globals.reg.url}/httpGetSet/httpGet.htm
+        responseContentType: text/html
+        query:
+          devId: "4"
+          val4240_0: vel~pnt~4240~0~0
+        responses:
+          success:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: "200"
+          failure:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: ^(?!200)
+      get_commu_connectivity:
+        uri: ${resources.globals.reg.url}/httpGetSet/httpGet.htm
+        responseContentType: text/html
+        query:
+          chkbx426: \{0\}vel~pnt~426~0
+          chkbx427: \{0\}vel~pnt~427~0
+          devId: "4"
+          num420: vel~pnt~420~0~0
+          num429: vel~pnt~429~0~0
+          str419: vel~pnt~419~0
+          str428: vel~pnt~428~0
+          str430: vel~pnt~430~0
+          str431: vel~pnt~431~0
+          val434_0: vel~pnt~434~0~0
+        responses:
+          success:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: "200"
+          failure:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: ^(?!200)
+      get_commu_diagnostics:
+        uri: ${resources.globals.reg.url}/httpGetSet/httpGet.htm
+        responseContentType: text/html
+        query:
+          devId: "4"
+          val417_0: vel~pnt~417~0~0
+          val432_0: vel~pnt~432~0~0
+          val433_0: vel~pnt~433~0~0
+          val435_0: vel~pnt~435~0~0
+          val436_0: vel~pnt~436~0~0
+        responses:
+          success:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: "200"
+          failure:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: ^(?!200)
+      get_commu_firmware_update:
+        uri: ${resources.globals.reg.url}/httpGetSet/httpGet.htm
+        responseContentType: text/html
+        query:
+          devId: "4"
+          val257_0: vel~pnt~257~0~0
+          val258_0: vel~pnt~258~0~0
+          val259_0: vel~pnt~259~0~0
+          val260_0: vel~pnt~260~0~0
+          val261_0: vel~pnt~261~0~0
+          val262_0: vel~pnt~262~0~0
+        responses:
+          success:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: "200"
+          failure:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: ^(?!200)
+      get_commu_gate:
+        uri: ${resources.globals.reg.url}/httpGetSet/httpGet.htm
+        responseContentType: text/html
+        query:
+          chkbx206: \{0\}vel~pnt~206~0
+          chkbx207: \{0\}vel~pnt~207~0
+          devId: "4"
+          num174: vel~pnt~174~0~0
+          num209: vel~pnt~209~0~0
+          str208: vel~pnt~208~0
+          str210: vel~pnt~210~0
+          str211: vel~pnt~211~0
+          str212: vel~pnt~212~0
+          val213_0: vel~pnt~213~0~0
+          val214_0: vel~pnt~214~0~0
+          val215_0: vel~pnt~215~0~0
+          val216_0: vel~pnt~216~0~0
+          val217_0: vel~pnt~217~0~0
+          val218_0: vel~pnt~218~0~0
+        responses:
+          success:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: "200"
+          failure:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: ^(?!200)
+      get_commu_internal:
+        uri: ${resources.globals.reg.url}/httpGetSet/httpGet.htm
+        responseContentType: text/html
+        query:
+          devId: "4"
+          val155_0: vel~pnt~155~0~0
+        responses:
+          success:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: "200"
+          failure:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: ^(?!200)
+      get_commu_life:
+        uri: ${resources.globals.reg.url}/httpGetSet/httpGet.htm
+        responseContentType: text/html
+        query:
+          chkbx48: \{0\}vel~pnt~48~0
+          chkbx172: \{0\}vel~pnt~172~0
+          chkbx286: \{0\}vel~pnt~286~0
+          devId: "4"
+          num36: vel~pnt~36~0~0
+          num225: vel~pnt~225~0~0
+          num226: vel~pnt~226~0~0
+          num227: vel~pnt~227~0~0
+          str229: vel~pnt~229~0
+          str4244: vel~pnt~4244~0
+          str4247: vel~pnt~4247~0
+          str4248: vel~pnt~4248~0
+          val170_0: vel~pnt~170~0~0
+          val171_0: vel~pnt~171~0~0
+          val271_0: vel~pnt~271~0~0
+        responses:
+          success:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: "200"
+          failure:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: ^(?!200)
+      get_commu_managed_device:
+        uri: ${resources.globals.reg.url}/httpGetSet/httpGet.htm
+        responseContentType: text/html
+        query:
+          devId: "4"
+          enum205: \{0\}vel~pnt~205~0
+          num202: vel~pnt~202~0~0
+          str204: vel~pnt~204~0
+          val199_0: vel~pnt~199~0~0
+          val200_0: vel~pnt~200~0~0
+          val201_0: vel~pnt~201~0~0
+        responses:
+          success:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: "200"
+          failure:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: ^(?!200)
+      get_commu_messaging_test:
+        uri: ${resources.globals.reg.url}/httpGetSet/httpGet.htm
+        responseContentType: text/html
+        query:
+          devId: "4"
+          enum30: \{0\}vel~pnt~30~0
+          val135_0: vel~pnt~135~0~0
+          val180_0: vel~pnt~180~0~0
+          val185_0: vel~pnt~185~0~0
+          val186_0: vel~pnt~186~0~0
+          val187_0: vel~pnt~187~0~0
+          val189_0: vel~pnt~189~0~0
+          val190_0: vel~pnt~190~0~0
+          val231_0: vel~pnt~231~0~0
+          val232_0: vel~pnt~232~0~0
+          val234_0: vel~pnt~234~0~0
+        responses:
+          success:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: "200"
+          failure:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: ^(?!200)
+      get_commu_mstp:
+        uri: ${resources.globals.reg.url}/httpGetSet/httpGet.htm
+        responseContentType: text/html
+        query:
+          devId: "4"
+          enum124: \{0\}vel~pnt~124~0
+          enum125: \{0\}vel~pnt~125~0
+          num40: vel~pnt~40~0~0
+          num136: vel~pnt~136~0~0
+          val28_0: vel~pnt~28~0~0
+        responses:
+          success:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: "200"
+          failure:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: ^(?!200)
+      get_commu_remote_auth:
+        uri: ${resources.globals.reg.url}/httpGetSet/httpGet.htm
+        responseContentType: text/html
+        query:
+          devId: "4"
+          val377_0: vel~pnt~377~0~0
+        responses:
+          success:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: "200"
+          failure:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: ^(?!200)
+      get_commu_snmp:
+        uri: ${resources.globals.reg.url}/httpGetSet/httpGet.htm
+        responseContentType: text/html
+        query:
+          chkbx49: \{0\}vel~pnt~49~0
+          chkbx50: \{0\}vel~pnt~50~0
+          chkbx57: \{0\}vel~pnt~57~0
+          chkbx58: \{0\}vel~pnt~58~0
+          chkbx59: \{0\}vel~pnt~59~0
+          chkbx87: \{0\}vel~pnt~87~0
+          chkbx104: \{0\}vel~pnt~104~0
+          chkbx144: \{0\}vel~pnt~144~0
+          devId: "4"
+          enum137: \{0\}vel~pnt~137~0
+          enum147: \{0\}vel~pnt~147~0
+          str140: vel~pnt~140~0
+          val160_0: vel~pnt~160~0~0
+        responses:
+          success:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: "200"
+          failure:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: ^(?!200)
+      get_commu_status:
+        uri: ${resources.globals.reg.url}/httpGetSet/httpGet.htm
+        responseContentType: text/html
+        query:
+          devId: "4"
+          val122: vel~pnt~122~0
+          val142: vel~pnt~142~0
+          val235: vel~pnt~235~0
+          val249: vel~pnt~249~0
+          val251: vel~pnt~251~0
+          val283: vel~pnt~283~0
+          val4123_0: vel~pnt~4123~0~0
+        responses:
+          success:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: "200"
+          failure:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: ^(?!200)
+      get_commu_support:
+        uri: ${resources.globals.reg.url}/httpGetSet/httpGet.htm
+        responseContentType: text/html
+        query:
+          devId: "4"
+          val16_0: vel~pnt~16~0~0
+          val47_0: vel~pnt~47~0~0
+          val94_0: vel~pnt~94~0~0
+          val95_0: vel~pnt~95~0~0
+          val98_0: vel~pnt~98~0~0
+          val101_0: vel~pnt~101~0~0
+          val102_0: vel~pnt~102~0~0
+          val130_0: vel~pnt~130~0~0
+          val131_0: vel~pnt~131~0~0
+          val133_0: vel~pnt~133~0~0
+          val161_0: vel~pnt~161~0~0
+          val194_0: vel~pnt~194~0~0
+          val238_0: vel~pnt~238~0~0
+        responses:
+          success:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: "200"
+          failure:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: ^(?!200)
+      get_eco_mode:
+        uri: ${resources.globals.reg.url}/httpGetSet/httpGet.htm
+        responseContentType: text/html
+        query:
+          devId: "0"
+          enum5454: \{0\}vel~pnt~5454~0
+          val6198_0: vel~pnt~6198~0~0
+        responses:
+          success:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: "200"
+          failure:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: ^(?!200)
+      get_input:
+        uri: ${resources.globals.reg.url}/httpGetSet/httpGet.htm
+        responseContentType: text/html
+        query:
+          devId: "0"
+          val4096_0: vel~pnt~4096~0~0
+          val4102_0: vel~pnt~4102~0~0
+          val4103_0: vel~pnt~4103~0~0
+          val4104_0: vel~pnt~4104~0~0
+          val4105_0: vel~pnt~4105~0~0
+          val4106_0: vel~pnt~4106~0~0
+          val4107_0: vel~pnt~4107~0~0
+          val4113_0: vel~pnt~4113~0~0
+          val5568: vel~pnt~5568~0
+          val5569: vel~pnt~5569~0
+        responses:
+          success:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: "200"
+          failure:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: ^(?!200)
+      get_outlet_group_1:
+        uri: ${resources.globals.reg.url}/httpGetSet/httpGet.htm
+        responseContentType: text/html
+        query:
+          devId: "0"
+          enum4365: \{0\}vel~pnt~4365~0
+          str4359: vel~pnt~4359~0
+          val4510_0: vel~pnt~4510~0~0
+        responses:
+          success:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: "200"
+          failure:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: ^(?!200)
+      get_outlet_group_2:
+        uri: ${resources.globals.reg.url}/httpGetSet/httpGet.htm
+        responseContentType: text/html
+        query:
+          devId: "0"
+          enum4365: \{0\}vel~pnt~4365~1
+          str4359: vel~pnt~4359~1
+          val4510_0: vel~pnt~4510~1~0
+        responses:
+          success:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: "200"
+          failure:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: ^(?!200)
+      get_output:
+        uri: ${resources.globals.reg.url}/httpGetSet/httpGet.htm
+        responseContentType: text/html
+        query:
+          devId: "0"
+          val4204_0: vel~pnt~4204~0~0
+          val4207_0: vel~pnt~4207~0~0
+          val4208_0: vel~pnt~4208~0~0
+          val4209_0: vel~pnt~4209~0~0
+          val4215: vel~pnt~4215~0
+          val4260_0: vel~pnt~4260~0~0
+          val4261_0: vel~pnt~4261~0~0
+          val4264_0: vel~pnt~4264~0~0
+          val4385_0: vel~pnt~4385~0~0
+          val4872_0: vel~pnt~4872~0~0
+          val5178: vel~pnt~5178~0
+          val5179: vel~pnt~5179~0
+          val5806: vel~pnt~5806~0
+          val5812_0: vel~pnt~5812~0~0
+          val5861_0: vel~pnt~5861~0~0
+          val6184_0: vel~pnt~6184~0~0
+          val6185_0: vel~pnt~6185~0~0
+          val6196_0: vel~pnt~6196~0~0
+        responses:
+          success:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: "200"
+          failure:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: ^(?!200)
+      get_status:
+        uri: ${resources.globals.reg.url}/httpGetSet/httpGet.htm
+        responseContentType: text/html
+        query:
+          devId: "4"
+          val122: vel~pnt~122~0
+          val142: vel~pnt~142~0
+          val235: vel~pnt~235~0
+          val249: vel~pnt~249~0
+          val251: vel~pnt~251~0
+          val283: vel~pnt~283~0
+          val4123_0: vel~pnt~4123~0~0
+        responses:
+          success:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: "200"
+          failure:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: ^(?!200)
+      get_system:
+        uri: ${resources.globals.reg.url}/httpGetSet/httpGet.htm
+        responseContentType: text/html
+        query:
+          devId: "0"
+          enum5831: \{0\}vel~pnt~5831~0
+          enum6188: \{0\}vel~pnt~6188~0
+          num4710: vel~pnt~4710~0~0
+          str4247: vel~pnt~4247~0
+          str4248: vel~pnt~4248~0
+          str4329: vel~pnt~4329~0
+          val4119_0: vel~pnt~4119~0~0
+          val4120_0: vel~pnt~4120~0~0
+          val4122: vel~pnt~4122~0
+          val4123_0: vel~pnt~4123~0~0
+          val4168: vel~pnt~4168~0
+          val4229: vel~pnt~4229~0
+          val4233: vel~pnt~4233~0
+          val4240_0: vel~pnt~4240~0~0
+          val4244_0: vel~pnt~4244~0~0
+          val4291_0: vel~pnt~4291~0~0
+          val4295: vel~pnt~4295~0
+          val4298: vel~pnt~4298~0
+          val4310: vel~pnt~4310~0
+          val4311: vel~pnt~4311~0
+          val4333_0: vel~pnt~4333~0~0
+          val4335_0: vel~pnt~4335~0~0
+          val4746_0: vel~pnt~4746~0~0
+          val4823: vel~pnt~4823~0
+          val4825: vel~pnt~4825~0
+          val5588: vel~pnt~5588~0
+          val5976: vel~pnt~5976~0
+          val6003_0: vel~pnt~6003~0~0
+          val6186: vel~pnt~6186~0
+          val6187: vel~pnt~6187~0
+          val6197_0: vel~pnt~6197~0~0
+          val6199_0: vel~pnt~6199~0~0
+          val6215_0: vel~pnt~6215~0~0
+          val6224_0: vel~pnt~6224~0~0
+          val6254: vel~pnt~6254~0
+          val6453: vel~pnt~6453~0
+          val6454: vel~pnt~6454~0
+        responses:
+          success:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: "200"
+          failure:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: ^(?!200)
