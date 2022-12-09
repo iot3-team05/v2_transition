@@ -1,0 +1,596 @@
+iot3: 2.0.0
+info:
+  name: Voltserver
+  oem: Voltserver
+  model: VS-4401, VS-3831, VS-5926
+  versions:
+    - "1.3"
+  author: deep.desai@qeleo.com
+  stage: alpha
+  revision: 3
+  labels:
+    - voltserver
+    - auto upgraded to v2
+  created: "2022-05-03"
+  updated: "2022-12-09"
+  documentation:
+    description: Voltserver VS-5926
+registration:
+  fingerprint:
+    - ip
+    - port
+  form:
+    properties:
+      ip:
+        key: ip
+        placeholder: IP Address
+        required: true
+        title: IP
+        type: string
+      port:
+        inputType: number
+        key: port
+        maximum: 65535
+        minimum: 1
+        placeholder: Port
+        required: true
+        title: Port
+        type: number
+    required:
+      - ip
+      - port
+engines:
+  tunnel:
+    ssh:
+      supported: false
+    http:
+      supported: true
+  upgraded-http:
+    schedule: '@always'
+    type: HTTP
+    options:
+      tls:
+        minVersion: "1.0"
+topology:
+  rootType: system
+  nodes: true
+  discovery:
+    dataEngine: '%{engines.upgraded-http}'
+    dataSource: '%{resources.http.requests.get_system}'
+    type: http
+    expression: {}
+    selectors:
+      nodes:
+        dataEngine: '%{engines.upgraded-http}'
+        selector:
+          type: regexp
+          expression: /.*/g
+    flatten:
+      type:
+        transform: ${topology.discovery.selectors.nodes}
+        filters:
+          1: regexpReplace /((?<=["]mgt["][:][{]).*?(?=[}]))/ => ''
+          2: |
+            switch
+            "%{1}" ~= "serialNo" : "volt"
+            "%{1}" ~= "serialNumber" : "power"
+            default: ""
+      topology:
+        transform: ${topology.discovery.selectors.nodes}
+        filters:
+          1: regexpReplace /((?<=["]mgt["][:][{]).*?(?=[}]))/ => ''
+          2: |
+            switch
+            "%{1}" ~= "serialNo" : "volt"
+            "%{1}" ~= "serialNumber" : "power"
+            default: ""
+          3: use %{1}
+          4: regexpExtract /((?<=serialNo["][:]["]).\d+)/ => $1
+          5: use %{1}
+          6: regexpExtract /((?<=serialNumber["][:]["]).\d+)/ => $1
+          7: use %{1}
+          8: |
+            switch
+            "%{2}" == "volt" : "'system' -> 'volt [%{4}]'"
+            "%{2}" == "power" : "'system' -> 'power [%{6}]'"
+            default: "system"
+      version:
+        transform: "1.0"
+      serial_no:
+        transform: ${topology.discovery.selectors.nodes}
+        filters:
+          1: regexpReplace /((?<=["]mgt["][:][{]).*?(?=[}]))/ => ''
+          2: regexpExtract /((?<=serialNo["][:]["]).\d+)/ => $1
+      serial_no_1:
+        transform: ${topology.discovery.selectors.nodes}
+        filters:
+          1: regexpReplace /((?<=["]mgt["][:][{]).*?(?=[}]))/ => ''
+          2: regexpExtract /((?<=serialNumber["][:]["]).\d+)/ => $1
+types:
+  power:
+    name: Power
+    version: '[1.0,)'
+    reference: power
+    attributes:
+      - pwr_mods_current
+      - pwr_mods_temp
+      - pwr_mods_sts
+      - pwr_mods_alm
+      - pwr_mods_voltage_out
+      - pwr_mods_voltage_in
+    alarms:
+      pwr_mods_alm:
+        attributes:
+          - pwr_mods_alm
+        mapper: '%{resources.mappers.alarms}'
+    price:
+      value: 0
+      unit: USD
+    energy:
+      value: 0
+      unit: W
+  system:
+    name: System
+    version: '[1.0,)'
+    reference: system
+    attributes:
+      - sys_sts_current
+      - sys_sts_mgt_temp
+      - sys_sts_voltage
+      - sys_sts_backplane
+      - sys_sts_mgt_sts
+      - sys_sts_mgt_alm
+      - hw_info_mgt_serial_no
+      - hw_info_mgt_ver_fw
+      - hw_info_chassis_id
+      - hw_info_mgt_ver_hw
+      - hw_info_mgt_ver_gateway
+      - hw_info_mgt_mac
+    price:
+      value: 0
+      unit: USD
+    energy:
+      value: 0
+      unit: W
+  volt:
+    name: Volt
+    version: '[1.0,)'
+    reference: volt
+    attributes:
+      - transmitter_cards_1_temp
+      - transmitter_cards_1_version_fw
+      - transmitter_cards_1_version_hw
+      - transmitter_cards_1_voltage
+      - transmitter_cards_1_current
+      - transmitter_cards_1_mode
+    alarms:
+      transmitter_cards_1_mode:
+        attributes:
+          - transmitter_cards_1_mode
+        mapper: '%{resources.mappers.alarms}'
+    price:
+      value: 0
+      unit: USD
+    energy:
+      value: 0
+      unit: W
+attributes:
+  hw_info_chassis_id:
+    name: HW INFO CHASSIS ID
+    description: HW INFO CHASSIS ID
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_system}'
+      selector:
+        type: gjson
+        expression: mgt.chassisID
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  hw_info_mgt_mac:
+    name: HW INFO MGT MAC
+    description: HW INFO MGT MAC
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_system}'
+      selector:
+        type: gjson
+        expression: macAddress
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  hw_info_mgt_serial_no:
+    name: HW INFO MGT SERIAL NO
+    description: HW INFO MGT SERIAL NO
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_system}'
+      selector:
+        type: gjson
+        expression: mgt.serialNo
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  hw_info_mgt_ver_fw:
+    name: HW INFO MGT VER FW
+    description: HW INFO MGT VER FW
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_system}'
+      selector:
+        type: gjson
+        expression: mgt.fwVer
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  hw_info_mgt_ver_gateway:
+    name: HW INFO MGT VER GATEWAY
+    description: HW INFO MGT VER GATEWAY
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_system}'
+      selector:
+        type: gjson
+        expression: mgt.gatewayVer
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  hw_info_mgt_ver_hw:
+    name: HW INFO MGT VER HW
+    description: HW INFO MGT VER HW
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_system}'
+      selector:
+        type: gjson
+        expression: mgt.hwVer
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  pwr_mods_alm:
+    name: PWR MODS ALARM
+    description: PWR MODS ALARM
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  pwr_mods_current:
+    name: PWR MODS CURRENT
+    description: PWR MODS CURRENT
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_system}'
+      selector:
+        type: gjson
+        expression: powerModules.#(serialNumber==${topology.discovery.flatten.serial_no_1}).outCurrent
+      extractor:
+        filters:
+          1: div 1000
+    properties:
+      readWrite: R
+      read:
+        type: String
+        unit: A
+  pwr_mods_sts:
+    name: PWR MODS STS
+    description: PWR MODS STS
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_system}'
+      selector:
+        type: gjson
+        expression: powerModules.#(serialNumber==${topology.discovery.flatten.serial_no_1}).status
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  pwr_mods_temp:
+    name: PWR MODS TEMP
+    description: PWR MODS TEMP
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_system}'
+      selector:
+        type: gjson
+        expression: powerModules.#(serialNumber==${topology.discovery.flatten.serial_no_1}).temp
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+        unit: C
+  pwr_mods_voltage_in:
+    name: PWR MODS VOLTAGE IN
+    description: PWR MODS VOLTAGE IN
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_system}'
+      selector:
+        type: gjson
+        expression: powerModules.#(serialNumber==${topology.discovery.flatten.serial_no_1}).inVolt
+      extractor:
+        filters:
+          1: div 1000
+    properties:
+      readWrite: R
+      read:
+        type: String
+        unit: V
+  pwr_mods_voltage_out:
+    name: PWR MODS VOLTAGE OUT
+    description: PWR MODS VOLTAGE OUT
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_system}'
+      selector:
+        type: gjson
+        expression: powerModules.#(serialNumber==${topology.discovery.flatten.serial_no_1}).outVolt
+      extractor:
+        filters:
+          1: div 1000
+    properties:
+      readWrite: R
+      read:
+        type: String
+        unit: V
+  sys_sts_backplane:
+    name: SYS STS BACKPLANE
+    description: SYS STS BACKPLANE
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_system}'
+      selector:
+        type: gjson
+        expression: systemData.tempBpl
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+        unit: C
+  sys_sts_current:
+    name: SYS STS CURRENT
+    description: SYS STS CURRENT
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_system}'
+      selector:
+        type: gjson
+        expression: systemData.totCurr
+      extractor:
+        filters:
+          1: div 1000
+    properties:
+      readWrite: R
+      read:
+        type: String
+        unit: A
+  sys_sts_mgt_alm:
+    name: SYS STS MGT ALM
+    description: SYS STS MGT ALM
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      selector:
+        type: snmpTrap
+        expression: ''
+      extractor:
+        mapper: '%{resources.mappers.value}'
+    properties:
+      readWrite: R
+      read:
+        type: String
+  sys_sts_mgt_sts:
+    name: SYS STS MGT STS
+    description: SYS STS MGT STS
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_system}'
+      selector:
+        type: gjson
+        expression: systemData.majorStatus
+      extractor:
+        mapper: '%{resources.mappers.value}'
+    properties:
+      readWrite: R
+      read:
+        type: String
+  sys_sts_mgt_temp:
+    name: SYS STS MGT TEMP
+    description: SYS STS MGT TEMP
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_system}'
+      selector:
+        type: gjson
+        expression: systemData.tempMgt
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+        unit: C
+  sys_sts_voltage:
+    name: SYS STS VOLTAGE
+    description: SYS STS VOLTAGE
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_system}'
+      selector:
+        type: gjson
+        expression: systemData.backVolt
+      extractor:
+        filters:
+          1: div 1000
+    properties:
+      readWrite: R
+      read:
+        type: String
+        unit: V
+  transmitter_cards_1_current:
+    name: TRANSMITTER CARDS 1 CURRENT
+    description: TRANSMITTER CARDS 1 CURRENT
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_system}'
+      selector:
+        type: gjson
+        expression: txBoards.#(serialNo==${topology.discovery.flatten.serial_no}).current
+      extractor:
+        filters:
+          1: div 1000
+    properties:
+      readWrite: R
+      read:
+        type: String
+        unit: A
+  transmitter_cards_1_mode:
+    name: TRANSMITTER CARDS 1 MODE
+    description: TRANSMITTER CARDS 1 MODE
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_system}'
+      selector:
+        type: gjson
+        expression: txBoards.#(serialNo==${topology.discovery.flatten.serial_no}).meterHigh
+      extractor:
+        mapper: '%{resources.mappers.value}'
+    properties:
+      readWrite: R
+      read:
+        type: String
+  transmitter_cards_1_temp:
+    name: TRANSMITTER CARDS 1 TEMP
+    description: TRANSMITTER CARDS 1 TEMP
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_system}'
+      selector:
+        type: gjson
+        expression: txBoards.#(serialNo==${topology.discovery.flatten.serial_no}).temp
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+        unit: C
+  transmitter_cards_1_version_fw:
+    name: TRANSMITTER CARDS 1 VERSION FW
+    description: TRANSMITTER CARDS 1 VERSION FW
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_system}'
+      selector:
+        type: gjson
+        expression: txBoards.#(serialNo==${topology.discovery.flatten.serial_no}).fwVer
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  transmitter_cards_1_version_hw:
+    name: TRANSMITTER CARDS 1 VERSION HW
+    description: TRANSMITTER CARDS 1 VERSION HW
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_system}'
+      selector:
+        type: gjson
+        expression: txBoards.#(serialNo==${topology.discovery.flatten.serial_no}).hwVer
+      extractor: {}
+    properties:
+      readWrite: R
+      read:
+        type: String
+  transmitter_cards_1_voltage:
+    name: TRANSMITTER CARDS 1 VOLTAGE
+    description: TRANSMITTER CARDS 1 VOLTAGE
+    conditions: {}
+    attributes:
+      dataEngine: '%{engines.upgraded-http}'
+      dataSource: '%{resources.http.requests.get_system}'
+      selector:
+        type: gjson
+        expression: txBoards.#(serialNo==${topology.discovery.flatten.serial_no}).outVolt
+      extractor:
+        filters:
+          1: div 1000
+    properties:
+      readWrite: R
+      read:
+        type: String
+        unit: V
+resources:
+  mappers:
+    alarms:
+      keyType: String
+      valueType: String
+      map:
+        "0": Normal
+        "1": Critical
+    value:
+      keyType: String
+      valueType: String
+      map:
+        "0": OK
+        "1": NOT OK
+  globals:
+    reg:
+      ip: ${registration.form.properties.ip}
+      port: ${registration.form.properties.port}
+      url: http://${registration.form.properties.ip}:${registration.form.properties.port}
+  http:
+    requests:
+      get_system:
+        uri: ${resources.globals.reg.url}/getdata.json
+        responseContentType: application/json
+        responses:
+          success:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: "200"
+          failure:
+            - dataSource: '%{response.header}'
+              expression: Status-Code
+              match: ^(?!200)
